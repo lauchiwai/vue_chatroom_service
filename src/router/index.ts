@@ -1,8 +1,13 @@
 import type { RouteLocationNormalized } from 'vue-router'
+
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/authStore'
+import { message } from 'ant-design-vue'
+
 import login from '@/views/login/index.vue'
+import chatroom from '@/views/chatroom/index.vue'
 import NotFound from '@/views/notFound/index.vue'
+
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -11,6 +16,12 @@ const router = createRouter({
             name: 'login',
             component: () => login, // lazy loading
             meta: { layout: 'fullScreen' }
+        },
+        {
+            path: '/chatroom',
+            name: 'chatroom',
+            component: () => chatroom,
+            meta: { layout: 'main', requiresAuth: true }
         },
         {
             path: '/:pathMatch(.*)*',
