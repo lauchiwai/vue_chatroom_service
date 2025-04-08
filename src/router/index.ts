@@ -1,6 +1,8 @@
+import type { RouteLocationNormalized } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/authStore'
 import login from '@/views/login/index.vue'
+import NotFound from '@/views/notFound/index.vue'
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -10,6 +12,12 @@ const router = createRouter({
             component: () => login, // lazy loading
             meta: { layout: 'fullScreen' }
         },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'NotFound',
+            component: () => NotFound,
+            meta: { layout: 'fullScreen', requiresAuth: true }
+        }
     ]
 })
 
@@ -31,4 +39,5 @@ router.beforeEach((to: RouteLocationNormalized) => {
         return true;
     }
 })
+
 export default router
