@@ -22,7 +22,7 @@
         </div>
 
         <div class="setting-bnt-container">
-            <settingBnt :collapsed="collapsed"/>
+            <!-- <settingBnt :collapsed="collapsed"/> -->
         </div>
     </a-layout-sider>
 </template>

@@ -32,11 +32,11 @@ export const useChatStore = defineStore('chat', {
                         await this.fetchChatSessionList();
                     }
                 } else {
-                    message.error("錯誤訊息: " + response.message)
+                    message.error("errer message: " + response.message)
                 }
             } catch (error) {
                 console.error("getChatSessionList error : ", error)
-                message.error('發生錯誤，請稍後刷新頁面')
+                message.error('get data error please try again')
             }
         },
         async fetchChatHistory(sessionId: string) {
@@ -47,11 +47,11 @@ export const useChatStore = defineStore('chat', {
                 if (response.isSuccess) {
                     this.messages = response.data.response
                 } else {
-                    message.error("錯誤訊息: " + response.message)
+                    message.error("errer message: " + response.message)
                 }
             } catch (error) {
                 console.error("getChatSessionList error : ", error)
-                message.error('發生錯誤，請稍後刷新頁面')
+                message.error('get data error please try again')
             }
         },
         async createChatSession() {
@@ -63,13 +63,13 @@ export const useChatStore = defineStore('chat', {
                     this.chatSessionList.unshift(response.data)
                     this.setCurrentSession(response.data.sessionId.toString())
                     await this.fetchChatHistory(response.data.sessionId.toString())
-                    message.success('会话创建成功')
+                    message.success('session create success')
                 } else {
-                    message.error("錯誤訊息: " + response.message)
+                    message.error("errer message: " + response.message)
                 }
             } catch (error) {
                 console.error("createChatSession error : ", error)
-                message.error('發生錯誤，請稍後再試')
+                message.error('create errer, please try again')
             }
         },
         async deleteChatData(sessionId: string) {
@@ -78,15 +78,18 @@ export const useChatStore = defineStore('chat', {
                     await ChatService.deleteChatData(sessionId)
 
                 if (response.isSuccess) {
-                    message.success('刪除成功')
-                    await this.fetchChatSessionList()
-                    await this.fetchChatHistory(this.currentSession[0])
+                    message.success('delete success')
+                    this.chatSessionList = this.chatSessionList.filter(a => a.sessionId != sessionId);
+                    if (this.chatSessionList.length == 0) {
+                        await this.fetchChatSessionList()
+                        await this.fetchChatHistory(this.currentSession[0])
+                    }
                 } else {
-                    message.error("錯誤訊息: " + response.message)
+                    message.error("errer message: " + response.message)
                 }
             } catch (error) {
                 console.error("createChatSession error : ", error)
-                message.error('發生錯誤，請稍後再試')
+                message.error('delete errer, please try again')
             }
         },
         async chat(chatRequest: ChatRequest) {
@@ -97,11 +100,11 @@ export const useChatStore = defineStore('chat', {
                     this.pushAssistantAnswer(response.data);
                     this.inputText = '';
                 } else {
-                    message.error("錯誤訊息: " + response.message);
+                    message.error("errer message: " + response.message);
                 }
             } catch (error) {
                 console.error("chat error : ", error)
-                message.error('發生錯誤，請稍後再試')
+                message.error('chat request errer, please try again')
             }
         },
         setCurrentSession(sessionId: string) {
@@ -153,7 +156,7 @@ export const useChatStore = defineStore('chat', {
                     message.error(response.message)
                 }
             } catch (error) {
-                message.error('请求发送失败')
+                message.error('chat request errer')
             } finally {
                 this.inputText = '';
                 this.streamingController = null

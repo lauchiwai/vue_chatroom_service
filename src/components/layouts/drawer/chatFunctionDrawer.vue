@@ -10,11 +10,11 @@
         </div>
 
         <div class="menu-container">
-            <chatHistoryMenu />
+            <chatHistoryMenu  @menu-item-clicked="open = false"/>
         </div>
 
         <div class="setting-bnt-container">
-            <settingBnt :collapsed="false"/>
+            <!-- <settingBnt :collapsed="false"/> -->
         </div>
     </a-drawer>
 </template>

@@ -5,12 +5,13 @@
             mode="inline"
             :selected-keys="currentSession"
             @select="handleSelect"
+            @click="handelClick"
         >   
             <a-menu-item :key="chatSession.sessionId.toString()" v-for="chatSession in chatSessionList">
                 <div class="menu-item-container">
                     <span>{{ chatSession.sessionName }}</span>
                     <div class="meun-item-bnt-wrapper">
-                        <button @click="showDeleteModal(chatSession.sessionId)"> 
+                        <button @click.stop="showDeleteModal(chatSession.sessionId)"> 
                             <a-tooltip>
                                 <template #title>刪除</template>
                                 <DeleteOutlined /> 
@@ -35,6 +36,7 @@ import { storeToRefs } from 'pinia'
 
 import DeleteModal from '@/components/common/DeleteModal.vue'
 
+const emit = defineEmits(['menu-item-clicked'])
 onMounted(async () => {
     await chatStore.fetchChatSessionList()
 })
@@ -46,6 +48,10 @@ const { chatSessionList, currentSession } = storeToRefs(chatStore)
 
 const handleSelect = ({ key }: { key: string }) => {
     chatStore.setCurrentSession(key)
+}
+
+const handelClick = () =>{
+    emit('menu-item-clicked')
 }
 
 const showDeleteModal = (id: string) => {
