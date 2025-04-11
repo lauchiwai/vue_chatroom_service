@@ -4,29 +4,25 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/authStore'
 import { message } from 'ant-design-vue'
 
-import login from '@/views/login/index.vue'
-import chatroom from '@/views/chatroom/index.vue'
-import NotFound from '@/views/notFound/index.vue'
-
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
             path: '/login',
             name: 'login',
-            component: () => login, // lazy loading
+            component: () => import('@/views/login/index.vue'),
             meta: { layout: 'fullScreen' }
         },
         {
             path: '/chatroom',
             name: 'chatroom',
-            component: () => chatroom,
+            component: () => import('@/views/chatroom/index.vue'),
             meta: { layout: 'main', requiresAuth: true }
         },
         {
             path: '/:pathMatch(.*)*',
             name: 'NotFound',
-            component: () => NotFound,
+            component: () => import('@/views/notFound/index.vue'),
             meta: { layout: 'fullScreen', requiresAuth: true }
         }
     ]
