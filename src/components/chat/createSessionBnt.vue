@@ -20,6 +20,8 @@ import { PlusSquareOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { useChatStore } from '@/stores/chatStore'
 import { ref } from 'vue'
 
+const emit = defineEmits(['drawer-close'])
+
 const chatStore = useChatStore()
 const isLoading = ref(false)
 const collapsed = defineModel('collapsed', {
@@ -30,11 +32,11 @@ const collapsed = defineModel('collapsed', {
 const createSession = async () => {
     try{
         isLoading.value = true
-        chatStore.createChatSession()
+        await chatStore.createChatSession()
+        emit('drawer-close')
     } finally {
         isLoading.value = false
     }
-    
 }
 </script>
 

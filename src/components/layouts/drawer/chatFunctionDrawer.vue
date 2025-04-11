@@ -6,11 +6,11 @@
         :body-style="{ padding: '10px 40px' }"
     >
         <div class="create-bnt-container">
-           <createSessionBnt :collapsed="false"/>
+           <createSessionBnt :collapsed="false" @drawer-close="open = false"/>
         </div>
 
         <div class="menu-container">
-            <chatHistoryMenu  @menu-item-clicked="open = false"/>
+            <chatHistoryMenu  @drawer-close="open = false"/>
         </div>
 
         <div class="setting-bnt-container">

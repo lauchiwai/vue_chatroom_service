@@ -36,7 +36,7 @@ import { storeToRefs } from 'pinia'
 
 import DeleteModal from '@/components/common/DeleteModal.vue'
 
-const emit = defineEmits(['menu-item-clicked'])
+const emit = defineEmits(['drawer-close'])
 onMounted(async () => {
     await chatStore.fetchChatSessionList()
 })
@@ -51,7 +51,7 @@ const handleSelect = ({ key }: { key: string }) => {
 }
 
 const handelClick = () =>{
-    emit('menu-item-clicked')
+    emit('drawer-close')
 }
 
 const showDeleteModal = (id: string) => {

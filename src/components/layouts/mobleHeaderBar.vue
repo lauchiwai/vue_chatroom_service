@@ -34,7 +34,8 @@
 import { 
     UserOutlined, 
     DownOutlined, 
-    LogoutOutlined 
+    LogoutOutlined,
+    UnorderedListOutlined
 } from '@ant-design/icons-vue'
 import { useUserStore } from '@/stores/authStore'
 import { ref, computed } from 'vue'
