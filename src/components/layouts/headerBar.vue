@@ -6,18 +6,32 @@
             @click="handleToggle"
         />
         <div class="header-right">
-            <a-button type="text" >
-                <template #icon><UserOutlined /></template>
-                <span>
-                    {{ userName }}
-                </span>
-            </a-button>
+            <a-dropdown>
+                <template #overlay>
+                    <a-menu>
+                        <a-menu-item key="logout" @click="handleLogout">
+                            <LogoutOutlined /> 登出
+                        </a-menu-item>
+                    </a-menu>
+                </template>
+                <div class="user-wrapper">
+                    <UserOutlined />
+                    <span> {{ userName }} </span>
+                    <DownOutlined style="font-size: 10px; margin-left: 4px;" />
+                </div>
+            </a-dropdown>
         </div>
     </a-layout-header>
 </template>
 
 <script setup lang="ts">
-import { MenuUnfoldOutlined, MenuFoldOutlined, UserOutlined } from '@ant-design/icons-vue'
+import { 
+    MenuUnfoldOutlined, 
+    MenuFoldOutlined, 
+    UserOutlined, 
+    DownOutlined, 
+    LogoutOutlined 
+} from '@ant-design/icons-vue'
 import { useUserStore } from '@/stores/authStore'
 import { ref, computed } from 'vue'
 
@@ -30,6 +44,11 @@ const collapsed = defineModel('collapsed', {
 
 const handleToggle = () => {
     collapsed.value = !collapsed.value
+}
+
+const handleLogout = () =>{
+    userStore.logout()
+    window.location.href = '/login'
 }
 </script>
 
@@ -52,9 +71,11 @@ const handleToggle = () => {
         }
     }
 
-    .header-right {
+    .user-wrapper{  
         display: flex;
-        gap: 16px;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
     }
 }
 </style>

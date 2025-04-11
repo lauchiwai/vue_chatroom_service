@@ -7,12 +7,20 @@
         </div>
 
         <div class="header-right">
-            <a-button type="text" >
-                <template #icon><UserOutlined /></template>
-                <span>
-                    {{ userName }}
-                </span>
-            </a-button>
+            <a-dropdown>
+                <template #overlay>
+                    <a-menu>
+                        <a-menu-item key="logout" @click="handleLogout">
+                            <LogoutOutlined /> 登出
+                        </a-menu-item>
+                    </a-menu>
+                </template>
+                <div class="user-wrapper">
+                    <UserOutlined />
+                    <span> {{ userName }} </span>
+                    <DownOutlined style="font-size: 10px; margin-left: 4px;" />
+                </div>
+            </a-dropdown>
         </div>
     </a-layout-header>
 
@@ -32,6 +40,11 @@ import chatFunctionDrawer from '@/components/layouts/drawer/chatFunctionDrawer.v
 const userStore = useUserStore()
 const userName = computed(() => userStore.userName)
 const drawerOpen = ref(false)
+
+const handleLogout = () =>{
+    userStore.logout()
+    window.location.href = '/login'
+}
 </script>
 
 <style lang="scss" scoped>
