@@ -4,7 +4,7 @@ import { api } from '@/utils/api'
 
 export const ChatHistoryService = {
     async getChatHistoryBySessionId(sessionId: string): Promise<ApiResponse<ChatHistory>> {
-        const response = await api.get<ApiResponse<ChatHistory>>(`/ChatSession/GetChatHistoryBySessionId/${sessionId}`, {})
+        const response = await api.get<ApiResponse<ChatHistory>>(`/Chat/GetChatHistoryBySessionId/${sessionId}`, {})
         return response.data;
     },
 }
