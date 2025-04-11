@@ -15,8 +15,12 @@ export const ChatService = {
         const response = await api.get<ApiResponse<ChatSessionResponse[]>>('/Chat/GetChatSessionList', {})
         return response.data;
     },
-    async deleteChatData(sessionId: string): Promise<ApiResponse<ChatSessionResponse>> {
-        const response = await api.delete<ApiResponse<ChatSessionResponse>>(`/Chat/DeleteChatData/${sessionId}`, {})
+    async deleteChatData(sessionId: string): Promise<ApiResponse<object>> {
+        const response = await api.delete<ApiResponse<object>>(`/Chat/DeleteChatData/${sessionId}`, {})
+        return response.data;
+    },
+    async refreshChatSessionTime(sessionId: string): Promise<ApiResponse<object>> {
+        const response = await api.post<ApiResponse<object>>(`/Chat/RefreshChatSessionTime/?sessionId=${sessionId}`, {})
         return response.data;
     },
     async chat(chatRequest: ChatRequest): Promise<ApiResponse<ChatResponse>> {

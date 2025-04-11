@@ -74,7 +74,7 @@ export const useChatStore = defineStore('chat', {
         },
         async deleteChatData(sessionId: string) {
             try {
-                const response: ApiResponse<ChatSessionResponse> =
+                const response: ApiResponse<object> =
                     await ChatService.deleteChatData(sessionId)
 
                 if (response.isSuccess) {
@@ -90,6 +90,19 @@ export const useChatStore = defineStore('chat', {
             } catch (error) {
                 console.error("createChatSession error : ", error)
                 message.error('delete errer, please try again')
+            }
+        },
+        async refreshChatSessionTime(sessionId: string) {
+            try {
+                const response: ApiResponse<object> = await ChatService.refreshChatSessionTime(sessionId)
+                if (response.isSuccess) {
+                    console.log("refresh success")
+                } else {
+                    message.error("errer message: " + response.message);
+                }
+            } catch (error) {
+                console.error("chat error : ", error)
+                message.error('chat request errer, please try again')
             }
         },
         async chat(chatRequest: ChatRequest) {

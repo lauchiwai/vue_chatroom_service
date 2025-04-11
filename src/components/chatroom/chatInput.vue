@@ -81,6 +81,8 @@ const handleSteamSend = async () => {
 
             await chatStore.steamChat(newQusetion)
         }
+
+        await chatStore.refreshChatSessionTime(currentSession.value[0])
     } finally {
         loading.value = false
     }

@@ -34,6 +34,7 @@ const streamChatMsg = computed<ChatMessage>(() => ({
 watch(() => currentSession.value, async () => {
     if(currentSession.value[0] != undefined) {
         await chatStore.fetchChatHistory(currentSession.value[0])
+        await chatStore.refreshChatSessionTime(currentSession.value[0])
     }
 }, { deep: true })
 </script>
