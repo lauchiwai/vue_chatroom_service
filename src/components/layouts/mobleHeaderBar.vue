@@ -31,7 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { UnorderedListOutlined, UserOutlined } from '@ant-design/icons-vue'
+import { 
+    UserOutlined, 
+    DownOutlined, 
+    LogoutOutlined 
+} from '@ant-design/icons-vue'
 import { useUserStore } from '@/stores/authStore'
 import { ref, computed } from 'vue'
 
