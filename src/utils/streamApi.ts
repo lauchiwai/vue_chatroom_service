@@ -51,6 +51,7 @@ export class StreamClient {
 
     async chat(
         request: ChatRequest,
+        uri: string,
         onChunk?: (chunk: StreamChunk) => void
     ): Promise<ApiResponse<ChatResponse>> {
         let retryCount = 0
@@ -61,7 +62,7 @@ export class StreamClient {
             let content = ''
 
             try {
-                const response = await fetch(`${this.config.baseURL}ChatSession/ChatStream`, {
+                const response = await fetch(`${this.config.baseURL}${uri}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

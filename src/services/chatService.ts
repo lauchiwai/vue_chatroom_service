@@ -24,6 +24,6 @@ export const ChatService = {
         return response.data;
     },
     async streamChat(request: ChatRequest, onChunk?: (chunk: StreamChunk) => void): Promise<ApiResponse<ChatResponse>> {
-        return streamClient.chat(request, onChunk)
+        return streamClient.chat(request, 'Chat/ChatStream', onChunk)
     }
 }
