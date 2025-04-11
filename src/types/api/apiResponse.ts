@@ -4,4 +4,11 @@ export interface ApiResponse<T> {
     data: T
 }
 
-
+export interface StreamChunk {
+    content: string
+    finished?: boolean
+    error?: {
+        code: number
+        message: string
+    }
+}

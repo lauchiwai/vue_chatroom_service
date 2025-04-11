@@ -15,6 +15,8 @@ export const useChatStore = defineStore('chat', {
         currentSession: [] as string[],
         messages: [] as ChatMessage[],
         inputText: '' as string,
+        streamingController: null as AbortController | null,
+        tempAssistantMessage: '' as string
     }),
     actions: {
         async fetchChatSessionList() {
@@ -123,5 +125,47 @@ export const useChatStore = defineStore('chat', {
 
             this.messages.push(newMsg);
         },
+        async steamChat(chatRequest: ChatRequest) {
+            try {
+                this.pushUserQuestion(chatRequest)
+                this.tempAssistantMessage = ''
+                this.streamingController = new AbortController()
+                const response = await ChatService.streamChat(
+                    {
+                        ...chatRequest,
+                        chat_session_id: this.currentSession[0]
+                    },
+                    (chunk) => {
+                        if (chunk.error) {
+                            message.error(chunk.error.message)
+                            return
+                        }
+
+                        this.tempAssistantMessage += chunk.content
+                    }
+                )
+                if (response.isSuccess) {
+                    this.pushAssistantAnswer({
+                        response: this.tempAssistantMessage,
+                        chat_session_id: this.currentSession[0]
+                    })
+                } else {
+                    message.error(response.message)
+                }
+            } catch (error) {
+                message.error('请求发送失败')
+            } finally {
+                this.inputText = '';
+                this.streamingController = null
+                this.tempAssistantMessage = ''
+            }
+        },
+        abortStreaming() {
+            if (this.streamingController) {
+                this.streamingController.abort()
+                this.streamingController = null
+                this.tempAssistantMessage = ''
+            }
+        }
     }
 })

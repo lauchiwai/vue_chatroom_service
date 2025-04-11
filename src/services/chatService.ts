@@ -1,7 +1,8 @@
-import type { ApiResponse } from '@/types/api/apiResponse'
+import type { ApiResponse, StreamChunk } from '@/types/api/apiResponse'
 import type { ChatSessionResponse, ChatRequest, ChatResponse } from '@/types/chat/chatSession'
-import type { ChatMessage, ChatHistory } from '@/types/chatHistory/chatHistory'
-import { api } from '@/services/api'
+
+import { streamClient } from '@/utils/streamApi'
+import { api } from '@/utils/api'
 
 export const ChatService = {
     async generateChatSession(userTimeZoneId: string = "Asia/Hong_Kong"): Promise<ApiResponse<ChatSessionResponse>> {
@@ -22,4 +23,7 @@ export const ChatService = {
         const response = await api.post<ApiResponse<ChatResponse>>('/ChatSession/Chat', chatRequest)
         return response.data;
     },
+    async streamChat(request: ChatRequest, onChunk?: (chunk: StreamChunk) => void): Promise<ApiResponse<ChatResponse>> {
+        return streamClient.chat(request, onChunk)
+    }
 }

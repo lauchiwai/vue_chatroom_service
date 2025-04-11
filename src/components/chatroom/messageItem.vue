@@ -39,11 +39,12 @@ const props = defineProps({
     }
 
     .message-content {
-        max-width: 70%;
-        min-width: 260px;
+        max-width: 80%;
+        min-width: 300px;
         padding: 12px 16px;
         background: white;
         border-radius: 0 12px 12px 12px;
+        border: 2px solid #E0E0E0;
     
         .message-text {
             font-size: 16px;

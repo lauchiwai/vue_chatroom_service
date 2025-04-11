@@ -5,7 +5,7 @@
                 v-model:value="inputText"
                 placeholder="有什麼我可以幫助你的嗎？"
                 :auto-size="{ minRows: 1, maxRows: 6 }"
-                @pressEnter="handleSend"
+                @pressEnter="handleSteamSend"
                 :disabled="loading"
                 class="chat-textarea"
             />
@@ -17,7 +17,7 @@
                         class="send-button"
                         :disabled="!inputText.trim()"
                         :loading="loading"
-                        @click="handleSend"
+                        @click="handleSteamSend"
                     >
                         <template #icon><SendOutlined /></template>
                     </a-button>
@@ -32,24 +32,33 @@ import type { ChatRequest, ChatResponse } from '@/types/chat/chatSession'
 
 import { FastBackwardFilled, SendOutlined } from '@ant-design/icons-vue'
 import { useChatStore } from '@/stores/chatStore'
+import { useUserStore } from '@/stores/authStore'
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
+import { message } from 'ant-design-vue'
 
 const chatStore = useChatStore()
-
+const userStore = useUserStore()
 const loading = ref(false)
 const { currentSession, inputText } = storeToRefs(chatStore)
 
-const handleSend = async () => {
+const generateNewQuestion = () =>{
+    return {
+        chat_session_id: currentSession.value[0],
+        user_id: userStore.userId,
+        message: inputText.value.trim(),
+        collection_name: "string"
+    } as ChatRequest
+}
+const handleChat = async () => {
     try {
         loading.value = true
+        if (!userStore.userId) {
+            message.error("userId is UNKNOW")
+            return
+        }
         if (inputText.value.trim()) {
-            let newQusetion : ChatRequest = {
-                chat_session_id: currentSession.value[0],
-                user_id: "string",
-                message: inputText.value.trim(),
-                collection_name: "string"
-            }
+            let newQusetion : ChatRequest = generateNewQuestion();
 
             await chatStore.chat(newQusetion);
         }
@@ -57,20 +66,61 @@ const handleSend = async () => {
         loading.value = false
     }
 }
+
+const handleSteamSend = async () => {
+    try {
+        loading.value = true
+
+        if (!userStore.userId) {
+            message.error("userId is UNKNOW")
+            return
+        }
+
+        if (inputText.value.trim()) {
+            let newQusetion : ChatRequest = generateNewQuestion();
+
+            await chatStore.steamChat(newQusetion)
+        }
+    } finally {
+        loading.value = false
+    }
+}
+
+onUnmounted(() => {
+    chatStore.abortStreaming()
+})
+
 </script>
 
 <style lang="scss" scoped>
 .chat-input-container {
+    position: relative;
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     padding: 16px;
     box-sizing: border-box;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     
+    &::before {
+        content: "";
+        position: absolute;
+        top: -20px;  
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.1) 0%,    
+            rgba(255, 255, 255, 0.8) 100%  
+        );
+        pointer-events: none;  
+        z-index: -1;          
+    }
+
     .input-wrapper {
         border: 1px solid #e5e7eb;
         border-radius: 8px;

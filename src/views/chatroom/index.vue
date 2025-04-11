@@ -19,7 +19,7 @@ import { ref, watch, nextTick } from 'vue'
 
 const msgContainer = ref<HTMLElement>()
 const chatStore = useChatStore()
-const { messages } = storeToRefs(chatStore)
+const { messages, tempAssistantMessage } = storeToRefs(chatStore)
 
 const scrollToBottom = () => {
     nextTick(() => {
@@ -29,10 +29,9 @@ const scrollToBottom = () => {
     })
 }
 
-watch(messages, () => {
-    scrollToBottom()
-}, { deep: true })
-
+watch(() => [...messages.value, tempAssistantMessage.value], () => scrollToBottom(),
+  { deep: true, flush: 'post' }
+)
 </script>
 
 <style lang="scss" scoped>

@@ -1,7 +1,9 @@
 <template>
     <a-drawer
+        class="chat-function-drawer"
         v-model:open="open"
         placement="left"
+        :body-style="{ padding: '10px 40px' }"
     >
         <div class="create-bnt-container">
            <createSessionBnt :collapsed="false"/>
@@ -30,10 +32,6 @@ const open = defineModel('open', {
 </script>
 
 <style lang="scss" scoped>
-::v-deep .ant-drawer-body {
-    padding: 0;
-}
-
 .create-bnt-container {
     height: 10%;
     display: flex;
