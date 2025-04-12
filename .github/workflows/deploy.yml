@@ -6,28 +6,64 @@ on:
     paths:
       - 'docker-compose.yml'
       - 'Dockerfile'
-      - 'src/**'             
+      - '.dockerignore'
+      - 'src/**'
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted 
+    runs-on: [self-hosted, Windows, X64]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         path: 'vue_chatroom_service'
 
+    - name: Create .env.production
+      working-directory: ./vue_chatroom_service
+      run: |
+        # 生成环境变量文件
+        $envContent = "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}"
+        [System.IO.File]::WriteAllText("$pwd\.env.production", $envContent)
+        
+        # 验证文件内容
+        Get-Content .env.production
+
     - name: Build Docker Image
       working-directory: ./vue_chatroom_service
       run: |
-        docker build -t vue-chatroom:${{ github.run_id }} .
+        docker build `
+          --no-cache `
+          -t vue-chatroom:${{ github.run_id }} .
 
     - name: Deploy Services
       working-directory: ./vue_chatroom_service
       run: |
         docker-compose down
         docker-compose up -d
-        docker image prune -f 
+
+    - name: Verify Deployment
+      run: |
+        # 检查容器内文件
+        docker exec vue3-chatroom ls -la /app
+        
+        # 验证编译结果
+        curl http://localhost:11116 | Select-String "window.env"
+
+
+    - name: Remove Old Images  
+      run: |
+        $currentTag = "${{ github.run_id }}"
+        docker images --filter=reference='vue-chatroom:*' --format "{{.Repository}}:{{.Tag}}" | Where-Object {
+          $_ -ne "vue-chatroom:$currentTag"
+        } | ForEach-Object {
+          docker rmi -f $_
+        }
+        
+    - name: Cleanup Docker  
+      if: success()
+      run: |
+        docker system prune -f --filter "until=24h"
+        docker volume prune -f
 
     - name: Health Check
       run: |

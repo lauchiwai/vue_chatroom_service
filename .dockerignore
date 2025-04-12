@@ -1,0 +1,7 @@
+.env.local
+.env.development
+Dockerfile
+docker-compose.yml
+.git
+node_modules
+dist

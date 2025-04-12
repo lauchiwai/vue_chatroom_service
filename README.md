@@ -18,6 +18,34 @@ git commit -m "Initial commit for fastapi  project"
 
 git remote add origin https://github.com/lauchiwai/py_chat_service.git
 
+
+
+# docker command
+
+## 清理构建缓存
+
+docker-compose down -v --remove-orphans
+docker builder prune -af
+
+## 重新构建
+
+docker-compose up --build -d
+
+## 查看依赖安装情况
+
+docker exec -it py_chat_service-chat-service-1 pip list
+
+## 注意 ：
+
+需要連接到同一個網絡才能呼叫
+
+斷開 sql1 的預設網路 (sql1 是你的 docker container)
+docker network disconnect bridge sql1
+
+加入自定義網路
+docker network connect app-network sql1
+
+
 # vue_chatroom_service
 
 This template should help get you started developing with Vue 3 in Vite.

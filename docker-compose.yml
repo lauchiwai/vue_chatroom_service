@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  vue3_chatroom:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vue3-chatroom
+    ports:
+      - "11116:80"
+    networks:
+      - chat_service_network
+    environment:
+      - NODE_ENV=production
+
+networks:
+  chat_service_network:
+    external: true
+    name: chat_service_network
