@@ -1,0 +1,34 @@
+name: Vue Chatroom Deployment
+
+on:
+  push:
+    branches: [release]  
+    paths:
+      - 'docker-compose.yml'
+      - 'Dockerfile'
+      - 'src/**'             
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        path: 'vue_chatroom_service'
+
+    - name: Build Docker Image
+      working-directory: ./vue_chatroom_service
+      run: |
+        docker build -t vue-chatroom:${{ github.run_id }} .
+
+    - name: Deploy Services
+      working-directory: ./vue_chatroom_service
+      run: |
+        docker-compose down
+        docker-compose up -d
+        docker image prune -f 
+
+    - name: Health Check
+      run: |
+        curl --retry 3 --retry-delay 10 --max-time 5 -sSf http://localhost:11116
