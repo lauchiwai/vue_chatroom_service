@@ -29,6 +29,12 @@ jobs:
         docker-compose up -d
         docker image prune -f 
 
+    - name: Cleanup Docker  
+      if: success()
+      run: |
+        docker system prune -f --filter "until=24h"
+        docker volume prune -f
+
     - name: Health Check
       run: |
         curl --retry 3 --retry-delay 10 --max-time 5 -sSf http://localhost:11116
