@@ -1,5 +1,9 @@
 <template>
-    <div ref="listRef">
+    <div ref="listRef" class="message-wrapper">
+        <emptyMessage 
+            v-if="messages.length == 0"
+        />
+
         <MessageItem 
             v-for="(msg, index) in messages"
             :key="index"
@@ -20,6 +24,7 @@ import { useChatStore } from '@/stores/chatStore'
 import { storeToRefs } from 'pinia'
 
 import MessageItem from '@/components/chatroom/messageItem.vue'
+import emptyMessage from '@/components/chatroom/emptyMessage.vue'
 
 const listRef = ref<HTMLElement>()
 const chatStore = useChatStore()
@@ -38,3 +43,10 @@ watch(() => currentSession.value, async () => {
     }
 }, { deep: true })
 </script>
+
+<style lang="scss" scoped>
+.message-wrapper{
+    height: 100%;
+    width: 100%;
+}
+</style>
