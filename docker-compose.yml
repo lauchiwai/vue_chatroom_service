@@ -2,9 +2,8 @@ version: '3.8'
 
 services:
   vue3_chatroom:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${DOCKER_IMAGE_NAME:-vue-chatroom}
+    build: .
     container_name: vue3-chatroom
     ports:
       - "11116:80"

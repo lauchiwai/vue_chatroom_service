@@ -79,11 +79,7 @@ export const useChatStore = defineStore('chat', {
 
                 if (response.isSuccess) {
                     message.success('delete success')
-                    this.chatSessionList = this.chatSessionList.filter(a => a.sessionId != sessionId);
-                    if (this.chatSessionList.length == 0) {
-                        await this.fetchChatSessionList()
-                        await this.fetchChatHistory(this.currentSession[0])
-                    }
+                    await this.fetchChatSessionList()
                 } else {
                     message.error("errer message: " + response.message)
                 }
