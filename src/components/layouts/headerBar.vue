@@ -33,7 +33,7 @@ import {
     LogoutOutlined 
 } from '@ant-design/icons-vue'
 import { useUserStore } from '@/stores/authStore'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 
 const userStore = useUserStore()
 const userName = computed(() => userStore.userName)

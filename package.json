@@ -10,10 +10,16 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build"
+    "type-check": "vue-tsc --build",
+    "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "@eslint/js": "^9.24.0",
     "ant-design-vue": "^4.2.6",
+    "eslint": "^9.24.0",
+    "@vue/compiler-dom": "^3.4.27",
+    "vue-eslint-parser": "^9.4.2",
+    "eslint-plugin-vue": "^9.28.0",
     "highlight.js": "^11.11.1",
     "markdown-it": "^14.1.0",
     "pinia": "^3.0.1",
@@ -26,7 +32,10 @@
     "@types/dompurify": "^3.2.0",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^22.13.9",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "@typescript-eslint/parser": "^8.30.1",
     "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/runtime-dom": "^3.5.13",
     "@vue/tsconfig": "^0.7.0",
     "npm-run-all2": "^7.0.2",
     "sass": "^1.86.0",
