@@ -3,11 +3,6 @@ name: Vue Chatroom Deployment
 on:
   push:
     branches: [release]  
-    paths:
-      - 'docker-compose.yml'
-      - 'Dockerfile'
-      - '.dockerignore'
-      - 'src/**'
 
 jobs:
   build-and-deploy:
@@ -21,26 +16,15 @@ jobs:
     - name: Create .env.production
       working-directory: ./vue_chatroom_service
       run: |
-        # 生成环境变量文件
         $envContent = "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}"
         [System.IO.File]::WriteAllText("$pwd\.env.production", $envContent)
         
-        # 验证文件内容
         Get-Content .env.production
 
     - name: Build Docker Image
       working-directory: ./vue_chatroom_service
       run: |
-        docker build -t "vue-chatroom:${{ github.run_id }}" .
-        docker tag "vue-chatroom:${{ github.run_id }}" vue-chatroom:latest
-
-    - name: Deploy with Versioned Image
-      working-directory: ./vue_chatroom_service
-      env:
-        DOCKER_IMAGE_NAME: "vue-chatroom:${{ github.run_id }}"  
-      run: |
-        docker-compose down
-        docker-compose up -d
+        docker build -t vue-chatroom:latest .
 
     - name: Deploy Services
       working-directory: ./vue_chatroom_service
@@ -50,21 +34,15 @@ jobs:
 
     - name: Verify Deployment
       run: |
-        # 检查容器内文件
         docker exec vue3-chatroom ls -la /app
-        
-        # 验证编译结果
         curl http://localhost:11116 | Select-String "window.env"
 
 
     - name: Remove Old Images  
       run: |
-        $currentTag = "${{ github.run_id }}"
-        docker images --filter=reference='vue-chatroom:*' --format "{{.Repository}}:{{.Tag}}" | Where-Object {
-          $_ -ne "vue-chatroom:$currentTag"
-        } | ForEach-Object {
-          docker rmi -f $_
-        }
+          docker images --filter=reference='vue-chatroom:*' --format "{{.Repository}}:{{.Tag}}" | 
+          Where-Object { $_ -ne "vue-chatroom:latest" } | 
+          ForEach-Object { docker rmi -f $_ }
         
     - name: Cleanup Docker  
       if: success()

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   vue3_chatroom:
-    image: ${DOCKER_IMAGE_NAME:-vue-chatroom}
+    image: vue-chatroom:latest
     build: .
     container_name: vue3-chatroom
     ports:
