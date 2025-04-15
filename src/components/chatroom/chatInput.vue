@@ -28,9 +28,9 @@
 </template>
   
 <script setup lang="ts">
-import type { ChatRequest, ChatResponse } from '@/types/chat/chatSession'
+import type { ChatRequest } from '@/types/chat/chatSession'
 
-import { FastBackwardFilled, SendOutlined } from '@ant-design/icons-vue'
+import { SendOutlined } from '@ant-design/icons-vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/authStore'
 import { storeToRefs } from 'pinia'
@@ -50,22 +50,23 @@ const generateNewQuestion = () =>{
         collection_name: "string"
     } as ChatRequest
 }
-const handleChat = async () => {
-    try {
-        loading.value = true
-        if (!userStore.userId) {
-            message.error("userId is UNKNOW")
-            return
-        }
-        if (inputText.value.trim()) {
-            let newQusetion : ChatRequest = generateNewQuestion();
 
-            await chatStore.chat(newQusetion);
-        }
-    } finally {
-        loading.value = false
-    }
-}
+// const handleChat = async () => {
+//     try {
+//         loading.value = true
+//         if (!userStore.userId) {
+//             message.error("userId is UNKNOW")
+//             return
+//         }
+//         if (inputText.value.trim()) {
+//             let newQusetion : ChatRequest = generateNewQuestion();
+
+//             await chatStore.chat(newQusetion);
+//         }
+//     } finally {
+//         loading.value = false
+//     }
+// }
 
 const handleSteamSend = async () => {
     try {

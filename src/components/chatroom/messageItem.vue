@@ -1,12 +1,12 @@
 <template>
-    <div v-if="message.role != 'system'"
-        :class="['message-item', { 'user-message': message.role == 'user' }]" 
+    <div v-if="props.message.role != 'system'"
+         :class="['message-item', { 'user-message': props.message.role == 'user' }]" 
     >
         <div class="message-content">
             <div class="message-text">
-                <MarkdownRenderer :content="message.content" />
+                <MarkdownRenderer :content="props.message.content" />
             </div>
-            <div class="message-time">{{ message.timestamp }}</div>
+            <div class="message-time">{{ props.message.timestamp }}</div>
         </div>
     </div>
 </template>

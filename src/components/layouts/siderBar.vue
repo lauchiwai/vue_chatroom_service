@@ -14,7 +14,7 @@
         </div>
 
         <div class="create-bnt-container">
-           <createSessionBnt :collapsed="collapsed"/>
+            <createSessionBnt :collapsed="collapsed"/>
         </div>
 
         <div class="menu-container">
@@ -22,14 +22,12 @@
         </div>
 
         <div class="setting-bnt-container">
-            <!-- <settingBnt :collapsed="collapsed"/> -->
         </div>
     </a-layout-sider>
 </template>
 
 <script setup lang="ts">
 import createSessionBnt from '@/components/chat/createSessionBnt.vue'
-import settingBnt from '@/components/setting/settingBnt.vue'
 import chatHistoryMenu  from '@/components/chatHistroy/chatHistoryMenu.vue'
 
 const collapsed = defineModel('collapsed', {

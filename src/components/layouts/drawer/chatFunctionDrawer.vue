@@ -6,7 +6,7 @@
         :body-style="{ padding: '10px 40px' }"
     >
         <div class="create-bnt-container">
-           <createSessionBnt :collapsed="false" @drawer-close="open = false"/>
+            <createSessionBnt :collapsed="false" @drawer-close="open = false"/>
         </div>
 
         <div class="menu-container">
@@ -14,15 +14,11 @@
         </div>
 
         <div class="setting-bnt-container">
-            <!-- <settingBnt :collapsed="false"/> -->
         </div>
     </a-drawer>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 import createSessionBnt from '@/components/chat/createSessionBnt.vue'
-import settingBnt from '@/components/setting/settingBnt.vue'
 import chatHistoryMenu  from '@/components/chatHistroy/chatHistoryMenu.vue'
 
 const open = defineModel('open', {

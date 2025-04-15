@@ -44,7 +44,7 @@ import chatFunctionDrawer from '@/components/layouts/drawer/chatFunctionDrawer.v
 
 const userStore = useUserStore()
 const userName = computed(() => userStore.userName)
-const drawerOpen = ref(false)
+const drawerOpen = ref<boolean>(false)
 
 const handleLogout = () =>{
     userStore.logout()

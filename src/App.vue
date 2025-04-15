@@ -11,7 +11,7 @@ import MainLayout from '@/layouts/mainLayout.vue'
 import FullScreenLayout from '@/layouts/fullScreenLayout.vue'
 
 const route = useRoute()
-const fullScreen = ref(true)
+const fullScreen = ref<boolean>(true)
 
 watch(() => route.meta.layout, (newLayout) => {
     if (newLayout != undefined)

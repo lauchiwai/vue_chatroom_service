@@ -23,7 +23,7 @@ import { ref } from 'vue'
 const emit = defineEmits(['drawer-close'])
 
 const chatStore = useChatStore()
-const isLoading = ref(false)
+const isLoading = ref<boolean>(false)
 const collapsed = defineModel('collapsed', {
     type: Boolean,
     required: true

@@ -15,4 +15,3 @@ services:
 networks:
   chat_service_network:
     external: true
-    name: chat_service_network

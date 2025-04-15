@@ -1,6 +1,7 @@
 <template>
     <div class="history-menu-container">
-        <a-menu class="custom-menu"
+        <a-menu 
+            class="custom-menu"
             theme="light"
             mode="inline"
             :selected-keys="currentSession"
@@ -23,7 +24,8 @@
         </a-menu>
     </div>
 
-    <DeleteModal ref="deleteModalRef"
+    <DeleteModal 
+        ref="deleteModalRef"
         :deleteFn="handleDelete"
     />
 </template>
@@ -41,8 +43,8 @@ onMounted(async () => {
     await chatStore.fetchChatSessionList()
 })
 
-const deletingId = ref('');
-const deleteModalRef = ref();
+const deletingId = ref<string>('');
+const deleteModalRef = ref<InstanceType<typeof DeleteModal> | null>(null)
 const chatStore = useChatStore()
 const { chatSessionList, currentSession } = storeToRefs(chatStore)
 
@@ -55,8 +57,10 @@ const handelClick = () =>{
 }
 
 const showDeleteModal = (id: string) => {
-    deleteModalRef.value.open();
-    deletingId.value = id;
+    if(deleteModalRef.value){
+        deleteModalRef.value.open();
+        deletingId.value = id;
+    }
 };
 
 const handleDelete = async () => {

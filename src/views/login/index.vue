@@ -37,9 +37,9 @@
                         placeholder="Password"
                         size="large"
                     >
-                    <template #prefix>
-                        <LockOutlined />
-                    </template>
+                        <template #prefix>
+                            <LockOutlined />
+                        </template>
                     </a-input-password>
                 </a-form-item>
         
@@ -105,7 +105,7 @@ const handleLogin = async () => {
             errorMessage.value = '登入失敗，請檢查帳號密碼'
         }
     } catch (error) {
-        errorMessage.value = '發生錯誤，請稍後再試'
+        errorMessage.value = '發生錯誤，請稍後再試' + error
     } finally {
         loading.value = false
     }
