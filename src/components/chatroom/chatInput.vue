@@ -10,6 +10,13 @@
                 class="chat-textarea"
             />
             <div class="action-buttons">
+                <div>
+                    <MyCheckbox 
+                        v-model:model-value="isUseCollection"
+                        label="資料集"
+                    />
+                </div>
+
                 <a-tooltip :title="!inputText.trim() ? '請輸入内容' :'發送'">
                     <a-button
                         type="primary"
@@ -37,9 +44,12 @@ import { storeToRefs } from 'pinia'
 import { ref, onUnmounted } from 'vue'
 import { message } from 'ant-design-vue'
 
+import MyCheckbox from '@/components/common/MyCheckbox.vue';
 const chatStore = useChatStore()
 const userStore = useUserStore()
 const loading = ref(false)
+const isUseCollection = ref(true)
+const defaultCollection = "collection_01";
 const { currentSession, inputText } = storeToRefs(chatStore)
 
 const generateNewQuestion = () =>{
@@ -47,7 +57,7 @@ const generateNewQuestion = () =>{
         chat_session_id: currentSession.value[0],
         user_id: userStore.userId,
         message: inputText.value.trim(),
-        collection_name: "collection_01"
+        collection_name: isUseCollection.value ? defaultCollection : null
     } as ChatRequest
 }
 
@@ -84,6 +94,7 @@ onUnmounted(() => {
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
+    margin-top: 10px;
     margin-bottom: 10px;
     padding: 16px;
     box-sizing: border-box;
@@ -138,8 +149,9 @@ onUnmounted(() => {
     .action-buttons {
         width: 100%;
         height: 100%;
+        margin-top: 10px;
         display: flex;
-        justify-content: end;
+        justify-content: space-between;
     }
 
     .send-button {
