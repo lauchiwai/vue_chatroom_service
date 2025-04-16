@@ -101,21 +101,6 @@ export const useChatStore = defineStore('chat', {
                 message.error('chat request errer, please try again')
             }
         },
-        async chat(chatRequest: ChatRequest) {
-            try {
-                const response: ApiResponse<ChatResponse> = await ChatService.chat(chatRequest)
-                if (response.isSuccess) {
-                    this.pushUserQuestion(chatRequest);
-                    this.pushAssistantAnswer(response.data);
-                    this.inputText = '';
-                } else {
-                    message.error("errer message: " + response.message);
-                }
-            } catch (error) {
-                console.error("chat error : ", error)
-                message.error('chat request errer, please try again')
-            }
-        },
         setCurrentSession(sessionId: string) {
             this.currentSession = [sessionId]
         },

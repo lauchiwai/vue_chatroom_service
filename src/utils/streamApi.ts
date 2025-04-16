@@ -18,37 +18,6 @@ export class StreamClient {
         }
     }
 
-    // async chat(
-    //     request: ChatRequest,
-    //     onChunk?: (chunk: StreamChunk) => void
-    // ): Promise<ApiResponse<ChatResponse>> {
-    //     const controller = new AbortController()
-    //     let content = ''
-
-    //     try {
-    //         const response = await fetch(`${this.config.baseURL}ChatSession/ChatStream`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Authorization': `Bearer ${this.getToken()}`
-    //             },
-    //             body: JSON.stringify(request),
-    //             signal: controller.signal
-    //         })
-
-    //         if (!response.ok) {
-    //             return this.formatError('request error', response.status)
-    //         }
-
-    //         const reader = response.body?.getReader()
-    //         if (!reader) return this.formatError('empty steam data')
-
-    //         return this.processStream(reader, content, onChunk, request.chat_session_id)
-    //     } catch (error) {
-    //         return this.handleError(error, request.chat_session_id)
-    //     }
-    // }
-
     async chat(
         request: ChatRequest,
         uri: string,
