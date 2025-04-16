@@ -83,8 +83,8 @@ const router = useRouter()
 const errorMessage = ref('')
 const loading = ref(false)
 const loginFrom = ref<LoginRequest>({
-    username : "string",
-    password : "string"
+    username : "",
+    password : ""
 })
 
 const handleLogin = async () => {
