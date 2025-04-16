@@ -42,7 +42,7 @@ export const useChatStore = defineStore('chat', {
         async fetchChatHistory(sessionId: string) {
             try {
                 const response: ApiResponse<ChatHistory> =
-                    await ChatHistoryService.getChatHistoryBySessionId(sessionId)
+                    await ChatHistoryService.getChatHistory(sessionId)
 
                 if (response.isSuccess) {
                     this.messages = response.data.response
