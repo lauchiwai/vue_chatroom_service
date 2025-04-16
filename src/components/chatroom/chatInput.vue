@@ -47,26 +47,9 @@ const generateNewQuestion = () =>{
         chat_session_id: currentSession.value[0],
         user_id: userStore.userId,
         message: inputText.value.trim(),
-        collection_name: "string"
+        collection_name: "collection_01"
     } as ChatRequest
 }
-
-// const handleChat = async () => {
-//     try {
-//         loading.value = true
-//         if (!userStore.userId) {
-//             message.error("userId is UNKNOW")
-//             return
-//         }
-//         if (inputText.value.trim()) {
-//             let newQusetion : ChatRequest = generateNewQuestion();
-
-//             await chatStore.chat(newQusetion);
-//         }
-//     } finally {
-//         loading.value = false
-//     }
-// }
 
 const handleSteamSend = async () => {
     try {

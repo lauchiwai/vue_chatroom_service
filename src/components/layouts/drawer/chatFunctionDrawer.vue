@@ -18,7 +18,7 @@
     </a-drawer>
 </template>
 <script lang="ts" setup>
-import createSessionBnt from '@/components/chat/createSessionBnt.vue'
+import createSessionBnt from '@/components/chatroom/createSessionBnt.vue'
 import chatHistoryMenu  from '@/components/chatHistroy/chatHistoryMenu.vue'
 
 const open = defineModel('open', {
