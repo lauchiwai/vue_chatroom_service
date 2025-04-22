@@ -1,81 +1,46 @@
-# git
+# Vue3
 
-## 在本地初始化 Git 倉庫
+一個現代化 Vue3 前端，整合 Pinia 狀態管理、雙 JWT 驗證、SSE 實時通信、CSP 安全策略與 Docker 容器化部署。
 
-1. cd /path/to/your/dotnet-project
-2. git init
+## 功能特性
 
-## 配置 .gitignore 文件
+- **雙 JWT 驗證系統** (Access Token & Refresh Token 自動刷新)
+- **Server-Sent Events (SSE) 實時數據推送**
+- **嚴格 CSP 安全策略** (Nonce 動態注入)
+- **響應式網頁設計** (RWD) 支援
+- **Docker 容器化**與 CI/CD 自動化部署
+- Pinia 狀態管理 + Vue Router 路由控制
 
-新增 .gitignore
+## 技術棧
 
-## 將文件加入本地倉庫
+**前端**
+Vue3 + TypeScript | Pinia | Vue Router | Axios | JWT-decode
 
-git add .
-git commit -m "Initial commit for fastapi  project"
+**安全**
+CSP nonce
 
-## 關聯到遠端 github
+**基礎設施**
+Docker | GitHub Actions | Nginx (Docker 部署版)
 
-git remote add origin https://github.com/lauchiwai/py_chat_service.git
+## 環境要求
 
+- Node.js >= 22.x
+- npm >= 9.x
+- Docker >= 24.x
+- 現代瀏覽器 (支援 ES2020)
 
+# 安裝依賴
 
-# docker command
-
-## 清理构建缓存
-
-docker-compose down -v --remove-orphans
-docker builder prune -af
-
-## 重新构建
-
-docker-compose up --build -d
-
-## 查看依赖安装情况
-
-docker exec -it py_chat_service-chat-service-1 pip list
-
-## 注意 ：
-
-需要連接到同一個網絡才能呼叫
-
-斷開 sql1 的預設網路 (sql1 是你的 docker container)
-docker network disconnect bridge sql1
-
-加入自定義網路
-docker network connect app-network sql1
-
-
-# vue_chatroom_service
-
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+# 創建環境
 
-```sh
-npm run dev
+1. 創建 .env.development 文件
+2. 設定 VITE_API_BASE_URL 後端 api
+3. 執行指令運行
+
 ```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
+npm run dev
 ```
