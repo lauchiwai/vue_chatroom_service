@@ -9,10 +9,6 @@ export default defineConfig({
         vue(),
         vueDevTools(),
     ],
-    build: {
-        minify: false,
-        sourcemap: true
-    },
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))

@@ -15,12 +15,14 @@ COPY . .
 
 RUN npm run build:prod
 
-FROM nginx:1.25-alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+FROM openresty/openresty:1.25.3.1-alpine
 
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chmod -R 755 /usr/share/nginx/html
+
+COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
+COPY --from=builder /app/dist /usr/local/openresty/nginx/html
+
+RUN chown -R nobody:nobody /usr/local/openresty/nginx/html && \
+    chmod -R 755 /usr/local/openresty/nginx/html
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/usr/local/openresty/bin/openresty", "-g", "daemon off;"]
