@@ -5,6 +5,16 @@ export interface JwtPayload {
     iat: number;
 }
 
+export interface ItokenData {
+    accessToken: string;
+    refreshToken: string;
+}
+
+export interface ILoginData {
+    username: string
+    password: string
+}
+
 export interface UserState {
     userName: string | null
     userId: string | null
@@ -18,12 +28,14 @@ export interface RefreshResponse {
     refreshToken: string;
 }
 
-export interface LoginResponse {
-    accessToken: string;
-    refreshToken: string;
+export interface LoginResponse extends ItokenData {
+    _mark?: never;
 }
 
-export interface LoginRequest {
-    username: string
-    password: string
+export interface LoginRequest extends ILoginData {
+    _mark?: never;
+}
+
+export interface RamdomRegisterResponse extends ILoginData {
+    _mark?: never;
 }

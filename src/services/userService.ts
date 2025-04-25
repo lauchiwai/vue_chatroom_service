@@ -1,9 +1,15 @@
-import type { LoginResponse, RefreshResponse } from '@/types/auth/user'
+import type { LoginResponse, RefreshResponse, RamdomRegisterResponse } from '@/types/auth/user'
 import type { ApiResponse } from '@/types/api/apiResponse'
 import { api } from '@/utils/api'
 import { useUserStore } from '@/stores/authStore'
 
 export const UserService = {
+    async RamdomRegister(): Promise<ApiResponse<RamdomRegisterResponse>> {
+        const response = await api.post<ApiResponse<RamdomRegisterResponse>>('/Authenticate/RamdomRegister', {})
+
+        return response.data
+    },
+
     async login(username: string, password: string): Promise<ApiResponse<LoginResponse>> {
         const response = await api.post<ApiResponse<LoginResponse>>('/Authenticate/Login', {
             userName: username,

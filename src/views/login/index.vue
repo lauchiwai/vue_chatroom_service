@@ -51,7 +51,7 @@
                         size="large"
                         :loading="loading"
                     >
-                        登入
+                        DEMO LOGIN
                     </a-button>
                 </a-form-item>
         
@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LoginRequest, LoginResponse } from '@/types/auth/user'
+import type { LoginRequest, LoginResponse, RamdomRegisterResponse } from '@/types/auth/user'
 import type { ApiResponse } from '@/types/api/apiResponse'
 
 import { ref } from 'vue'
@@ -83,25 +83,34 @@ const router = useRouter()
 const errorMessage = ref('')
 const loading = ref(false)
 const loginFrom = ref<LoginRequest>({
-    username : "",
-    password : ""
+    username : "*****",
+    password : "*****"
 })
 
 const handleLogin = async () => {
     try {
         loading.value = true
         errorMessage.value = ''
-        
-        const response : ApiResponse<LoginResponse> = await UserService.login(
+
+        const ramdomRegisterResponse : ApiResponse<RamdomRegisterResponse> = await UserService.RamdomRegister()
+        if (!ramdomRegisterResponse.isSuccess) {
+            message.error("ramdom register error: " + ramdomRegisterResponse.message)
+            return
+        }
+
+        loginFrom.value.username = ramdomRegisterResponse.data.username
+        loginFrom.value.password = ramdomRegisterResponse.data.password
+
+        const loginResponse : ApiResponse<LoginResponse> = await UserService.login(
             loginFrom.value.username,
             loginFrom.value.password
         )
         
-        if (response.isSuccess) {
+        if (loginResponse.isSuccess) {
             const redirectPath = route.query.redirect?.toString() || '/chatroom'
             router.push(decodeURIComponent(redirectPath))
         } else {
-            message.error("錯誤訊息: " + response.message)
+            message.error("錯誤訊息: " + loginResponse.message)
             errorMessage.value = '登入失敗，請檢查帳號密碼'
         }
     } catch (error) {
