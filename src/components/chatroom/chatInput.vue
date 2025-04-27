@@ -9,12 +9,16 @@
                 :disabled="loading"
                 class="chat-textarea"
             />
-            <div class="action-buttons">
-                <div>
+            <div class="action-tools-wrapper">
+                <div  class="action-tools">
                     <MyCheckbox 
                         v-model:model-value="isUseCollection"
                         label="資料集"
                     />
+
+                    <a-button @click="generateNewQuery" v-if="isUseCollection">
+                        生成問題
+                    </a-button>
                 </div>
 
                 <a-tooltip :title="!inputText.trim() ? '請輸入内容' :'發送'">
@@ -59,6 +63,10 @@ const generateNewQuestion = () =>{
         message: inputText.value.trim(),
         collection_name: isUseCollection.value ? defaultCollection : null
     } as ChatRequest
+}
+
+const generateNewQuery = () => {
+    inputText.value = "長者生活津貼";
 }
 
 const handleSteamSend = async () => {
@@ -146,12 +154,21 @@ onUnmounted(() => {
         }
     }
 
-    .action-buttons {
+    .action-tools-wrapper {
         width: 100%;
         height: 100%;
         margin-top: 10px;
         display: flex;
         justify-content: space-between;
+    }
+
+    .action-tools{
+        display: flex;
+        gap: 10px;
+
+        button{
+
+        }
     }
 
     .send-button {

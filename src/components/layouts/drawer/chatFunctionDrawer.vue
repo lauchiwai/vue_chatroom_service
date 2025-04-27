@@ -13,7 +13,10 @@
             <chatHistoryMenu  @drawer-close="open = false"/>
         </div>
 
-        <div class="setting-bnt-container">
+        <div class="bnt-container">
+            <button @click="redirectToGoogleDrive" >
+                查看資料集
+            </button>
         </div>
     </a-drawer>
 </template>
@@ -25,6 +28,13 @@ const open = defineModel('open', {
     type: Boolean,
     required: true
 })
+
+const redirectToGoogleDrive = () => {
+    window.open(
+        'https://drive.google.com/file/d/1uy7EfNAh6bB-xcKhKPl6E7jEqwodjI9s/view?usp=sharing',
+        '_blank'
+    );
+};
 </script>
 
 <style lang="scss" scoped>
@@ -35,12 +45,28 @@ const open = defineModel('open', {
     justify-content: start;
 }
 
-.setting-bnt-container {
-    height: 10%;
+.bnt-container {
+    height: var(--setting-btn-height);
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: start;
+    justify-content: center;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+
+    button{
+        border: none;
+        border-radius: 2px;
+        background-color: transparent;
+        font-size: 18px;
+        height: 80%;
+        width: 80%;
+        align-items: center;
+        cursor: pointer;
+        &:hover{
+            background-color: rgb(221, 218, 218);
+        }
+    }
 }
 
 .menu-container{

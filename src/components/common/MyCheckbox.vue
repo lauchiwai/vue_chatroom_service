@@ -35,6 +35,7 @@ const toggleCheck = () => {
     justify-content: center;
     cursor: pointer;
     border-radius: 5px;
+    height: 32px;
     padding: 6px 12px;
 }
 
