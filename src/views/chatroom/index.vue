@@ -23,19 +23,25 @@ const isUserInteracting = ref(false)
 const { messages, tempAssistantMessage } = storeToRefs(chatStore)
 
 const scrollToBottom = () => {
-    nextTick(() => {
-        if (msgContainer.value) {
-            msgContainer.value.scrollTop = msgContainer.value.scrollHeight
-        }
-    })
-}
+    if (!msgContainer.value) return;
 
-watch(() => messages.value, (newValue, oldVaule) => {
-    if (oldVaule.length == 0 || newValue[newValue.length - 1].role =="user"){
-        scrollToBottom()
+    const container = msgContainer.value;
+    container.style.overflowY = 'hidden';
+    void container.offsetHeight;
+    container.style.overflowY = 'auto';
+    container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
+    });
+};
+
+watch(() => messages.value, (newValue, oldValue) => { 
+    if (oldValue.length === 0 || newValue[newValue.length - 1]?.role === "user") {
+        nextTick(() => {
+            requestAnimationFrame(() => scrollToBottom());
+        });
     }
-}, { deep: true })
-
+}, { deep: true, flush: 'post' });
 
 watch(() => tempAssistantMessage.value, () => {
     if ( !isUserInteracting.value ){
