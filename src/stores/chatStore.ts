@@ -16,7 +16,8 @@ export const useChatStore = defineStore('chat', {
         messages: [] as ChatMessage[],
         inputText: '' as string,
         streamingController: null as AbortController | null,
-        tempAssistantMessage: '' as string
+        tempAssistantMessage: '' as string,
+        isChatAsyncing: false as boolean
     }),
     actions: {
         async fetchChatSessionList() {
@@ -29,7 +30,6 @@ export const useChatStore = defineStore('chat', {
                         this.setCurrentSession(response.data[0].sessionId.toString())
                     } else {
                         await this.createChatSession();
-                        await this.fetchChatSessionList();
                     }
                 } else {
                     message.error("errer message: " + response.message)
@@ -45,6 +45,7 @@ export const useChatStore = defineStore('chat', {
                     await ChatHistoryService.getChatHistory(sessionId)
 
                 if (response.isSuccess) {
+                    this.messages.length = 0;
                     this.messages = response.data.response
                 } else {
                     message.error("errer message: " + response.message)
@@ -62,7 +63,6 @@ export const useChatStore = defineStore('chat', {
                 if (response.isSuccess) {
                     this.chatSessionList.unshift(response.data)
                     this.setCurrentSession(response.data.sessionId.toString())
-                    await this.fetchChatHistory(response.data.sessionId.toString())
                     message.success('session create success')
                 } else {
                     message.error("errer message: " + response.message)
@@ -102,6 +102,10 @@ export const useChatStore = defineStore('chat', {
             }
         },
         setCurrentSession(sessionId: string) {
+            if (this.isChatAsyncing) {
+                this.abortStreaming();
+            }
+            this.currentSession.length = 0;
             this.currentSession = [sessionId]
         },
         pushUserQuestion(chatRequest: ChatRequest) {
@@ -124,6 +128,7 @@ export const useChatStore = defineStore('chat', {
         },
         async steamChat(chatRequest: ChatRequest) {
             try {
+                this.isChatAsyncing = true
                 this.pushUserQuestion(chatRequest)
                 this.tempAssistantMessage = ''
                 this.streamingController = new AbortController()
@@ -139,19 +144,17 @@ export const useChatStore = defineStore('chat', {
                         }
 
                         this.tempAssistantMessage += chunk.content
-                    }
+                    },
+                    this.streamingController.signal
                 )
-                if (response.isSuccess) {
-                    this.pushAssistantAnswer({
-                        response: this.tempAssistantMessage,
-                        chat_session_id: this.currentSession[0]
-                    })
-                } else {
-                    message.error(response.message)
-                }
             } catch (error) {
                 message.error('chat request errer')
             } finally {
+                this.isChatAsyncing = false
+                this.pushAssistantAnswer({
+                    response: this.tempAssistantMessage,
+                    chat_session_id: this.currentSession[0]
+                })
                 this.inputText = '';
                 this.streamingController = null
                 this.tempAssistantMessage = ''
@@ -159,10 +162,8 @@ export const useChatStore = defineStore('chat', {
         },
         abortStreaming() {
             if (this.streamingController) {
-                this.streamingController.abort()
-                this.streamingController = null
-                this.tempAssistantMessage = ''
+                this.streamingController.abort();
             }
-        }
+        },
     }
 })

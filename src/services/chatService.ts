@@ -23,7 +23,7 @@ export const ChatService = {
         const response = await api.post<ApiResponse<object>>(`/Chat/RefreshChatSessionTime/?sessionId=${sessionId}`, {})
         return response.data;
     },
-    async streamChat(request: ChatRequest, onChunk?: (chunk: StreamChunk) => void): Promise<ApiResponse<ChatResponse>> {
-        return streamClient.chat(request, 'Chat/ChatStream', onChunk)
+    async streamChat(request: ChatRequest, onChunk?: (chunk: StreamChunk) => void, signal?: AbortSignal): Promise<ApiResponse<ChatResponse>> {
+        return streamClient.chat(request, 'Chat/ChatStream', onChunk, signal)
     }
 }

@@ -21,13 +21,16 @@ export class StreamClient {
     async chat(
         request: ChatRequest,
         uri: string,
-        onChunk?: (chunk: StreamChunk) => void
+        onChunk?: (chunk: StreamChunk) => void,
+        signal?: AbortSignal
     ): Promise<ApiResponse<ChatResponse>> {
         let retryCount = 0
         const maxRetries = 1
 
         const executeRequest = async (): Promise<ApiResponse<ChatResponse>> => {
             const controller = new AbortController()
+            const effectiveSignal = signal || controller.signal
+
             let content = ''
 
             try {
@@ -38,7 +41,7 @@ export class StreamClient {
                         'Authorization': `Bearer ${this.getToken()}`
                     },
                     body: JSON.stringify(request),
-                    signal: controller.signal
+                    signal: effectiveSignal
                 })
 
                 if (response.status === 401 && retryCount < maxRetries) {

@@ -21,7 +21,7 @@
                     </a-button>
                 </div>
 
-                <a-tooltip :title="!inputText.trim() ? '請輸入内容' :'發送'">
+                <a-tooltip :title="!inputText.trim() ? '請輸入内容' :'發送'" v-if="!loading">
                     <a-button
                         type="primary"
                         shape="circle"
@@ -33,6 +33,17 @@
                         <template #icon><SendOutlined /></template>
                     </a-button>
                 </a-tooltip>
+
+                <a-tooltip title="停止" v-else>
+                    <a-button
+                        type="primary"
+                        shape="circle"
+                        class="send-button"
+                        @click="chatStore.abortStreaming"
+                    >
+                        <template #icon><BorderOutlined /></template>
+                    </a-button>
+                </a-tooltip>
             </div>
         </div>
     </div>
@@ -41,7 +52,7 @@
 <script setup lang="ts">
 import type { ChatRequest } from '@/types/chat/chatSession'
 
-import { SendOutlined } from '@ant-design/icons-vue'
+import { SendOutlined, BorderOutlined } from '@ant-design/icons-vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/authStore'
 import { storeToRefs } from 'pinia'
