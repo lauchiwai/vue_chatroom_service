@@ -83,4 +83,12 @@ nextTick(() => {
         overflow-y: scroll;
     }
 }
+
+@media (max-width: 768px) {
+    .chatroom-container {
+        .msg-container {
+            padding: 10px 5%;
+        }
+    }
+}
 </style>

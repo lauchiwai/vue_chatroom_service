@@ -60,4 +60,12 @@ const props = defineProps({
         }
     }
 }
+
+@media (max-width: 768px) {
+    .message-item {
+        .message-content {
+            max-width: 100%;
+        }
+    }
+}
 </style>
