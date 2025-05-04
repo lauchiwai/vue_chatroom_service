@@ -1,5 +1,5 @@
 import type { ApiResponse } from '@/types/api/apiResponse'
-import type { ChatSessionResponse, ChatRequest, ChatResponse } from '@/types/chat/chatSession'
+import type { ChatSessionResponse, ChatRequest, ChatResponse, SummaryRequest } from '@/types/chat/chatSession'
 import type { ChatMessage, ChatHistory } from '@/types/chatHistory/chatHistory'
 
 import { ChatHistoryService } from '@/services/chatHistoryService'
@@ -126,7 +126,7 @@ export const useChatStore = defineStore('chat', {
 
             this.messages.push(newMsg);
         },
-        async steamChat(chatRequest: ChatRequest) {
+        async streamChat(chatRequest: ChatRequest) {
             try {
                 this.isChatAsyncing = true
                 this.pushUserQuestion(chatRequest)
@@ -135,6 +135,38 @@ export const useChatStore = defineStore('chat', {
                 const response = await ChatService.streamChat(
                     {
                         ...chatRequest,
+                        chat_session_id: this.currentSession[0]
+                    },
+                    (chunk) => {
+                        if (chunk.error) {
+                            message.error(chunk.error.message)
+                            return
+                        }
+
+                        this.tempAssistantMessage += chunk.content
+                    },
+                    this.streamingController.signal
+                )
+            } catch (error) {
+                message.error('chat request errer')
+            } finally {
+                this.isChatAsyncing = false
+                this.pushAssistantAnswer({
+                    response: this.tempAssistantMessage,
+                    chat_session_id: this.currentSession[0]
+                })
+                this.inputText = '';
+                this.streamingController = null
+                this.tempAssistantMessage = ''
+            }
+        },
+        async streamSummaryChat(summaryRequest: SummaryRequest) {
+            try {
+                this.isChatAsyncing = true
+                this.streamingController = new AbortController()
+                const response = await ChatService.streamSummaryChat(
+                    {
+                        ...summaryRequest,
                         chat_session_id: this.currentSession[0]
                     },
                     (chunk) => {

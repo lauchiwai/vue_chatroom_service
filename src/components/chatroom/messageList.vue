@@ -8,7 +8,7 @@
       
         <template v-else>
             <EmptyMessage 
-                v-if="messages.length == 0"
+                v-if="messages.length == 0 && !isChatAsyncing"
             />
 
             <MessageItem 
