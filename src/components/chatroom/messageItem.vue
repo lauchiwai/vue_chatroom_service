@@ -4,7 +4,7 @@
     >
         <div class="message-content">
             <div class="message-text">
-                <MarkdownRenderer :content="props.message.content" />
+                <MarkdownRenderer :content="props.message.content"/>
             </div>
             <div class="message-time">{{ props.message.timestamp }}</div>
         </div>
@@ -14,12 +14,11 @@
 <script setup lang="ts">
 import type { ChatMessage } from '@/types/chatHistory/chatHistory'
 import MarkdownRenderer from '@/components/markdown/markdownRenderer.vue'
-
 const props = defineProps({
     message: {
         type: Object as () => ChatMessage,
         required: true
-    }
+    },
 })
 </script>
 

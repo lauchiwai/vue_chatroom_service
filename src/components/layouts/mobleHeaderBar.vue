@@ -54,8 +54,7 @@ const handleLogout = () =>{
 
 <style lang="scss" scoped>
 .header {
-    background: #fff;
-    border-bottom: 1px solid #f0f0f0;
+    background: transparent;
     padding: 0 24px;
     display: flex;
     align-items: center;
@@ -69,7 +68,7 @@ const handleLogout = () =>{
         .model-bnt{
             border: 0px ;
             border-radius: 5px;
-            background-color: white;
+            background-color: transparent;
             font-size: 20px;
             display: flex;
             align-items: center;

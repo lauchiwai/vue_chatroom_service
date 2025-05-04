@@ -54,8 +54,7 @@ const handleLogout = () =>{
 
 <style lang="scss" scoped>
 .header {
-    background: #fff;
-    border-bottom: 1px solid #f0f0f0;
+    background: transparent;
     padding: 0 24px;
     display: flex;
     align-items: center;

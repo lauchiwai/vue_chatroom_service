@@ -5,19 +5,14 @@
                 v-model:value="inputText"
                 placeholder="有什麼我可以幫助你的嗎？"
                 :auto-size="{ minRows: 1, maxRows: 6 }"
-                @pressEnter="handleSteamSend"
+                @pressEnter="handleSteamSend(ChatStat.Chat)"
                 :disabled="loading"
                 class="chat-textarea"
             />
             <div class="action-tools-wrapper">
                 <div  class="action-tools">
-                    <MyCheckbox 
-                        v-model:model-value="isUseCollection"
-                        label="資料集"
-                    />
-
-                    <a-button @click="generateNewQuery" v-if="isUseCollection">
-                        生成問題
+                    <a-button @click="handleSteamSend(ChatStat.Summary)">
+                        獲取摘要
                     </a-button>
                 </div>
 
@@ -28,7 +23,7 @@
                         class="send-button"
                         :disabled="!inputText.trim()"
                         :loading="loading"
-                        @click="handleSteamSend"
+                        @click="handleSteamSend(ChatStat.Chat)"
                     >
                         <template #icon><SendOutlined /></template>
                     </a-button>
@@ -50,7 +45,7 @@
 </template>
   
 <script setup lang="ts">
-import type { ChatRequest } from '@/types/chat/chatSession'
+import type { ChatRequest, SummaryRequest } from '@/types/chat/chatSession'
 
 import { SendOutlined, BorderOutlined } from '@ant-design/icons-vue'
 import { useChatStore } from '@/stores/chatStore'
@@ -59,28 +54,38 @@ import { storeToRefs } from 'pinia'
 import { ref, onUnmounted } from 'vue'
 import { message } from 'ant-design-vue'
 
-import MyCheckbox from '@/components/common/MyCheckbox.vue';
 const chatStore = useChatStore()
 const userStore = useUserStore()
 const loading = ref(false)
-const isUseCollection = ref(true)
-const defaultCollection = "collection_01";
+const defaultCollection = "articles";
+const defaultArticleId = "articles_01";
 const { currentSession, inputText } = storeToRefs(chatStore)
 
-const generateNewQuestion = () =>{
+enum ChatStat {
+    Chat,      
+    Summary 
+}
+
+const generateNewChatRequest = () =>{
     return {
         chat_session_id: currentSession.value[0],
         user_id: userStore.userId,
         message: inputText.value.trim(),
-        collection_name: isUseCollection.value ? defaultCollection : null
+        collection_name: defaultCollection,
+        article_id: defaultArticleId
     } as ChatRequest
 }
 
-const generateNewQuery = () => {
-    inputText.value = "長者生活津貼";
+const generateNewSummaryRequest = () =>{
+    return {
+        chat_session_id: currentSession.value[0],
+        user_id: userStore.userId,
+        collection_name: defaultCollection,
+        article_id: defaultArticleId
+    } as SummaryRequest
 }
 
-const handleSteamSend = async () => {
+const handleSteamSend = async (chatStat :ChatStat) => {
     try {
         loading.value = true
 
@@ -89,10 +94,12 @@ const handleSteamSend = async () => {
             return
         }
 
-        if (inputText.value.trim()) {
-            let newQusetion : ChatRequest = generateNewQuestion();
-
-            await chatStore.steamChat(newQusetion)
+        if (chatStat == ChatStat.Chat && inputText.value.trim().length > 0){
+            let newQusetion: ChatRequest = generateNewChatRequest();
+            await chatStore.streamChat(newQusetion)
+        } else if (chatStat == ChatStat.Summary) {
+            let newQusetion: SummaryRequest = generateNewSummaryRequest();
+            await chatStore.streamSummaryChat(newQusetion)
         }
 
         await chatStore.refreshChatSessionTime(currentSession.value[0])
@@ -104,7 +111,6 @@ const handleSteamSend = async () => {
 onUnmounted(() => {
     chatStore.abortStreaming()
 })
-
 </script>
 
 <style lang="scss" scoped>
@@ -176,10 +182,6 @@ onUnmounted(() => {
     .action-tools{
         display: flex;
         gap: 10px;
-
-        button{
-
-        }
     }
 
     .send-button {

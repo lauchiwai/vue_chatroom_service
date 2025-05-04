@@ -1,5 +1,5 @@
 import type { ApiResponse, StreamChunk } from '@/types/api/apiResponse'
-import type { ChatRequest, ChatResponse } from '@/types/chat/chatSession'
+import type { BaseRequest, ChatResponse } from '@/types/chat/chatSession'
 
 import { handleUnauthorized } from '@/utils/authApi'
 import { useUserStore } from '@/stores/authStore'
@@ -18,8 +18,8 @@ export class StreamClient {
         }
     }
 
-    async chat(
-        request: ChatRequest,
+    async chat<T extends BaseRequest>(
+        request: T,
         uri: string,
         onChunk?: (chunk: StreamChunk) => void,
         signal?: AbortSignal

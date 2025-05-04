@@ -1,5 +1,5 @@
 import type { ApiResponse, StreamChunk } from '@/types/api/apiResponse'
-import type { ChatSessionResponse, ChatRequest, ChatResponse } from '@/types/chat/chatSession'
+import type { ChatSessionResponse, ChatRequest, ChatResponse, SummaryRequest } from '@/types/chat/chatSession'
 
 import { streamClient } from '@/utils/streamApi'
 import { api } from '@/utils/api'
@@ -25,5 +25,8 @@ export const ChatService = {
     },
     async streamChat(request: ChatRequest, onChunk?: (chunk: StreamChunk) => void, signal?: AbortSignal): Promise<ApiResponse<ChatResponse>> {
         return streamClient.chat(request, 'Chat/ChatStream', onChunk, signal)
+    },
+    async streamSummaryChat(request: SummaryRequest, onChunk?: (chunk: StreamChunk) => void, signal?: AbortSignal): Promise<ApiResponse<ChatResponse>> {
+        return streamClient.chat(request, 'Chat/SummaryStream', onChunk, signal)
     }
 }
