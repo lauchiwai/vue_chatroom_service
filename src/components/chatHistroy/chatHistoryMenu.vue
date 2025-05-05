@@ -125,6 +125,15 @@ const handleDelete = async () => {
                 }
             }
         }
+
+        @media (max-width: 900px) {
+            .menu-item-container {
+                .meun-item-bnt-wrapper {
+                    display: flex !important;
+                    opacity: 1 !important;
+                }
+            }
+        }
     }
 }
 </style>
