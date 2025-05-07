@@ -15,16 +15,17 @@
   },
   "dependencies": {
     "@eslint/js": "^9.24.0",
+    "@vue/compiler-dom": "^3.4.27",
     "ant-design-vue": "^4.2.6",
     "eslint": "^9.24.0",
-    "@vue/compiler-dom": "^3.4.27",
-    "vue-eslint-parser": "^9.4.2",
     "eslint-plugin-vue": "^9.28.0",
     "highlight.js": "^11.11.1",
     "markdown-it": "^14.1.0",
     "pinia": "^3.0.1",
+    "uuid": "^11.1.0",
     "vue": "^3.5.13",
     "vue-axios": "^3.5.2",
+    "vue-eslint-parser": "^9.4.2",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
