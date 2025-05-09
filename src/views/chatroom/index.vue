@@ -69,18 +69,46 @@ nextTick(() => {
 })
 </script>
 
-<style lang="scss" scoped>
-.chatroom-container{
+
+<style lang="scss">
+@import '@/assets/styles/themes'; 
+.chatroom-container {
     height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
+    @include theme(background-color, background);
+    transition: background-color 0.3s ease;
 
-    .msg-container{
+    .msg-container {
         flex: 1;
         padding: 10px 10%;
         scroll-behavior: smooth;
-        overflow-y: scroll;
+        overflow-y: auto;
+        
+        @include theme(background-color, form-bg);
+        &::-webkit-scrollbar {
+            width: 8px;
+            @include theme(background-color, form-bg);
+        }
+
+        &::-webkit-scrollbar-thumb {
+            border-radius: 4px;
+            @include theme(background-color, scrollbar-bg);
+        }
+    }
+
+    .input-container {
+        border-top: 1px solid;
+        @include theme(border-top-color, border);
+        padding: 16px 10%;
+        background: inherit;
+
+        :deep(.chat-input) {
+            @include theme(background-color, form-bg);
+            @include theme(border-color, border);
+            @include theme(color, text);
+        }
     }
 }
 
@@ -88,6 +116,9 @@ nextTick(() => {
     .chatroom-container {
         .msg-container {
             padding: 10px 5%;
+        }
+        .input-container {
+            padding: 12px 5%;
         }
     }
 }

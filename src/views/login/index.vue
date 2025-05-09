@@ -1,15 +1,15 @@
 <template>
-    <div class="login-container">
+    <div class="login-container" :data-theme="themeStore.currentTheme">
         <a-card class="login-card">
             <template #title>
                 <h2 class="login-title">登入</h2>
             </template>
-            
+        
             <a-form
-                :model="loginFrom"
-                @finish="handleLogin"
-                class="login-form"
-                layout="vertical"
+            :model="loginFrom"
+            @finish="handleLogin"
+            class="login-form"
+            layout="vertical"
             >
                 <a-form-item
                     label="帳號"
@@ -21,9 +21,9 @@
                         placeholder="Username"
                         size="large"
                     >
-                        <template #prefix>
-                            <UserOutlined />
-                        </template>
+                    <template #prefix>
+                        <UserOutlined />
+                    </template>
                     </a-input>
                 </a-form-item>
         
@@ -45,11 +45,11 @@
         
                 <a-form-item>
                     <a-button
-                        type="primary"
-                        html-type="submit"
-                        block
-                        size="large"
-                        :loading="loading"
+                    type="primary"
+                    html-type="submit"
+                    block
+                    size="large"
+                    :loading="loading"
                     >
                         登入
                     </a-button>
@@ -71,44 +71,50 @@
 import type { LoginRequest, LoginResponse } from '@/types/auth/user'
 import type { ApiResponse } from '@/types/api/apiResponse'
 
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { UserService } from '@/services/userService'
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useThemeStore } from '@/stores/themeStore'
 
 const route = useRoute()
 const router = useRouter()
+const themeStore = useThemeStore()
 
 const errorMessage = ref('')
 const loading = ref(false)
 const loginFrom = ref<LoginRequest>({
-    username : "",
-    password : ""
+username: "",
+password: ""
+})
+
+onMounted(() => {
+themeStore.initialize()
 })
 
 const handleLogin = async () => {
-    try {
-        loading.value = true
-        errorMessage.value = ''
-        
-        const response : ApiResponse<LoginResponse> = await UserService.login(
-            loginFrom.value.username,
-            loginFrom.value.password
-        )
-        
-        if (response.isSuccess) {
-            const redirectPath = route.query.redirect?.toString() || '/chatroom'
-            router.push(decodeURIComponent(redirectPath))
-        } else {
-            message.error("錯誤訊息: " + response.message)
-            errorMessage.value = '登入失敗，請檢查帳號密碼'
-        }
-    } catch (error) {
-        errorMessage.value = '發生錯誤，請稍後再試' + error
-    } finally {
-        loading.value = false
+try {
+    loading.value = true
+    errorMessage.value = ''
+    
+    const response: ApiResponse<LoginResponse> = await UserService.login(
+    loginFrom.value.username,
+    loginFrom.value.password
+    )
+    
+    if (response.isSuccess) {
+    const redirectPath = route.query.redirect?.toString() || '/chatroom'
+    router.push(decodeURIComponent(redirectPath))
+    } else {
+    message.error("錯誤訊息: " + response.message)
+    errorMessage.value = '登入失敗，請檢查帳號密碼'
     }
+} catch (error) {
+    errorMessage.value = '發生錯誤，請稍後再試' + error
+} finally {
+    loading.value = false
+}
 }
 </script>
 
@@ -119,26 +125,32 @@ const handleLogin = async () => {
     align-items: center;
     min-height: 100vh;
     padding: 24px;
-    background: gray;
+    @include theme(background-color, background);
+    transition: all 0.3s ease;
 
     .login-card {
         width: 100%;
         max-width: 400px;
         border-radius: 8px;
+        @include theme(background-color, form-bg);
+        @include theme(border-color, border);
+        border: 1px solid;
 
         @media (max-width: 576px) {
-            max-width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background:	#FCFCFC;
+            & {
+                max-width: 100%;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                @include theme(background-color, form-bg);
+            }
         }
 
         .login-title {
             text-align: center;
             margin-bottom: 0;
-            color: rgba(0, 0, 0, 0.85);
+            @include theme(color, text);
 
             @media (max-width: 576px) {
                 font-size: 24px;
@@ -148,34 +160,66 @@ const handleLogin = async () => {
         }
 
         .login-form {
-            .ant-form-item-label > label {
-                color: rgba(0, 0, 0, 0.85);
+            :deep(.ant-form-item-label > label) {
+                @include theme(color, text);
+            }
 
-                @media (max-width: 576px) {
-                    font-size: 14px;
+            :deep(.ant-input-affix-wrapper) {
+                @include theme(background-color, form-bg);
+                @include theme(border-color, border);
+                @include theme(color, text); 
+            
+                .ant-input-prefix {
+                    @include theme(color, text-secondary); 
+                }
+
+                &:hover {
+                    @include theme(border-color, primary);
+                }
+
+                &.ant-input-affix-wrapper-focused {
+                    @include theme(border-color, primary);
                 }
             }
 
-            .ant-input-affix-wrapper {
-                @media (max-width: 576px) {
-                    height: 48px;
-                    font-size: 16px;
+            :deep(.anticon) {
+                @include theme(color, text);
+                > * {
+                    @include theme(color, text);
                 }
             }
 
-            .ant-btn {
-                @media (max-width: 576px) {
-                    height: 48px;
-                    font-size: 16px;
-                    margin-top: 8px;
+            :deep(.ant-input) {
+                @include theme(background-color, input-bg);
+                @include theme(color, text);
+            }
+
+            :deep(.ant-input::placeholder) {
+                @include theme(color, text);
+            }
+
+            :deep(.ant-btn-primary) {
+                @include theme(background-color, primary);
+                border-color: transparent;
+                transition: all 0.3s ease;
+
+                &:hover {
+                    opacity: 0.9;
                 }
             }
 
-            .ant-alert {
-                margin-top: 16px;
+            :deep(.ant-alert-error) {
+                @include theme(background-color, alert-bg);
+                @include theme(border-color, border);
+                @include theme(color, text);
+            }
 
-                @media (max-width: 576px) {
-                    margin-top: 24px;
+            :deep(.ant-input-password-icon) {
+                @include theme(color, text-secondary);
+                transition: color 0.2s ease;
+
+                &:hover {
+                    @include theme(color, primary);
                 }
             }
         }
@@ -185,10 +229,16 @@ const handleLogin = async () => {
 @media (max-width: 576px) {
     .login-container {
         padding: 0;
-        background: white;
+        @include theme(background-color, form-bg);
 
-        ::v-deep(.ant-card .ant-card-body) {
-            height: 70% ;
+        :deep(.ant-card .ant-card-body) {
+            height: 70%;
+        }
+
+        .login-form {
+            :deep(.ant-input-affix-wrapper .ant-input-prefix) {
+                @include theme(color, text);
+            }
         }
     }
 }

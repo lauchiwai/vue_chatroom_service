@@ -123,10 +123,24 @@ onUnmounted(() => {
     margin-bottom: 10px;
     padding: 16px;
     box-sizing: border-box;
-    background: #fff;
+    @include theme(background-color, input-bg);
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     
+    :deep(.ant-input) {
+        @include theme(background-color, input-bg);
+        @include theme(color, text);
+    }
+
+    :deep(.ant-input::placeholder) {
+        @include theme(color, text);
+    }
+
+    :deep(.ant-btn){
+        @include theme(background-color, input-bg);
+        @include theme(color, text);
+    }
+
     &::before {
         content: "";
         position: absolute;
@@ -150,7 +164,7 @@ onUnmounted(() => {
         padding: 5px 10px;
     
         &:focus-within {
-            border-color: #1890ff;
+            @include theme(border-color, primary);
             box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
         }
     }

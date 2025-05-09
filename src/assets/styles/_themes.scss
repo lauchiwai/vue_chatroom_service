@@ -1,0 +1,33 @@
+// _themes.scss
+@use "sass:map";
+
+$themes: (
+    light: (background:#f0f2f5,
+        text: #333333,
+        primary: #2196f3,
+        border: #e0e0e0,
+        form-bg: #ffffff,
+        scrollbar-bg: #ADADAD,
+        text-secondary: #666666,
+        alert-bg: #fff1f0,
+        input-bg: #ffffff,
+        sub-color: #333333),
+    dark: (background: #3C3C3C,
+        text: #ffffff,
+        primary: #4fc3f7,
+        border: #BEBEBE,
+        form-bg: #3C3C3C,
+        scrollbar-bg: #ADADAD,
+        alert-bg: #fff1f0,
+        text-secondary: #666666,
+        input-bg: gray,
+        sub-color: white, )
+);
+
+@mixin theme($property, $color) {
+    @each $theme-name, $colors in $themes {
+        [data-theme="#{$theme-name}"] & {
+            #{$property}: map.get($colors, $color);
+        }
+    }
+}
