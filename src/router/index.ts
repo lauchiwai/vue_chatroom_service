@@ -9,21 +9,39 @@ const router = createRouter({
     routes: [
         {
             path: '/login',
-            name: 'login',
+            name: 'Login',
             component: () => import('@/views/login/index.vue'),
-            meta: { layout: 'fullScreen' }
+            meta: { layout: 'fullScreen', requiresAuth: false, showHeader: false }
         },
         {
-            path: '/chatroom',
-            name: 'chatroom',
+            path: '/',
+            name: 'Home',
+            component: () => import('@/views/home/index.vue'),
+            meta: { layout: 'main', requiresAuth: true, showHeader: true }
+        },
+        {
+            path: '/Home',
+            name: 'Home',
+            component: () => import('@/views/home/index.vue'),
+            meta: { layout: 'main', requiresAuth: true, showHeader: true }
+        },
+        {
+            path: '/Chatroom',
+            name: '聊天室',
             component: () => import('@/views/chatroom/index.vue'),
-            meta: { layout: 'main', requiresAuth: true }
+            meta: { layout: 'main', requiresAuth: true, showHeader: false }
+        },
+        {
+            path: '/GenerateActicle',
+            name: 'Acticle Generater',
+            component: () => import('@/views/article/add/index.vue'),
+            meta: { layout: 'main', requiresAuth: true, showHeader: true }
         },
         {
             path: '/:pathMatch(.*)*',
             name: 'NotFound',
             component: () => import('@/views/notFound/index.vue'),
-            meta: { layout: 'fullScreen', requiresAuth: true }
+            meta: { layout: 'fullScreen', requiresAuth: true, showHeader: false }
         }
     ]
 })

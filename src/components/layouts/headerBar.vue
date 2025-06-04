@@ -1,55 +1,20 @@
 <template>
     <a-layout-header class="header">
-        <component
-            :is="collapsed ? MenuUnfoldOutlined : MenuFoldOutlined"
-            class="trigger"
-            @click="handleToggle"
-        />
+        <div class="header-left">
+            <span class="header-title">
+                {{ title }} 
+            </span>
+        </div>
+
         <div class="header-right">
-            <a-dropdown>
-                <template #overlay>
-                    <a-menu>
-                        <a-menu-item key="logout" @click="handleLogout">
-                            <LogoutOutlined /> 登出
-                        </a-menu-item>
-                    </a-menu>
-                </template>
-                <div class="user-wrapper">
-                    <UserOutlined />
-                    <span> {{ userName }} </span>
-                    <DownOutlined style="font-size: 10px; margin-left: 4px;" />
-                </div>
-            </a-dropdown>
         </div>
     </a-layout-header>
 </template>
 
 <script setup lang="ts">
-import { 
-    MenuUnfoldOutlined, 
-    MenuFoldOutlined, 
-    UserOutlined, 
-    DownOutlined, 
-    LogoutOutlined 
-} from '@ant-design/icons-vue'
-import { useUserStore } from '@/stores/authStore'
-import { computed } from 'vue'
-
-const userStore = useUserStore()
-const userName = computed(() => userStore.userName)
-const collapsed = defineModel('collapsed', {
-    type: Boolean,
-    required: true
-})
-
-const handleToggle = () => {
-    collapsed.value = !collapsed.value
-}
-
-const handleLogout = () =>{
-    userStore.logout()
-    window.location.href = '/login'
-}
+defineProps<{
+    title: string
+}>()
 </script>
 
 <style lang="scss" scoped>
@@ -60,21 +25,21 @@ const handleLogout = () =>{
     align-items: center;
     justify-content: space-between;
 
-    .trigger {
-        font-size: 18px;
-        cursor: pointer;
-        transition: color 0.3s;
+    .header-left{
+        height: 100%;
+        display: flex;
+        align-items: center;
 
-        &:hover {
-            color: #1890ff;
+        .header-title{
+            font-size: 20px;
+            font-weight: 600;
+            padding: 0 20px;
         }
     }
 
-    .user-wrapper{  
+    .header-right {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
+        gap: 16px;
     }
 }
 </style>

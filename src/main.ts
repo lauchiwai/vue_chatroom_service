@@ -1,4 +1,5 @@
 import 'ant-design-vue/dist/reset.css';
+import 'material-icons/iconfont/material-icons.css';
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 

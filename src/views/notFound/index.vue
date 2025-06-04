@@ -13,7 +13,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const goHome = () => {
-    router.push('/chatroom') 
+    router.push('/Home') 
 }
 </script>
   
