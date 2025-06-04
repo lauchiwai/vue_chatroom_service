@@ -10,7 +10,7 @@
         </template>
         <template v-else>
             <PlusSquareOutlined /> 
-            <span v-if="!collapsed">開啓新對話</span>
+            <span>開啓新對話</span>
         </template>
     </button>
 </template>
@@ -24,10 +24,6 @@ const emit = defineEmits(['drawer-close'])
 
 const chatStore = useChatStore()
 const isLoading = ref<boolean>(false)
-const collapsed = defineModel('collapsed', {
-    type: Boolean,
-    required: true
-})
 
 const createSession = async () => {
     try{

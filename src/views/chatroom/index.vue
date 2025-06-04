@@ -1,5 +1,8 @@
 <template>
     <div class="chatroom-container">
+        <div class="chat-header">
+            <chatHeader />
+        </div>
         <div class="msg-container" ref="msgContainer">
             <messageList />
         </div>
@@ -10,12 +13,13 @@
 </template>
 
 <script setup lang="ts">
-import messageList from '@/components/chatroom/messageList.vue'
-import chatInput from '@/components/chatroom/chatInput.vue'
-
 import { useChatStore } from '@/stores/chatStore'
 import { storeToRefs } from 'pinia'
 import { ref, watch, nextTick, onUnmounted } from 'vue'
+
+import messageList from '@/components/chatroom/messageList.vue'
+import chatInput from '@/components/chatroom/chatInput.vue'
+import chatHeader from '@/components/chatroom/chatHeader.vue'
 
 const msgContainer = ref<HTMLElement>()
 const chatStore = useChatStore()
@@ -75,6 +79,10 @@ nextTick(() => {
     width: 100%;
     display: flex;
     flex-direction: column;
+
+    .chat-header{
+        height: 40px;
+    }
 
     .msg-container{
         flex: 1;

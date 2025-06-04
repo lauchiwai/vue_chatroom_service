@@ -1,25 +1,19 @@
 <template>
-    <div ref="markdownContainer" 
+    <div
+        ref="markdownContainer"
         class="markdown-wrapper"
         @mouseup.capture="handleTextSelection"
         :data-markdown-instance="instanceId"
     ></div>
-    
-    <div v-if="showBubbleMenu" 
-        class="bubble-menu"
-        :data-instance="instanceId"
-        :style="bubblePosition"
-    >
-        <button @click="handleCopy" >
-            <span>复制</span>
-        </button>
-        <button @click="handleHighlight">
-            <span>高亮</span>
-        </button>
-        <button @click="handleShare">
-            <span>分享</span>
-        </button>
-    </div>
+
+    <BubbleMenu
+        :show="showBubbleMenu"
+        :position="bubblePosition"
+        :instanceId="instanceId"
+        @copy="handleCopy"
+        @highlight="handleHighlight"
+        @share="handleShare"
+    />
 </template>
 
 <script setup lang="ts">
@@ -29,12 +23,20 @@ import { v4 as uuidv4 } from 'uuid'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import DOMPurify from 'dompurify'
+import BubbleMenu from '@/components/bubbleMenu/articleBubbleMenu.vue'
 
 import 'highlight.js/styles/github-dark.css'
 
-const props = defineProps<{
-    content: string
-}>()
+const props = defineProps({
+    content: {
+        type: String,
+        required: true
+    },
+    pageCharCount: {
+        type: Number,
+        default: 1000
+    }
+})
 
 const instanceId = uuidv4()
 const markdownContainer = ref<HTMLElement>()
@@ -51,7 +53,7 @@ const md: any = new MarkdownIt({
                 }</code></pre>`
             } catch (__) {}
         }
-        
+
         try {
             const result = hljs.highlightAuto(str)
             return `<pre class="hljs"><code class="language-${result.language}">${result.value}</code></pre>`
@@ -63,6 +65,33 @@ const md: any = new MarkdownIt({
 
 const showBubbleMenu = ref(false)
 const bubblePosition = ref({ top: '0px', left: '0px' })
+
+const getScrollParent = (element: HTMLElement | null): HTMLElement => {
+    if (!element) return document.documentElement
+    
+    const style = getComputedStyle(element)
+    const excludeStaticParent = style.position === 'absolute'
+    const overflowRegex = /(auto|scroll|overlay)/
+    
+    let parent = element.parentElement
+    
+    while (parent) {
+        const parentStyle = getComputedStyle(parent)
+        
+        if (excludeStaticParent && parentStyle.position === 'static') {
+            parent = parent.parentElement
+            continue
+        }
+        
+        if (overflowRegex.test(parentStyle.overflow + parentStyle.overflowY + parentStyle.overflowX)) {
+            return parent
+        }
+        
+        parent = parent.parentElement
+    }
+    
+    return document.documentElement
+}
 
 const handleTextSelection = (e: MouseEvent) => {
     const selection = window.getSelection()
@@ -79,11 +108,19 @@ const handleTextSelection = (e: MouseEvent) => {
     }
 
     const rect = range.getBoundingClientRect()
+    const scrollParent = getScrollParent(container)
+    const scrollTop = scrollParent === document.documentElement 
+        ? window.scrollY 
+        : scrollParent.scrollTop
+    const scrollLeft = scrollParent === document.documentElement 
+        ? window.scrollX 
+        : scrollParent.scrollLeft
+
     bubblePosition.value = {
-        top: `${rect.top + window.scrollY - 40}px`,
-        left: `${rect.left + window.scrollX + rect.width / 2}px`
+        top: `${rect.top + scrollTop - 40}px`,
+        left: `${rect.left + scrollLeft + rect.width / 2}px`
     }
-    
+
     showBubbleMenu.value = true
 }
 
@@ -91,7 +128,7 @@ const handleClickOutside = (e: MouseEvent) => {
     const target = e.target as HTMLElement
     const isBubbleMenu = target.closest(`[data-instance="${instanceId}"]`)
     const isCurrentMarkdown = target.closest(`[data-markdown-instance="${instanceId}"]`)
-    
+
     if (!isBubbleMenu && !isCurrentMarkdown) {
         showBubbleMenu.value = false
     }
@@ -148,7 +185,7 @@ const renderMarkdown = async () => {
     })
 
     markdownContainer.value.innerHTML = cleanHtml
-    
+
     await nextTick()
     document.querySelectorAll('pre code').forEach((block) => {
         hljs.highlightElement(block as HTMLElement)
@@ -174,36 +211,6 @@ watch(() => props.content, renderMarkdown)
     position: relative;
 }
 
-.bubble-menu {
-    position: absolute;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    padding: 6px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transform: translateX(-50%);
-    z-index: 2147483647;
-    display: flex;
-    gap: 4px;
-    animation: fadeIn 0.15s ease-out;
-}
-
-.bubble-menu button {
-    padding: 6px 10px;
-    border: none;
-    background: #f8fafc;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-}
-
-.bubble-menu button:hover {
-    background: #e2e8f0;
-    transform: translateY(-1px);
-}
-
 .hljs {
     padding: 1.2rem !important;
     border-radius: 8px;
@@ -215,21 +222,5 @@ watch(() => props.content, renderMarkdown)
     background: rgba(255, 235, 0, 0.3);
     padding: 0 2px;
     border-radius: 2px;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translate(-50%, 8px); }
-    to { opacity: 1; transform: translate(-50%, 0); }
-}
-
-@media (max-width: 640px) {
-    .bubble-menu {
-        gap: 2px;
-        padding: 4px;
-    }
-    
-    .bubble-menu button {
-        padding: 4px 8px;
-    }
 }
 </style>

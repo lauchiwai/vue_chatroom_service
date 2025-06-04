@@ -1,5 +1,5 @@
 import type { ApiResponse } from '@/types/api/apiResponse'
-import type { ChatSessionResponse, ChatRequest, ChatResponse, SummaryRequest } from '@/types/chat/chatSession'
+import type { ChatSessionResponse, ChatRequest, ChatResponse, SummaryRequest } from '@/types/chat/chat'
 import type { ChatMessage, ChatHistory } from '@/types/chatHistory/chatHistory'
 
 import { ChatHistoryService } from '@/services/chatHistoryService'

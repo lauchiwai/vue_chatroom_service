@@ -1,5 +1,4 @@
 import type { ApiResponse, StreamChunk } from '@/types/api/apiResponse'
-import type { BaseRequest, ChatResponse } from '@/types/chat/chatSession'
 
 import { handleUnauthorized } from '@/utils/authApi'
 import { useUserStore } from '@/stores/authStore'
@@ -18,16 +17,16 @@ export class StreamClient {
         }
     }
 
-    async chat<T extends BaseRequest>(
-        request: T,
+    async chat(
+        request: any,
         uri: string,
         onChunk?: (chunk: StreamChunk) => void,
         signal?: AbortSignal
-    ): Promise<ApiResponse<ChatResponse>> {
+    ): Promise<ApiResponse<any>> {
         let retryCount = 0
         const maxRetries = 1
 
-        const executeRequest = async (): Promise<ApiResponse<ChatResponse>> => {
+        const executeRequest = async (): Promise<ApiResponse<any>> => {
             const controller = new AbortController()
             const effectiveSignal = signal || controller.signal
 
@@ -79,7 +78,7 @@ export class StreamClient {
         content: string,
         onChunk?: (chunk: StreamChunk) => void,
         sessionId?: string
-    ): Promise<ApiResponse<ChatResponse>> {
+    ): Promise<ApiResponse<any>> {
         const decoder = new TextDecoder()
 
         try {
@@ -123,7 +122,7 @@ export class StreamClient {
         message: string,
         code?: number,
         sessionId?: string
-    ): ApiResponse<ChatResponse> {
+    ): ApiResponse<any> {
         return {
             isSuccess: false,
             message: code ? `[${code}] ${message}` : message,
@@ -131,7 +130,7 @@ export class StreamClient {
         }
     }
 
-    private handleError(error: unknown, sessionId?: string): ApiResponse<ChatResponse> {
+    private handleError(error: unknown, sessionId?: string): ApiResponse<any> {
         const message = error instanceof Error ? error.message : 'unkonow error'
         return this.formatError(message, undefined, sessionId)
     }

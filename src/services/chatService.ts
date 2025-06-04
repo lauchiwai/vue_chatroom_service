@@ -1,5 +1,5 @@
 import type { ApiResponse, StreamChunk } from '@/types/api/apiResponse'
-import type { ChatSessionResponse, ChatRequest, ChatResponse, SummaryRequest } from '@/types/chat/chatSession'
+import type { ChatSessionResponse, ChatRequest, ChatResponse, SummaryRequest } from '@/types/chat/chat'
 
 import { streamClient } from '@/utils/streamApi'
 import { api } from '@/utils/api'

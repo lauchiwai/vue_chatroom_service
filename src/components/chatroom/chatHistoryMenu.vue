@@ -36,7 +36,7 @@ import { DeleteOutlined } from '@ant-design/icons-vue'
 import { useChatStore } from '@/stores/chatStore'
 import { storeToRefs } from 'pinia'
 
-import DeleteModal from '@/components/common/DeleteModal.vue'
+import DeleteModal from '@/components/common/deleteModal.vue'
 
 const emit = defineEmits(['drawer-close'])
 onMounted(async () => {

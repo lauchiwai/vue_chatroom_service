@@ -45,7 +45,7 @@
 </template>
   
 <script setup lang="ts">
-import type { ChatRequest, SummaryRequest } from '@/types/chat/chatSession'
+import type { ChatRequest, SummaryRequest } from '@/types/chat/chat'
 
 import { SendOutlined, BorderOutlined } from '@ant-design/icons-vue'
 import { useChatStore } from '@/stores/chatStore'
@@ -119,8 +119,6 @@ onUnmounted(() => {
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
     padding: 16px;
     box-sizing: border-box;
     background: #fff;
