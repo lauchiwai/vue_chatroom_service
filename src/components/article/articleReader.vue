@@ -1,12 +1,12 @@
 <template>
     <div class="reader-container">
         <div class="page-indicator">
-            <a-tag color="blue">第 {{ currentPage + 1 }} 页 / 共 {{ totalPages }} 页</a-tag>
+            <a-tag color="blue">第 {{ currentPage + 1 }} 頁 / 共 {{ totalPages }} 頁</a-tag>
             <a-tag color="orange" class="font-size-tag">{{ fontSize }}px</a-tag>
         </div>
 
         <div class="content-wrapper">
-            <div class="markdown-viewer" ref="viewerContainer">
+            <div class="markdown-viewer" ref="viewerContainer" @scroll="handleScroll">
                 <div class="markdown-content" :style="{ fontSize: fontSize + 'px', lineHeight: lineHeight }">
                     <MarkdownRenderer :content="currentPageContent" />
                 </div>
@@ -45,7 +45,7 @@
                 
                 <a-float-button
                     type="default"
-                    tooltip="返回主页"
+                    tooltip="返回主頁"
                     @click="goHome"
                 >
                     <template #icon><HomeOutlined /></template>
@@ -53,7 +53,7 @@
                 
                 <a-float-button
                     :type="isBookmarked ? 'primary' : 'default'"
-                    tooltip="书签"
+                    tooltip="書籤"
                     @click="toggleBookmark"
                 >
                     <template #icon><BookOutlined /></template>
@@ -61,7 +61,7 @@
                 
                 <a-float-button
                     type="default"
-                    tooltip="减小字号"
+                    tooltip="減小字號"
                     @click="adjustFontSize(-1)"
                     :disabled="fontSize <= minFontSize"
                 >
@@ -70,7 +70,7 @@
                 
                 <a-float-button
                     type="default"
-                    tooltip="增大字号"
+                    tooltip="增大字號"
                     @click="adjustFontSize(1)"
                     :disabled="fontSize >= maxFontSize"
                 >
@@ -79,7 +79,7 @@
                 
                 <a-float-button
                     type="default"
-                    tooltip="重置字号"
+                    tooltip="重置字號"
                     @click="resetFontSize"
                 >
                     <template #icon><RestOutlined /></template>
@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
@@ -130,6 +130,13 @@ const readingPosition = ref({
     scrollTop: 0
 })
 
+const wordCountInfo = computed(() => {
+    if (!pagedContents.value.length) return null
+    const current = pagedContents.value[currentPage.value].length
+    const total = props.content.length
+    return { current, total }
+})
+
 const adjustFontSize = (delta: number) => {
     const newSize = fontSize.value + delta
     fontSize.value = Math.max(minFontSize, Math.min(maxFontSize, newSize))
@@ -141,56 +148,87 @@ const resetFontSize = () => {
     recalculatePagination()
 }
 
-const splitLongWord = (word: string, maxLength: number): string[] => {
-    const chunks: string[] = []
-    for (let i = 0; i < word.length; i += maxLength) {
-        chunks.push(word.slice(i, i + maxLength))
-    }
-    return chunks
-}
-
 const pagedContents = computed(() => {
     if (!props.content.trim()) return ['']
     
-    const adjustedPageCharCount = Math.floor(props.pageCharCount * (defaultFontSize / fontSize.value))
-    
-    const words = props.content.split(/\s+/).filter(word => word.length > 0)
+    const maxPageSize = props.pageCharCount + 100
+    const minPageSize = props.pageCharCount - 100
     const result: string[] = []
-    let currentPageWords: string[] = []
-    let currentCharCount = 0
     
-    for (const word of words) {
-        const wordLength = word.length
-        
-        if (wordLength > adjustedPageCharCount / 2) {
-            if (currentPageWords.length > 0) {
-                result.push(currentPageWords.join(' '))
-                currentPageWords = []
-                currentCharCount = 0
+    const blocks: string[] = []
+    const lines = props.content.split('\n')
+    let currentBlock: string[] = []
+    
+    for (const line of lines) {
+        if (line.trim() === '') {
+            if (currentBlock.length > 0) {
+                blocks.push(currentBlock.join('\n'))
+                currentBlock = []
             }
-            const chunks = splitLongWord(word, adjustedPageCharCount)
-            for (const chunk of chunks.slice(0, -1)) {
-                result.push(chunk)
-            }
-            currentPageWords = [chunks[chunks.length - 1]]
-            currentCharCount = chunks[chunks.length - 1].length
             continue
         }
         
-        if (currentCharCount + wordLength + (currentPageWords.length > 0 ? 1 : 0) > adjustedPageCharCount) {
-            if (currentPageWords.length > 0) {
-                result.push(currentPageWords.join(' '))
-                currentPageWords = []
-                currentCharCount = 0
+        if (line.startsWith('#') || line.startsWith('##') || line.startsWith('###')) {
+            if (currentBlock.length > 0) {
+                blocks.push(currentBlock.join('\n'))
+                currentBlock = []
             }
+            blocks.push(line)
+            continue
         }
         
-        currentPageWords.push(word)
-        currentCharCount += wordLength + (currentPageWords.length > 1 ? 1 : 0)
+        if (line.startsWith('```')) {
+            if (currentBlock.length > 0) {
+                blocks.push(currentBlock.join('\n'))
+                currentBlock = []
+            }
+            blocks.push(line)
+            continue
+        }
+        
+        currentBlock.push(line)
     }
     
-    if (currentPageWords.length > 0) {
-        result.push(currentPageWords.join(' '))
+    if (currentBlock.length > 0) {
+        blocks.push(currentBlock.join('\n'))
+    }
+    
+    let currentPageContent = ''
+    for (const block of blocks) {
+        if (currentPageContent.length + block.length + 2 <= maxPageSize) {
+            currentPageContent += (currentPageContent ? '\n\n' : '') + block
+        } else {
+            if (currentPageContent) {
+                result.push(currentPageContent)
+                currentPageContent = ''
+            }
+            
+            if (block.length > maxPageSize) {
+                const chunkSize = Math.max(minPageSize, Math.floor(maxPageSize * 0.8))
+                let start = 0
+                while (start < block.length) {
+                    let end = Math.min(start + chunkSize, block.length)
+                    
+                    const lastPeriod = block.lastIndexOf('.', end)
+                    const lastNewline = block.lastIndexOf('\n', end)
+                    
+                    if (lastNewline > start && lastNewline > lastPeriod) {
+                        end = lastNewline
+                    } else if (lastPeriod > start) {
+                        end = lastPeriod + 1
+                    }
+                    
+                    result.push(block.substring(start, end).trim())
+                    start = end
+                }
+            } else {
+                currentPageContent = block
+            }
+        }
+    }
+    
+    if (currentPageContent) {
+        result.push(currentPageContent)
     }
     
     return result.length ? result : ['']
@@ -244,16 +282,14 @@ const toggleBookmark = () => {
 }
 
 const goHome = () => {
-    console.log("返回主页")
+    console.log("返回主頁")
 }
 
 const handleOpenChange = (open: boolean) => {
     expanded.value = open
 }
 
-watch(fontSize, () => {
-    recalculatePagination()
-})
+watch(fontSize, recalculatePagination)
 
 let scrollTimeout: ReturnType<typeof setTimeout> | null = null
 const handleScroll = () => {
@@ -266,30 +302,9 @@ const handleScroll = () => {
     }, 100)
 }
 
-watch(() => props.content, (newContent, oldContent) => {
-    if (newContent.length < oldContent.length) {
-        currentPage.value = 0
-        readingPosition.value = { page: 0, scrollTop: 0 }
-        return
-    }
-    
-    const addedContent = newContent.slice(oldContent.length)
-    const currentPageLength = pagedContents.value[currentPage.value]?.length || 0
-    
-    const remainingSpace = Math.floor(props.pageCharCount * (defaultFontSize / fontSize.value)) - currentPageLength
-    
-    if (addedContent.length <= remainingSpace) {
-        readingPosition.value.page = currentPage.value
-        scrollToTop()
-    } else {
-        const newPage = Math.floor(newContent.length / Math.floor(props.pageCharCount * (defaultFontSize / fontSize.value)))
-        currentPage.value = newPage
-        readingPosition.value = {
-            page: newPage,
-            scrollTop: 0
-        }
-        scrollToTop()
-    }
+watch(() => props.content, (newContent) => {
+    currentPage.value = 0
+    readingPosition.value = { page: 0, scrollTop: 0 }
 })
 
 onMounted(() => {
@@ -301,6 +316,8 @@ onMounted(() => {
     if (savedFontSize) {
         fontSize.value = Math.max(minFontSize, Math.min(maxFontSize, parseInt(savedFontSize)))
     }
+    
+    nextTick(recalculatePagination)
 })
 
 onUnmounted(() => {
@@ -331,21 +348,27 @@ onUnmounted(() => {
     flex: 1;
     display: flex;
     overflow: hidden;
+    background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .markdown-viewer {
     flex: 1;
-    background: transparent;
+    background: white;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
+    padding: 16px;
+    border-radius: 8px;
 }
 
 .markdown-content {
-    padding: 16px;
     flex: 1;
     transition: font-size 0.3s ease;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .page-indicator {
@@ -355,16 +378,18 @@ onUnmounted(() => {
     z-index: 100;
     text-align: right;
     padding: 8px 16px;
-    background: transparent;
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(5px);
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.font-size-tag {
-    min-width: 60px;
+.font-size-tag{
+    min-width: 80px;
     text-align: center;
+    font-weight: 500;
 }
 
 .page-button {
@@ -376,10 +401,12 @@ onUnmounted(() => {
     background-color: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     transition: all 0.3s ease;
+    border: 1px solid #d9d9d9;
 }
 
 .page-button:hover {
     transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .page-button:disabled {
@@ -423,6 +450,13 @@ onUnmounted(() => {
     width: 40px;
     background-color: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.action-buttons :deep(.ant-float-btn):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
@@ -451,7 +485,39 @@ onUnmounted(() => {
     }
     
     .font-size-tag {
-        min-width: 50px;
+        min-width: 70px;
+        font-size: 12px;
+    }
+    
+    .markdown-viewer {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-button {
+        bottom: 73px;
+        height: 32px;
+        width: 34px;
+    }
+    
+    .prev-button {
+        right: 95px;
+    }
+    
+    .next-button {
+        right: 55px;
+    }
+    
+    .font-size-tag {
+        min-width: 60px;
+        font-size: 11px;
+        padding: 0 4px;
+    }
+    
+    .page-indicator {
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 }
 </style>

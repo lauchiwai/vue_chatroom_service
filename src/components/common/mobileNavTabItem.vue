@@ -1,15 +1,10 @@
 <template>
-    <div class="tab-items-container "
-        v-for="item in items"
-        :key="item.key"
+    <div class="tab-item"
+        :class="selectedKeys.includes(item.key) ? 'active' : ''"
+        @click="handleClick(item)"
     >
-        <div class="tab-item"
-            :class="selectedKeys.includes(item.key) ? 'active' : ''"
-            @click="handleClick(item)"
-        >
-            <component :is="item.icon()" class="icon" />
-            <span class="tab-label">{{ item.label }}</span>
-        </div>
+        <component :is="item.icon()" class="icon" />
+        <span class="tab-label">{{ item.label }}</span>
     </div>
 </template>
 
@@ -18,8 +13,8 @@ import type { MenuItem } from '@/stores/siderStore'
 import { defineProps, defineEmits, ref } from 'vue';
 
 const props = defineProps({
-    items: {
-        type: Array as () => MenuItem[],
+    item: {
+        type: Object as () => MenuItem,
         required: true,
     },
     selectedKeys: {
@@ -42,7 +37,7 @@ const handleClick = (item: MenuItem) => {
     align-items: center;
     text-decoration: none;
     color: #666;
-    padding: 2px;
+    padding: 5px;
     transition: all 0.3s ease;
     cursor: pointer;
     font-size: 20px;

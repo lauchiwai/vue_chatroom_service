@@ -1,6 +1,5 @@
 <template>
-    <div
-        ref="markdownContainer"
+    <div ref="markdownContainer"
         class="markdown-wrapper"
         @mouseup.capture="handleTextSelection"
         :data-markdown-instance="instanceId"

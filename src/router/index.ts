@@ -11,37 +11,49 @@ const router = createRouter({
             path: '/login',
             name: 'Login',
             component: () => import('@/views/login/index.vue'),
-            meta: { layout: 'fullScreen', requiresAuth: false, showHeader: false }
+            meta: { layout: 'fullScreen', requiresAuth: false, showHeader: false, showMobileNav: false, showSideBar: true }
         },
         {
             path: '/',
             name: 'Home',
             component: () => import('@/views/home/index.vue'),
-            meta: { layout: 'main', requiresAuth: true, showHeader: true }
+            meta: { layout: 'main', requiresAuth: true, showHeader: true, showMobileNav: false, showSideBar: true }
         },
         {
             path: '/Home',
             name: 'Home',
             component: () => import('@/views/home/index.vue'),
-            meta: { layout: 'main', requiresAuth: true, showHeader: true }
+            meta: { layout: 'main', requiresAuth: true, showHeader: true, showMobileNav: true, showSideBar: true }
+        },
+        {
+            path: '/BookShelf',
+            name: '書架',
+            component: () => import('@/views/article/index.vue'),
+            meta: { layout: 'main', requiresAuth: true, showHeader: false, showMobileNav: true, showSideBar: true }
+        },
+        {
+            path: '/BookShelf/Add',
+            name: 'Acticle Generator',
+            component: () => import('@/views/article/add/index.vue'),
+            meta: { layout: 'main', requiresAuth: true, showHeader: false, showMobileNav: false, showSideBar: true }
+        },
+        {
+            path: '/BookShelf/View/:id',
+            name: 'Acticle Viewer',
+            component: () => import('@/views/article/view/index.vue'),
+            meta: { layout: 'main', requiresAuth: true, showHeader: false, showMobileNav: true, showSideBar: true }
         },
         {
             path: '/Chatroom',
             name: '聊天室',
             component: () => import('@/views/chatroom/index.vue'),
-            meta: { layout: 'main', requiresAuth: true, showHeader: false }
-        },
-        {
-            path: '/GenerateActicle',
-            name: 'Acticle Generater',
-            component: () => import('@/views/article/add/index.vue'),
-            meta: { layout: 'main', requiresAuth: true, showHeader: true }
+            meta: { layout: 'main', requiresAuth: true, showHeader: false, showMobileNav: false, showSideBar: true }
         },
         {
             path: '/:pathMatch(.*)*',
             name: 'NotFound',
             component: () => import('@/views/notFound/index.vue'),
-            meta: { layout: 'fullScreen', requiresAuth: true, showHeader: false }
+            meta: { layout: 'fullScreen', requiresAuth: true, showHeader: false, showMobileNav: false, showSideBar: true }
         }
     ]
 })

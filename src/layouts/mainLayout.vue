@@ -1,15 +1,13 @@
 <template>
     <a-layout class="main-layout">
-        <SiderBar v-if="!isMobile" />
-        <!-- <MobileNav v-if="isMobile" /> -->
+        <SiderBar v-if="!isMobile && showSideBar" />
+        <MobileNav v-if="isMobile && showMobileNav" />
 
         <a-layout class="sub-layout">
-            <div class="header-content" v-if="showHeader">
-                <HeaderBar :title="title" />
-            </div>
+            <Breadcrumb v-if="!showBreadcrumb" />
           
             <a-layout-content class="main-content">
-                <div class="router-view-container">
+                <div class="router-view-container" :class="isMobile && showMobileNav ? 'mobile-nav-padding' : '' ">
                     <router-view />
                 </div>
             </a-layout-content>
@@ -18,9 +16,9 @@
 </template>
 
 <script setup lang="ts">
-import HeaderBar from '@/components/layouts/headerBar.vue'
 import SiderBar from '@/components/layouts/siderBar.vue'
 import MobileNav from '@/components/layouts/mobileNav.vue'
+import Breadcrumb from '@/components/layouts/breadcrumb.vue'
 
 import { useScreenStore } from '@/stores/screenStore'
 import { computed, ref, watch } from 'vue'
@@ -30,12 +28,24 @@ const store = useScreenStore()
 const isMobile = computed(() => store.isMobile)
 
 const route = useRoute()
-const showHeader = ref<boolean>(true)
 const title = ref<string>("")
+const showHeader = ref<boolean>(true)
+const showSideBar = ref<boolean>(false)
+const showMobileNav = ref<boolean>(false)
+const showBreadcrumb = ref<boolean>(false) 
 
-watch(() => route.meta.showHeader, (newShowHeader) => {
-    if (newShowHeader != undefined) {
-        showHeader.value = newShowHeader as boolean
+watch(() => route.meta, (newMeta) => {
+    if (newMeta.showHeader != undefined) {
+        showHeader.value = newMeta.showHeader as boolean
+    } 
+    if (newMeta.showSideBar != undefined) {
+        showSideBar.value = newMeta.showSideBar as boolean
+    }
+    if (newMeta.showMobileNav != undefined) {
+        showMobileNav.value = newMeta.showMobileNav as boolean
+    }
+    if (newMeta.showBreadcrumb != undefined) { 
+        showBreadcrumb.value = newMeta.showBreadcrumb as boolean
     }
 }, { immediate: true })
 
@@ -76,29 +86,25 @@ watch(() => route.name, (newTitle) => {
         .main-content {
             flex: 1;
             display: flex;
+            flex-direction: column;
             position: relative;
             padding: var(--content-padding);
-            overflow: auto;
             background-color: #f5f5f5;
             min-height: calc(100vh - var(--header-height) - 2 * var(--content-padding));
             height: auto;
-            
+
             .router-view-container {
                 flex: 1;
                 width: 100%;
                 position: relative;
                 overflow: visible;
                 border-radius: 8px;
-                padding: 10px;
                 min-height: 100%;
+                overflow: auto;
             }
-        }
-    }
 
-    @media (min-width: 992px) {
-        .sub-layout .main-content {
-            .router-view-container {
-                padding: 10px;
+            .mobile-nav-padding{
+                padding-bottom: 80px;
             }
         }
     }
@@ -108,10 +114,6 @@ watch(() => route.name, (newTitle) => {
         
         .sub-layout .main-content {
             padding: 0px;
-            
-            .router-view-container {
-                padding: 12px;
-            }
         }
     }
 }

@@ -1,55 +1,74 @@
 <template>
-    <a-card :style="{ width: '100%' }">
-        <template #title>
-            <div class="title-container">
-                <div class="title-left">
-                    <span>FlashCard</span>
-                </div>
-                <div class="title-right">
-                    <button>
-                        <span>more</span>
-                        <RightOutlined class="arrow-icon" />
-                    </button>
-                </div>
+    <div class="flashcard-container">
+        <div class="title-container">
+            <div class="title-left">
+                <span>FlashCard</span>
             </div>
-        </template>
+            <div class="title-right">
+                <button>
+                    <span>more</span>
+                    <RightOutlined class="arrow-icon" />
+                </button>
+            </div>
+        </div>
 
         <div class="scroll-wrapper">
-            <div class="main-content-container" ref="scrollContainer">
+            <div 
+                class="main-content-container" 
+                ref="scrollContainer" 
+                :class="{ 
+                    'space-between-layout': layoutMode === 'space-between'
+                }"
+            >
                 <StatsCard 
-                    :number="0" 
+                    :number="articleCount" 
                     title="Article" 
                     color="#2894FF" 
                     class="stats-item"
                 />
 
-                <CardAddTrigger 
+                <BookCard  
+                    @click-event="handelViewEvent"
+                    v-for="article in articles" 
+                    :key="article.articleId"
+                    :article="article"
                     class="stats-item"
-                    @click-event="handelAddEvent"
                 />
 
                 <BookCard  
-                    v-for="bookTitle in bookList" 
-                    :key="bookTitle"
-                    :title="bookTitle"
+                    @click-event="handelViewEvent"
+                    v-for="article in articles" 
+                    :key="article.articleId"
+                    :article="article"
+                    class="stats-item"
+                />
+                
+                <BookCard  
+                    @click-event="handelViewEvent"
+                    v-for="article in articles" 
+                    :key="article.articleId"
+                    :article="article"
                     class="stats-item"
                 />
             </div>
 
-            <button v-if="showControls" class="scroll-btn left" @click="scroll(positionEnum.left)">
+            <button v-show="leftControlsAble" class="scroll-btn left" @click="scroll(positionEnum.left)">
                 <LeftOutlined class="scroll-btn-icon"/>
             </button>
-            <button v-if="showControls" class="scroll-btn right" @click="scroll(positionEnum.right)">
+            <button v-show="rightControlsAble" class="scroll-btn right" @click="scroll(positionEnum.right)">
                 <RightOutlined class="scroll-btn-icon"/>
             </button>
         </div>
-    </a-card>
+    </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import type { ArticleList } from '@/types/article/article'
+
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { RightOutlined, LeftOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
+import { useArticleStore } from '@/stores/articleStore'
 
 import BookCard from '@/components/article/bookCard.vue'
 import CardAddTrigger from '@/components/home/cardAddTrigger.vue'
@@ -61,142 +80,293 @@ enum positionEnum {
 }
 
 const router = useRouter()
-const bookList = ref<string[]>(["蠟筆小新", "哈利波特", "哆啦A夢", "新增项1", "新增项2", "新增项3", "新增项4", "新增项5"])
+const articleStore = useArticleStore()
 const scrollContainer = ref<HTMLElement | null>(null)
 const containerWidth = ref(0)
+const leftControlsAble = ref(false)
+const rightControlsAble = ref(false)
+const layoutMode = ref<'flex-start' | 'space-between'>('flex-start')
+const articles = ref<ArticleList[]> ([]);
+const articleCount = ref(0);
 
-const showControls = computed(() => {
-    if(scrollContainer.value)
-        return scrollContainer.value?.scrollWidth > scrollContainer.value?.clientWidth
-    else
-        return false;
-})
-
-const handelAddEvent = () =>{
-    router.push('GenerateActicle')
+const handelAddEvent = () => {
+    router.push('BookShelf/Add')
 }
 
-const updateContainerWidth = () => {
-    containerWidth.value = scrollContainer.value?.clientWidth || 0
+const handelViewEvent = (article: ArticleList) => {
+    router.push(`/BookShelf/View/${article.articleId}`)
+}
+
+const totalItems = () => {
+    return articles.value.length
+}
+
+const checkLayoutMode = () => {
+    if (!scrollContainer.value) return
+    
+    const width = window.innerWidth
+    const count = totalItems()
+    
+    if (width >= 1025 && count >= 4) {
+        layoutMode.value = 'space-between'
+    } else if (width >= 768 && width <= 1024 && count >= 3) {
+        layoutMode.value = 'space-between'
+    } else {
+        layoutMode.value = 'flex-start'
+    }
+}
+
+const checkOverflow = () => {
+    if (!scrollContainer.value) return
+    
+    const container = scrollContainer.value
+    const hasOverflow = container.scrollWidth > container.clientWidth
+    const atStart = container.scrollLeft <= 0
+    const atEnd = container.scrollLeft >= (container.scrollWidth - container.clientWidth - 1) 
+    
+    leftControlsAble.value = hasOverflow && !atStart
+    rightControlsAble.value = hasOverflow && !atEnd
 }
 
 const scroll = (position: positionEnum) => {
     if (!scrollContainer.value) return
     
-    const currentScroll = scrollContainer.value.scrollLeft
-    const maxScroll = scrollContainer.value.scrollWidth - containerWidth.value
-    const scrollAmount = containerWidth.value  
+    const container = scrollContainer.value
+    const scrollAmount = container.clientWidth * 0.8
+    const currentScroll = container.scrollLeft
+    const maxScroll = container.scrollWidth - container.clientWidth
     
-    let direction = position == positionEnum.left ? -1 : 1
-    let padding = position == positionEnum.left ? - 10 : +10
-    let target = currentScroll + (scrollAmount * direction)
-
-    target = Math.max(0, Math.min(target, maxScroll)) + padding  
+    const target = position === positionEnum.left
+        ? Math.max(0, currentScroll - scrollAmount)
+        : Math.min(maxScroll, currentScroll + scrollAmount)
     
-    scrollContainer.value.scrollTo({
+    container.scrollTo({
         left: target,
         behavior: 'smooth'
     })
+
+    setTimeout(() => {
+        checkOverflow()
+    }, 300) 
 }
 
-const handleResize = () => updateContainerWidth()
+const handleResize = () => {
+    if (!scrollContainer.value) return
+    containerWidth.value = scrollContainer.value.clientWidth
+    checkLayoutMode()
+    checkOverflow()
+}
 
-onMounted(() => {
-    updateContainerWidth()
+watch(() => articles.value.length, () => {
+    nextTick(() => {
+        checkLayoutMode()
+        checkOverflow()
+    })
+})
+
+onMounted(async () => {
+    articles.value = await articleStore.getArticleList()
+    articleCount.value = articles.value.length
+    await nextTick()
+    handleResize()
     window.addEventListener('resize', handleResize)
+    
+
+    if (scrollContainer.value) {
+        scrollContainer.value.addEventListener('scroll', checkOverflow)
+    }
 })
 
 onUnmounted(() => {
     window.removeEventListener('resize', handleResize)
+    
+    if (scrollContainer.value) {
+        scrollContainer.value.removeEventListener('scroll', checkOverflow)
+    }
 })
 </script>
 
 <style scoped lang="scss">
+.flashcard-container {
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 
+                0 1px 6px -1px rgba(0,0,0,0.02), 
+                0 2px 4px 0 rgba(0,0,0,0.02);
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+}
+
 .scroll-wrapper {
     position: relative;
+    margin-top: 16px;
+    overflow: hidden;
+    padding: 8px 0;
 
     .main-content-container {
-        display: grid;
-        grid-template-rows: repeat(2, 1fr);
-        grid-auto-flow: column;
-        gap: 20px;
+        display: flex;
         overflow-x: auto;
         scroll-behavior: smooth;
         scrollbar-width: none;
+        padding: 10px 0;
+        justify-content: flex-start;
+        gap: 3%;
+        
+        &::-webkit-scrollbar { 
+            display: none; 
+        }
 
-        &::-webkit-scrollbar { display: none; }
+        &.space-between-layout {
+            justify-content: space-between;
+            
+            .stats-item {
+                margin-right: 0 !important;
+            }
+        }
 
-        grid-auto-columns: calc((100% - 60px) / 4);
-        @media (max-width: 900px) { grid-auto-columns: calc((100% - 40px) / 3); }
-        @media (max-width: 600px) { grid-auto-columns: calc((100% - 20px) / 2); }
+        .stats-item {
+            flex: 0 0 auto;
+            aspect-ratio: 1/1;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: #fff;
+            
+            &:hover {
+                transform: translateY(-4px) scale(1.03);
+                box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+                z-index: 2;
+            }
+        }
     }
 
     .scroll-btn {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        z-index: 1;
-        width: 30px;
+        z-index: 10;
+        width: 36px;
         height: 100%;
-        border-radius: 4px;
         border: none;
-        background: rgb(105, 105, 105, 0.1);
-
+        background-color: transparent;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.3s;
+        opacity: 0.9;
+       
+
+        &:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
+        }
 
         &.left { 
-            left: -20px; 
-            font-size: 20px; 
-            color: gray; 
+            left: -10px; 
         }
-        &.left:hover { 
-            .scroll-btn-icon{
-                transform: scale(1.4); 
-            }
-        }
+
         &.right { 
-            right: -20px; 
-            font-size: 20px; 
-            color: gray;
+            right: -10px; 
         }
-        &.right:hover { 
-            .scroll-btn-icon{
-                transform: scale(1.4); 
-            } 
+        
+        .scroll-btn-icon {
+            font-size: 22px;
+            color: #333;
         }
     }
-}
-
-.stats-item {
-    height: 100%;
-    min-width: 0;
 }
 
 .title-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 0 4px;
+
+    .title-left {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+    }
 
     .title-right {
         font-size: 16px;
 
-        span { text-align: center; }
-        .arrow-icon { font-size: 12px; margin-left: 10px; }
+        span { 
+            text-align: center;
+            font-size: 14px;
+        }
+        .arrow-icon { 
+            font-size: 12px; 
+            margin-left: 6px; 
+        }
         button {
             background-color: transparent;
             display: flex;
             align-items: center;
             border: none;
             border-radius: 4px;
-            color: gray;
+            color: #666;
             cursor: pointer;
+            padding: 4px 8px;
+            transition: all 0.2s;
 
-            &:hover { background-color: #F0F0F0; }
+            &:hover { 
+                background-color: #f5f5f5; 
+                color: #1890ff;
+            }
         }
+    }
+}
+
+@media (min-width: 1025px) {
+    .stats-item {
+        width: calc(23% - 1%);
+    }
+
+    .space-between-layout .stats-item {
+        width: 23%;
+    }
+}
+
+@media (max-width: 1024px) and (min-width: 768px) {
+    .stats-item {
+        width: calc(31.333% - 1.333%);
+    }
+    .space-between-layout .stats-item {
+        width: 31.333%;
+    }
+}
+
+@media (max-width: 767px) {
+    .stats-item {
+        width: calc(47.5% - 1%);
+        
+        &:not(:last-child) {
+            margin-right: 3%;
+        }
+    }
+  
+    .main-content-container {
+        justify-content: flex-start !important;
+        gap: 3% !important;
+        
+        .stats-item {
+            margin-right: 0 !important;
+        }
+    }
+}
+
+.main-content-container {
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 20px;
+    
+    .stats-item {
+        scroll-snap-align: start;
     }
 }
 </style>

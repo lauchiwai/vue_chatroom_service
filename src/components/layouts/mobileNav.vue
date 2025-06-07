@@ -1,8 +1,10 @@
 <template>
     <nav class="tab-bar">
         <div class="tab-bar-content">
-            <MobileNavTabItems 
-                :items="store.items"
+            <MobileNavTabItem 
+                v-for="item in store.items"
+                :key="item.key"
+                :item="item"
                 :selected-keys="store.selectedKeys"
                 @item-click="handleItemClick"
             />
@@ -18,7 +20,7 @@
 import { useSiderStore } from '@/stores/siderStore';
 import { storeToRefs } from 'pinia'
 
-import MobileNavTabItems from '@/components/common/mobileNavTabItems.vue'; 
+import MobileNavTabItem from '@/components/common/mobileNavTabItem.vue'; 
 import SettingModal from '@/components/layouts/modal/settingModal.vue'
 
 const store = useSiderStore();

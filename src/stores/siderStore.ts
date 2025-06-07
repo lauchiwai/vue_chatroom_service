@@ -28,10 +28,10 @@ export const useSiderStore = defineStore('sider', () => {
             title: 'Home',
         },
         {
-            key: 'Book',
+            key: 'BookShelf',
             icon: () => h(BookOutlined),
-            label: 'Book',
-            title: 'Book',
+            label: 'BookShelf',
+            title: 'BookShelf',
         },
         {
             key: 'AiTalk',
@@ -55,7 +55,7 @@ export const useSiderStore = defineStore('sider', () => {
         if (selectedKeys.value[0] == "Setting") {
             settingOpen.value = true
         } else {
-            router.push(selectedKeys.value[0])
+            router.push(`/${selectedKeys.value[0]}`);
         }
     }
 
