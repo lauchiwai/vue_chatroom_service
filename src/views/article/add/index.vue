@@ -14,7 +14,6 @@
 
             <div class="article-reader-wrapper" v-if="currentStep == 2">
                 <ArticleReader 
-                    :page-char-count="700"
                     :content="assistantMessage"
                     :show-float-button-menu="false"
                 />

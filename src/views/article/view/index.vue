@@ -2,7 +2,6 @@
     <div class="article-reader-container center-box">
         <div class="article-reader-wrapper">
             <ArticleReader 
-                :page-char-count="700"
                 :content="article?.articleContent ?? ''"
             />
         </div>
