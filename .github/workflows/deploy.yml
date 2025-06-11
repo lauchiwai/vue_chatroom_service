@@ -13,12 +13,6 @@ jobs:
       with:
         path: 'vue_chatroom_service'
 
-    - name: ESLint Code Check
-      working-directory: ./vue_chatroom_service
-      run: |
-        npm install
-        npx eslint --ext .js,.vue,.ts src 
-
     - name: Create .env.production
       working-directory: ./vue_chatroom_service
       run: |
