@@ -1,4 +1,4 @@
-import type { AiArticleRequest, Article, ArticleList, articleRequest } from '@/types/article/article'
+import type { AiArticleRequest, Article, ArticleList, articleRequest, vectorizeArticleRequest } from '@/types/article/article'
 import type { ApiResponse } from '@/types/api/apiResponse'
 
 import { articleService } from '@/services/articleService'
@@ -17,32 +17,40 @@ export const useArticleStore = defineStore('article', {
             this.assistantMessage = ''
         },
 
+        // 添加完整的重置方法
+        reset() {
+            this.prompt = '';
+            this.abortStreaming();
+            this.assistantMessage = '';
+            this.isArticleCreated = false;
+        },
+
         async getArticleList() {
             try {
                 const response: ApiResponse<ArticleList[]> = await articleService.getArticleList()
                 if (!response.isSuccess) {
-                    message.error("获取文章列表错误: " + response.message)
+                    message.error("獲取文章列表錯誤: " + response.message)
                     return []
                 }
 
                 return response.data || [];
             } catch (error) {
-                message.error('获取文章列表失败，请重试')
+                message.error('獲取文章列表失敗，請重試')
                 console.error('getArticleList error:', error)
                 return []
             }
         },
 
-        async getArticleById(sessionId: string) {
+        async getArticleById(sessionId: number) {
             try {
                 const response: ApiResponse<Article> = await articleService.getArticleById(sessionId)
                 if (!response.isSuccess) {
-                    message.error("获取文章错误: " + response.message)
+                    message.error("獲取文章錯誤: " + response.message)
                 }
 
                 return response.data || undefined;
             } catch (error) {
-                message.error('获取文章失败，请重试')
+                message.error('獲取文章失敗，請重試')
             }
         },
 
@@ -50,10 +58,21 @@ export const useArticleStore = defineStore('article', {
             try {
                 const response: ApiResponse<any> = await articleService.generateArticle(request)
                 if (!response.isSuccess) {
-                    message.error("生成文章错误: " + response.message)
+                    message.error("生成文章錯誤: " + response.message)
                 }
             } catch (error) {
-                message.error('生成文章失败，请重试')
+                message.error('生成文章失敗，請重試')
+            }
+        },
+
+        async vectorizeArticle(request: vectorizeArticleRequest) {
+            try {
+                const response: ApiResponse<any> = await articleService.vectorizeArticle(request)
+                if (!response.isSuccess) {
+                    message.error("文章向量化錯誤: " + response.message)
+                }
+            } catch (error) {
+                message.error('文章向量化失敗，請重試')
             }
         },
 
@@ -61,8 +80,12 @@ export const useArticleStore = defineStore('article', {
             try {
                 let hasError = false;
                 this.isArticleCreated = false;
-                this.assistantMessage = ''
-                this.streamingController = new AbortController()
+                this.assistantMessage = '';
+
+                // 中止任何现有的请求
+                this.abortStreaming();
+
+                this.streamingController = new AbortController();
 
                 const response = await articleService.streamGenerateArticle(
                     {
@@ -71,10 +94,11 @@ export const useArticleStore = defineStore('article', {
                     (chunk) => {
                         if (chunk.error) {
                             message.error(chunk.error.message)
-                            return
+                            hasError = true;
+                            return;
                         }
 
-                        this.assistantMessage += chunk.content
+                        this.assistantMessage += chunk.content;
                     },
                     this.streamingController.signal
                 )
@@ -83,15 +107,17 @@ export const useArticleStore = defineStore('article', {
                     this.isArticleCreated = true;
                 }
             } catch (error) {
-                message.error('聊天请求错误')
+                message.error('聊天請求錯誤');
+                console.error('streamGenerate error:', error);
             } finally {
-                this.streamingController = null
+                this.streamingController = null;
             }
         },
 
         abortStreaming() {
             if (this.streamingController) {
                 this.streamingController.abort();
+                this.streamingController = null;
                 this.isArticleCreated = false;
             }
         },

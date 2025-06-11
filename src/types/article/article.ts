@@ -1,3 +1,5 @@
+export const DEFAULTCOLLECTION = "articles";
+
 export interface AiArticleRequest {
     prompt: string,
 }
@@ -7,13 +9,18 @@ export interface articleRequest {
     articleContent: string,
 }
 
+export interface vectorizeArticleRequest {
+    articleId: number,
+    collectionName: string,
+}
+
 export interface ArticleList {
-    articleId: string;
+    articleId: number;
     articleTitle: string;
 }
 
 export interface Article {
-    articleId: string;
+    articleId: number;
     articleTitle: string;
     articleContent: string;
 }

@@ -48,10 +48,12 @@
 </template>
 
 <script setup lang="ts">
+import type { articleRequest } from '@/types/article/article'
+
 import { ref, reactive, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { useArticleStore } from '@/stores/articleStore'
-import type { articleRequest } from '@/types/article/article'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
     open: {
@@ -64,8 +66,14 @@ const props = defineProps({
     }
 })
 
+
 const emit = defineEmits(['update:open'])
+const router = useRouter()
 const articleStore = useArticleStore()
+
+const handelRouter = () =>{
+    router.push('BookShelf')
+}
 
 const form = reactive({
     title: ''
@@ -123,6 +131,7 @@ const handleSubmit = async () => {
         await articleStore.generateArticle(request)
         closeDialog()
         message.success('新增成功')
+        handelRouter();
     } catch (error) {
         message.error('新增失敗，請稍後再試')
     } finally {

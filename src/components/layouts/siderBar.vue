@@ -23,6 +23,7 @@
     </a-layout-sider>
 
     <SettingModal 
+        v-if="settingOpen"
         v-model:setting-open="settingOpen"
     />
 </template>

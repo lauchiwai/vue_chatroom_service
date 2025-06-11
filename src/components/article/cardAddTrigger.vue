@@ -44,9 +44,7 @@ const handelClick = () => {
     .plus-icon {
         color: #aaa;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-size: clamp(24px, 5vw, 40px);
-        width: 100%;
-        height: 100%;
+        font-size: 100px; 
         display: flex;
         justify-content: center;
         align-items: center;

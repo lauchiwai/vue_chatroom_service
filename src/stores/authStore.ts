@@ -1,11 +1,12 @@
 import type { JwtPayload, UserState } from '@/types/auth/user'
 
+import { toSafeNumber } from '@/utils/common/toSafeNumber'
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', {
     state: (): UserState => ({
         userName: localStorage.getItem('userName'),
-        userId: localStorage.getItem('userId'),
+        userId: toSafeNumber(localStorage.getItem('userId') ?? ''),
         accessToken: localStorage.getItem('accessToken'),
         refreshToken: localStorage.getItem('refreshToken'),
         expiresAt: Number(localStorage.getItem('expiresAt')) || null
@@ -13,7 +14,6 @@ export const useUserStore = defineStore('user', {
     actions: {
         login(response: { accessToken: string; refreshToken: string }) {
             const payload = decodeJwt(response.accessToken)
-
             this.userName = payload.UserName
             this.userId = payload.UserId
             this.accessToken = response.accessToken
@@ -21,7 +21,7 @@ export const useUserStore = defineStore('user', {
             this.expiresAt = payload.exp * 1000
 
             localStorage.setItem('userName', payload.UserName)
-            localStorage.setItem('userId', payload.UserId)
+            localStorage.setItem('userId', String(payload.UserId))
             localStorage.setItem('accessToken', response.accessToken)
             localStorage.setItem('refreshToken', response.refreshToken)
             localStorage.setItem('expiresAt', String(this.expiresAt))

@@ -16,6 +16,7 @@
   "dependencies": {
     "@eslint/js": "^9.24.0",
     "@vue/compiler-dom": "^3.4.27",
+    "@vueuse/core": "^13.3.0",
     "ant-design-vue": "^4.2.6",
     "eslint": "^9.24.0",
     "eslint-plugin-vue": "^9.28.0",

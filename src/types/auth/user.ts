@@ -1,13 +1,13 @@
 export interface JwtPayload {
     UserName: string;
-    UserId: string;
+    UserId: number;
     exp: number;
     iat: number;
 }
 
 export interface UserState {
     userName: string | null
-    userId: string | null
+    userId: number | undefined
     accessToken: string | null
     refreshToken: string | null
     expiresAt: number | null

@@ -27,22 +27,12 @@
                     class="stats-item"
                 />
 
-                <BookCard  
-                    @click-event="handelViewEvent"
-                    v-for="article in articles" 
-                    :key="article.articleId"
-                    :article="article"
+                <CardAddTrigger 
+                    v-if="articles.length == 0"
                     class="stats-item"
+                    @click-event="handelAddEvent"
                 />
 
-                <BookCard  
-                    @click-event="handelViewEvent"
-                    v-for="article in articles" 
-                    :key="article.articleId"
-                    :article="article"
-                    class="stats-item"
-                />
-                
                 <BookCard  
                     @click-event="handelViewEvent"
                     v-for="article in articles" 
@@ -71,7 +61,7 @@ import { useRouter } from 'vue-router'
 import { useArticleStore } from '@/stores/articleStore'
 
 import BookCard from '@/components/article/bookCard.vue'
-import CardAddTrigger from '@/components/home/cardAddTrigger.vue'
+import CardAddTrigger from '@/components/article/cardAddTrigger.vue'
 import StatsCard from '@/components/home/statsCard.vue'
 
 enum positionEnum {

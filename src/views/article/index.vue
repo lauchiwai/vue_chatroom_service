@@ -18,7 +18,13 @@
         </header>
 
         <main class="content" ref="contentElement">
+   
+
             <div v-if="filteredBooks.length" class="book-grid">
+                <CardAddTrigger 
+                    class="stats-item"
+                    @click-event="handelAddEvent"
+                />
                 <BookCard  
                     @click-event="handelViewEvent"
                     v-for="article in articles" 
@@ -42,7 +48,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
 import { useArticleStore } from '@/stores/articleStore'
 
-import CardAddTrigger from '@/components/home/cardAddTrigger.vue'
+import CardAddTrigger from '@/components/article/cardAddTrigger.vue'
 import BookCard from '@/components/article/bookCard.vue';
 import Empty from '@/components/common/empty.vue';
 
@@ -63,6 +69,10 @@ onMounted(async () => {
     articleCount.value = articles.value.length
     await nextTick()
 })
+
+const handelAddEvent = () => {
+    router.push('BookShelf/Add')
+}
 
 const handelViewEvent = (article: ArticleList) => {
     router.push(`/BookShelf/View/${article.articleId}`)
@@ -228,20 +238,24 @@ onBeforeUnmount(() => {
 
 .book-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 24px;
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
     padding-top: 16px;
 
+    @media (max-width: 1024px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     @media (max-width: 768px) {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 20px;
     }
 
     @media (max-width: 480px) {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 16px;
     }
 }

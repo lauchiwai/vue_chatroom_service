@@ -13,8 +13,11 @@
 import type { Article } from '@/types/article/article'
 
 import { useArticleStore } from '@/stores/articleStore'
-import { ref, onMounted, nextTick, computed } from 'vue'
+import { toSafeNumber } from '@/utils/common/toSafeNumber'
+import { ref, onMounted, nextTick, computed, provide } from 'vue'
 import { useRoute } from 'vue-router'
+import { ArticleIdKey } from '@/constants/injectionKeys'
+import { message } from 'ant-design-vue'
 
 import ArticleReader from '@/components/article/articleReader.vue'
 
@@ -24,13 +27,24 @@ const articleStore = useArticleStore();
 const article = ref<Article> ();
 const articleId = computed(() => {
     const id = route.params.id
-    return Array.isArray(id) ? id[0] : id || ''
+    return toSafeNumber(id)
 })
 
 onMounted(async () => {
-    article.value = await articleStore.getArticleById(articleId.value);
+    await initArticle();
     await nextTick()
 })
+
+const initArticle = async () =>{
+    if(!articleId.value){
+        message.error("articleId is null")
+        return 
+    }
+    else 
+        article.value = await articleStore.getArticleById(articleId.value);
+}
+
+provide(ArticleIdKey, articleId)
 </script>
 
 <style scoped lang="scss">
@@ -58,7 +72,6 @@ onMounted(async () => {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         scroll-behavior: smooth;
-        padding: 20px;
         box-sizing: border-box;
         background-color: #f9f9f9;
         
@@ -76,6 +89,10 @@ onMounted(async () => {
 @media (max-width: 768px) {
     .article-reader-container{
         border-radius: 0;
+
+        .article-reader-wrapper{
+            padding: 4px;
+        }
     }
 }
 </style>

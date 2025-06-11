@@ -1,6 +1,6 @@
 import type { LoginResponse, RefreshResponse } from '@/types/auth/user'
 import type { ApiResponse } from '@/types/api/apiResponse'
-import { api } from '@/utils/api'
+import { api } from '@/utils/apiUtils/api'
 import { useUserStore } from '@/stores/authStore'
 
 export const UserService = {
