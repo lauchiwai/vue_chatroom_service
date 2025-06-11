@@ -1,6 +1,6 @@
 <template>
     <a-modal
-        v-model:open="props.open"
+        v-model:open="open"
         title="新增文章"
         :width="600"
         :footer="null"

@@ -33,7 +33,7 @@
                 <div class="input-container">
                     <chatInput />
                 </div>
-             </div>
+            </div>
         </template>
     </DraggableResizableModal>
 </template>
@@ -81,7 +81,7 @@ onMounted(async () => {
     }
 })
 
-watch((dataExist), async(newVal, oldVal)=>{
+watch((dataExist), async(newVal)=>{
     if (newVal) {
         await chatStore.fetchRagChatSessionListByArticleId(articleId.value ?? -1);
     }

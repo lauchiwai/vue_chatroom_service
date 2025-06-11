@@ -17,7 +17,6 @@ export const useArticleStore = defineStore('article', {
             this.assistantMessage = ''
         },
 
-        // 添加完整的重置方法
         reset() {
             this.prompt = '';
             this.abortStreaming();
@@ -82,7 +81,6 @@ export const useArticleStore = defineStore('article', {
                 this.isArticleCreated = false;
                 this.assistantMessage = '';
 
-                // 中止任何现有的请求
                 this.abortStreaming();
 
                 this.streamingController = new AbortController();

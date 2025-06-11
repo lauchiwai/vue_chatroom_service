@@ -19,7 +19,7 @@
                         v-model:show-bubble-menu="showBubbleMenu"
                         :content="currentPageContent"
                     >
-                         <template #bubbleMenu="{ selectedText, position, instanceId }">
+                        <template #bubbleMenu="{ selectedText, position, instanceId }">
                             <BubbleMenu
                                 :selected-text="selectedText"
                                 v-model:show="showBubbleMenu"
