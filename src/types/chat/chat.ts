@@ -1,25 +1,25 @@
 export interface BaseRequest {
-    chat_session_id: string,
-    user_id: string,
+    chat_session_id: number,
+    user_id: number,
 }
 
 export interface ChatSessionResponse {
-    sessionId: string
-    sessionName: string
+    sessionId: number
+    sessionName: number
 }
 
 export interface ChatRequest extends BaseRequest {
     message: string,
     collection_name?: string,
-    article_id?: string
+    article_id?: number
 }
 
 export interface SummaryRequest extends BaseRequest {
     collection_name: string,
-    article_id: string
+    article_id: number
 }
 
 export interface ChatResponse {
     response: string,
-    chat_session_id: string,
+    chat_session_id: number,
 }

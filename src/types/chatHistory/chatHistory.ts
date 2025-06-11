@@ -6,5 +6,5 @@ export interface ChatMessage {
 
 export interface ChatHistory {
     response: ChatMessage[];
-    chat_session_id: string;
+    chat_session_id: number;
 }

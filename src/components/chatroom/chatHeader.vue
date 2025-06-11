@@ -7,20 +7,6 @@
         </div>
 
         <div class="header-right">
-            <a-dropdown>
-                <template #overlay>
-                    <a-menu>
-                        <a-menu-item key="logout" @click="handleLogout">
-                            <span style="margin-left: 4px;">Logout</span>
-                        </a-menu-item>
-                    </a-menu>
-                </template>
-                <div class="user-wrapper">
-                    <UserOutlined />
-                    <span style="margin-left: 2px;"> {{ userName }} </span>
-                    <DownOutlined style="font-size: 10px; margin-left: 4px;" />
-                </div>
-            </a-dropdown>
         </div>
     </a-layout-header>
 
@@ -30,30 +16,17 @@
 </template>
 
 <script setup lang="ts">
-import { 
-    UserOutlined, 
-    DownOutlined, 
-    UnorderedListOutlined
-} from '@ant-design/icons-vue'
-import { useUserStore } from '@/stores/authStore'
-import { ref, computed } from 'vue'
+import { UnorderedListOutlined } from '@ant-design/icons-vue'
+import { ref } from 'vue'
 
 import chatFunctionDrawer from '@/components/chatroom/drawer/chatFunctionDrawer.vue'
 
-const userStore = useUserStore()
-const userName = computed(() => userStore.userName)
 const drawerOpen = ref<boolean>(false)
-
-const handleLogout = () =>{
-    userStore.logout()
-    window.location.href = '/login'
-}
 </script>
 
 <style lang="scss" scoped>
 .header {
     background: transparent;
-    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;

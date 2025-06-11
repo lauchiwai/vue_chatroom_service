@@ -12,7 +12,7 @@ import dayjs from 'dayjs';
 export const useChatStore = defineStore('chat', {
     state: () => ({
         chatSessionList: [] as ChatSessionResponse[],
-        currentSession: [] as string[],
+        currentSession: [] as number[],
         messages: [] as ChatMessage[],
         inputText: '' as string,
         streamingController: null as AbortController | null,
@@ -27,7 +27,7 @@ export const useChatStore = defineStore('chat', {
                 if (response.isSuccess) {
                     this.chatSessionList = response.data
                     if (response.data.length > 0) {
-                        this.setCurrentSession(response.data[0].sessionId.toString())
+                        this.setCurrentSession(response.data[0].sessionId)
                     } else {
                         await this.createChatSession();
                     }
@@ -39,10 +39,31 @@ export const useChatStore = defineStore('chat', {
                 message.error('get data error please try again')
             }
         },
-        async fetchChatHistory(sessionId: string) {
+        async fetchRagChatSessionListByArticleId(articleId: number) {
+            try {
+                const response: ApiResponse<ChatSessionResponse[]> = await ChatService.getRagChatSessionListByArticleId(articleId)
+
+                if (response.isSuccess) {
+                    this.chatSessionList = response.data
+                    if (response.data.length > 0) {
+                        this.setCurrentSession(response.data[0].sessionId)
+                    } else {
+                        await this.createRagChatSession(articleId);
+                    }
+                } else {
+                    message.error("errer message: " + response.message)
+                }
+            } catch (error) {
+                console.error("getChatSessionList error : ", error)
+                message.error('get data error please try again')
+            }
+        },
+        async fetchChatHistory(sessionId: number) {
             try {
                 const response: ApiResponse<ChatHistory> =
                     await ChatHistoryService.getChatHistory(sessionId)
+
+                console.log(" response.data.response : ", JSON.stringify(response.data.response, null, 4))
 
                 if (response.isSuccess) {
                     this.messages.length = 0;
@@ -62,7 +83,7 @@ export const useChatStore = defineStore('chat', {
 
                 if (response.isSuccess) {
                     this.chatSessionList.unshift(response.data)
-                    this.setCurrentSession(response.data.sessionId.toString())
+                    this.setCurrentSession(response.data.sessionId)
                     message.success('session create success')
                 } else {
                     message.error("errer message: " + response.message)
@@ -72,7 +93,24 @@ export const useChatStore = defineStore('chat', {
                 message.error('create errer, please try again')
             }
         },
-        async deleteChatData(sessionId: string) {
+        async createRagChatSession(articleId: number) {
+            try {
+                const response: ApiResponse<ChatSessionResponse> =
+                    await ChatService.generateRagChatSession(articleId)
+
+                if (response.isSuccess) {
+                    this.chatSessionList.unshift(response.data)
+                    this.setCurrentSession(response.data.sessionId)
+                    message.success('session create success')
+                } else {
+                    message.error("errer message: " + response.message)
+                }
+            } catch (error) {
+                console.error("createRagChatSession error : ", error)
+                message.error('create errer, please try again')
+            }
+        },
+        async deleteChatData(sessionId: number) {
             try {
                 const response: ApiResponse<object> =
                     await ChatService.deleteChatData(sessionId)
@@ -88,7 +126,7 @@ export const useChatStore = defineStore('chat', {
                 message.error('delete errer, please try again')
             }
         },
-        async refreshChatSessionTime(sessionId: string) {
+        async refreshChatSessionTime(sessionId: number) {
             try {
                 const response: ApiResponse<object> = await ChatService.refreshChatSessionTime(sessionId)
                 if (response.isSuccess) {
@@ -101,7 +139,7 @@ export const useChatStore = defineStore('chat', {
                 message.error('chat request errer, please try again')
             }
         },
-        setCurrentSession(sessionId: string) {
+        setCurrentSession(sessionId: number) {
             if (this.isChatAsyncing) {
                 this.abortStreaming();
             }

@@ -18,9 +18,15 @@
 <script setup lang="ts">
 import { PlusSquareOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { useChatStore } from '@/stores/chatStore'
-import { ref } from 'vue'
+import { ref, inject, watch, computed } from 'vue'
+import { ArticleIdKey } from '@/constants/injectionKeys'
 
 const emit = defineEmits(['drawer-close'])
+const articleId = inject(ArticleIdKey, computed(() => 0 ))
+watch(articleId, ( newId: number | undefined ) => {
+    if (!newId)
+        console.log('articleId is undefine:')
+})
 
 const chatStore = useChatStore()
 const isLoading = ref<boolean>(false)
@@ -28,7 +34,7 @@ const isLoading = ref<boolean>(false)
 const createSession = async () => {
     try{
         isLoading.value = true
-        await chatStore.createChatSession()
+        await chatStore.createRagChatSession(articleId.value!)
         emit('drawer-close')
     } finally {
         isLoading.value = false

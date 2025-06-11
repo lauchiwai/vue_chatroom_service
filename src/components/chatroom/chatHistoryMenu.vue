@@ -14,7 +14,7 @@
                     <div class="meun-item-bnt-wrapper">
                         <button @click.stop="showDeleteModal(chatSession.sessionId)"> 
                             <a-tooltip>
-                                <template #title>刪除</template>
+                                <template #title>删除</template>
                                 <DeleteOutlined /> 
                             </a-tooltip>
                         </button>
@@ -25,48 +25,56 @@
     </div>
 
     <DeleteModal 
-        ref="deleteModalRef"
-        :deleteFn="handleDelete"
+        v-if="deleteModalOpen"
+        v-model:open="deleteModalOpen"
+        :delete-fn="handleDelete"
+        :loading="deleteLoading"
     />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { DeleteOutlined } from '@ant-design/icons-vue'
-import { useChatStore } from '@/stores/chatStore'
-import { storeToRefs } from 'pinia'
+import { ref } from 'vue'
+import { DeleteOutlined } from '@ant-design/icons-vue';
+import { useChatStore } from '@/stores/chatStore';
+import { storeToRefs } from 'pinia';
 
-import DeleteModal from '@/components/common/deleteModal.vue'
+import DeleteModal from '@/components/common/deleteModal.vue';
 
-const emit = defineEmits(['drawer-close'])
-onMounted(async () => {
-    await chatStore.fetchChatSessionList()
-})
+const emit = defineEmits(['drawer-close']);
 
-const deletingId = ref<string>('');
-const deleteModalRef = ref<InstanceType<typeof DeleteModal> | null>(null)
-const chatStore = useChatStore()
-const { chatSessionList, currentSession } = storeToRefs(chatStore)
+const chatStore = useChatStore();
+const { chatSessionList, currentSession } = storeToRefs(chatStore);
 
-const handleSelect = ({ key }: { key: string }) => {
-    chatStore.setCurrentSession(key)
-}
+const deleteModalOpen = ref(false);
+const deleteLoading = ref(false);
+const deletingId = ref<number | null>(null);
 
-const handelClick = () =>{
-    emit('drawer-close')
-}
+const handleSelect = ({ key }: { key: number }) => {
+    chatStore.setCurrentSession(key);
+};
 
-const showDeleteModal = (id: string) => {
-    if(deleteModalRef.value){
-        deleteModalRef.value.open();
-        deletingId.value = id;
-    }
+const handelClick = () => {
+    emit('drawer-close');
+};
+
+const showDeleteModal = (id: number) => {
+    deletingId.value = id;
+    deleteModalOpen.value = true;
 };
 
 const handleDelete = async () => {
     if (!deletingId.value) return;
-    await chatStore.deleteChatData(deletingId.value);
-    deletingId.value = '';
+    
+    try {
+        deleteLoading.value = true;
+        await chatStore.deleteChatData(deletingId.value);
+    } catch (error) {
+        console.error('删除会话失败:', error);
+    } finally {
+        deleteLoading.value = false;
+        deleteModalOpen.value = false;
+        deletingId.value = null;
+    }
 };
 </script>
 

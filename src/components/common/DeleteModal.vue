@@ -1,8 +1,8 @@
 <template>
     <a-modal
-        v-model:open="modalOpen"
-        :title="title"
-        :width="width"
+        v-model:open="open"
+        :title="props.title"
+        :width="props.width"
         centered
         :closable="false"
         :maskClosable="false"
@@ -12,12 +12,12 @@
     >
         <div class="modal-content">
             <ExclamationCircleOutlined class="warning-icon" />
-            <p class="message">{{ message }}</p>
+            <p class="message">{{ props.message }}</p>
         </div>
         <div class="modal-footer">
-            <a-button @click="handleCancel">{{ cancelText }}</a-button>
+            <a-button @click="handleCancel">{{ props.cancelText }}</a-button>
             <a-button type="primary" danger @click="handleConfirm" :loading="loading">
-                {{ confirmText }}
+                {{ props.confirmText }}
             </a-button>
         </div>
     </a-modal>
@@ -28,53 +28,49 @@ import { ref } from 'vue';
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
 import { Modal as AModal, Button as AButton } from 'ant-design-vue';
 
-interface Props {
-    title?: string;
-    message?: string;
-    cancelText?: string;
-    confirmText?: string;
-    width?: number | string;
-    deleteFn: () => Promise<void>; 
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    title: '確認刪除',
-    message: '您確定要刪除此項目嗎？此操作無法復原。',
-    cancelText: '取消',
-    confirmText: '確認刪除',
-    width: 420
+const props = defineProps({
+    title: {
+        type: String,
+        required: false
+    },
+    message: {
+        type: String,
+        default: '您確定要刪除此項目嗎？此操作無法復原。'
+    },
+    cancelText: {
+        type: String,
+        default: '取消'
+    },
+    confirmText: {
+        type: String,
+        default: '確認刪除'
+    },
+    width: {
+        type: [Number, String],
+        default: 420
+    },
+    deleteFn: {
+        type: Function,
+        required: true
+    }
 });
+const open = defineModel('open', { type: Boolean, required: true });
 
-const modalOpen = ref(false);
 const loading = ref(false);
 
-const open = () => {
-    modalOpen.value = true;
-    loading.value = false;
-};
-
-const close = () => {
-    modalOpen.value = false;
-};
-
 const handleCancel = () => {
-    close();
+    open.value = false;
 };
 
 const handleConfirm = async () => {
     loading.value = true;
     try {
-        await props.deleteFn(); 
-        close();
+        await props.deleteFn();
+        open.value = false;
     } finally {
         loading.value = false;
     }
 };
-
-defineExpose({
-    open,
-    close
-});
 </script>
 
 <style lang="scss" scoped>
@@ -110,6 +106,18 @@ defineExpose({
 
         .ant-btn {
             min-width: 80px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            }
+            
+            &:active {
+                transform: translateY(0);
+            }
         }
     }
 }

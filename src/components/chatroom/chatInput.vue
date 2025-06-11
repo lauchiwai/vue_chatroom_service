@@ -51,14 +51,20 @@ import { SendOutlined, BorderOutlined } from '@ant-design/icons-vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/authStore'
 import { storeToRefs } from 'pinia'
-import { ref, onUnmounted } from 'vue'
 import { message } from 'ant-design-vue'
+import { DEFAULTCOLLECTION } from "@/types/article/article";
+import { ref, inject, watch, computed, onUnmounted } from 'vue'
+import { ArticleIdKey } from '@/constants/injectionKeys'
+
+const articleId = inject(ArticleIdKey, computed(() => 0 ))
+watch(articleId, ( newId: number | undefined ) => {
+    if (!newId)
+        console.log('articleId is undefine:')
+})
 
 const chatStore = useChatStore()
 const userStore = useUserStore()
 const loading = ref(false)
-const defaultCollection = "articles";
-const defaultArticleId = "articles_01";
 const { currentSession, inputText } = storeToRefs(chatStore)
 
 enum ChatStat {
@@ -67,21 +73,31 @@ enum ChatStat {
 }
 
 const generateNewChatRequest = () =>{
-    return {
-        chat_session_id: currentSession.value[0],
-        user_id: userStore.userId,
-        message: inputText.value.trim(),
-        collection_name: defaultCollection,
-        article_id: defaultArticleId
-    } as ChatRequest
+    if (articleId.value) {
+        return {
+            chat_session_id: currentSession.value[0],
+            user_id: userStore.userId,
+            message: inputText.value.trim(),
+            collection_name: DEFAULTCOLLECTION,
+            article_id: articleId.value
+        } as ChatRequest
+
+    }
+    else {
+        return {
+            chat_session_id: currentSession.value[0],
+            user_id: userStore.userId,
+            message: inputText.value.trim(),
+        } as ChatRequest
+    }
 }
 
 const generateNewSummaryRequest = () =>{
     return {
         chat_session_id: currentSession.value[0],
         user_id: userStore.userId,
-        collection_name: defaultCollection,
-        article_id: defaultArticleId
+        collection_name: DEFAULTCOLLECTION,
+        article_id: articleId.value
     } as SummaryRequest
 }
 

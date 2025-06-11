@@ -1,6 +1,6 @@
 import type { ApiResponse, StreamChunk } from '@/types/api/apiResponse'
 
-import { handleUnauthorized } from '@/utils/authApi'
+import { handleUnauthorized } from '@/utils/apiUtils/authApi'
 import { useUserStore } from '@/stores/authStore'
 
 interface StreamClientConfig {

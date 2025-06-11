@@ -6,14 +6,15 @@
         :body-style="{ padding: '10px 40px' }"
     >
         <div class="create-bnt-container">
-            <createSessionBnt :collapsed="false" @drawer-close="open = false"/>
+            <createSessionBnt :collapsed="false" @drawer-close="handelDrawerClose"/>
         </div>
 
         <div class="menu-container">
-            <chatHistoryMenu  @drawer-close="open = false"/>
+            <chatHistoryMenu  @drawer-close="handelDrawerClose"/>
         </div>
     </a-drawer>
 </template>
+
 <script lang="ts" setup>
 import createSessionBnt from '@/components/chatroom/createSessionBnt.vue'
 import chatHistoryMenu  from '@/components/chatroom/chatHistoryMenu.vue'
@@ -22,6 +23,10 @@ const open = defineModel('open', {
     type: Boolean,
     required: true
 })
+
+const handelDrawerClose = () =>{
+    open.value = false
+}
 </script>
 
 <style lang="scss" scoped>
