@@ -19,7 +19,6 @@ import type { ChatRequest, SummaryRequest } from '@/types/chat/chat';
 
 import { ref, inject, watch, computed, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { message } from 'ant-design-vue';
 import { useChatStore } from '@/stores/chatStore';
 import { DEFAULTCOLLECTION } from "@/types/article/article";
 import { ArticleIdKey } from '@/constants/injectionKeys';

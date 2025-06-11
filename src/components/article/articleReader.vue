@@ -19,7 +19,7 @@
                         v-model:show-bubble-menu="showBubbleMenu"
                         :content="currentPageContent"
                     >
-                         <template #bubbleMenu="{ selectedText, position, instanceId }">
+                        <template #bubbleMenu="{ selectedText, position, instanceId }">
                             <BubbleMenu
                                 :selected-text="selectedText"
                                 v-model:show="showBubbleMenu"
@@ -98,14 +98,17 @@ function handleTouchStart(event: TouchEvent) {
 
 function handleTouchMove(event: TouchEvent) {
     if (event.touches.length !== 1) return
+    
+    const touchX = event.touches[0].clientX
     const touchY = event.touches[0].clientY
-    const deltaY = Math.abs(touchY - touchStartY.value)
-    
-    if (deltaY > verticalThreshold && !isSwiping.value) {
+    const deltaX = touchX - touchStartX.value
+    const deltaY = touchY - touchStartY.value
+
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
         isSwiping.value = false
-        return
+        return 
     }
-    
+
     if (!isSwiping.value) {
         isSwiping.value = true
     }

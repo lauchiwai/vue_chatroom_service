@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, watch, computed } from 'vue'
+import { ref } from 'vue'
 import {
     PlusOutlined,
     LeftOutlined,
@@ -121,14 +121,6 @@ const props = defineProps({
         default:true
     }
 })
-
-const emit = defineEmits([
-    'prev-page',
-    'next-page',
-    'adjust-font-size',
-    'reset-font-size',
-    'go-home'
-])
 
 const expanded = ref(false)
 const modelOpen = ref(false)

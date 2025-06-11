@@ -98,7 +98,7 @@ const handleLogin = async () => {
         )
         
         if (response.isSuccess) {
-            const redirectPath = route.query.redirect?.toString() || '/chatroom'
+            const redirectPath = route.query.redirect?.toString() || '/home'
             router.push(decodeURIComponent(redirectPath))
         } else {
             message.error("錯誤訊息: " + response.message)

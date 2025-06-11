@@ -53,8 +53,10 @@
     </div>
 
     <ArticleSaveModal 
-        v-model:open="modalOpen"
+        v-if="modalOpen"
+        :open="modalOpen"
         :initial-content="assistantMessage"
+        @update:open="handleModal"
         @saved="handleArticleSaved"
     />
 </template>

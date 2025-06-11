@@ -1,6 +1,6 @@
 <template>
     <a-modal
-        v-model:open="props.open"
+        :open="open"
         title="新增文章"
         :width="600"
         :footer="null"
@@ -66,8 +66,7 @@ const props = defineProps({
     }
 })
 
-
-const emit = defineEmits(['update:open'])
+const emit = defineEmits(['update:open', 'saved'])
 const router = useRouter()
 const articleStore = useArticleStore()
 
@@ -115,7 +114,7 @@ const resetErrors = () => {
 }
 
 const closeDialog = () => {
-    emit('update:open', false)
+    emit('update:open')
 }
 
 const handleSubmit = async () => {
@@ -132,6 +131,7 @@ const handleSubmit = async () => {
         closeDialog()
         message.success('新增成功')
         handelRouter();
+        emit('saved')
     } catch (error) {
         message.error('新增失敗，請稍後再試')
     } finally {

@@ -15,7 +15,6 @@
 
 <script setup lang="ts">
 import type { MenuItem } from '@/stores/siderStore'
-import { ref } from 'vue'
 
 const props = defineProps({
     items: {
