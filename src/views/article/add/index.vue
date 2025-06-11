@@ -67,8 +67,8 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { message } from 'ant-design-vue';
 
 import ArticlePromptInput from '@/components/article/articlePromptInput.vue';
-import GenerateStep from '@/components/article/generateStep.vue';
-import TipsPrompt from '@/components/article/tipsPrompt.vue';
+import GenerateStep from '@/components/article/step/generateStep.vue';
+import TipsPrompt from '@/components/article/prompt/tipsPrompt.vue';
 import ArticleReader from '@/components/article/articleReader.vue';
 import ArticleSaveModal from '@/components/article/modals/articleSaveModal.vue';
 

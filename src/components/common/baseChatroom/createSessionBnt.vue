@@ -1,7 +1,7 @@
 <template>
     <button 
         class="create-bnt" 
-        @click="createSession"
+        @click="handleCreate"
         :disabled="isLoading"
         :class="{ 'disabled': isLoading }"
     >
@@ -17,28 +17,21 @@
 
 <script setup lang="ts">
 import { PlusSquareOutlined, LoadingOutlined } from '@ant-design/icons-vue'
-import { useChatStore } from '@/stores/chatStore'
-import { ref, inject, watch, computed } from 'vue'
-import { ArticleIdKey } from '@/constants/injectionKeys'
+import { ref, inject } from 'vue'
+import { ChatFunctionsKey } from '@/constants/injectionKeys'
 
-const emit = defineEmits(['drawer-close'])
-const articleId = inject(ArticleIdKey, computed(() => 0 ))
-watch(articleId, ( newId: number | undefined ) => {
-    if (!newId)
-        console.log('articleId is undefine:')
-})
+const functions = inject(ChatFunctionsKey, {})
+const createSession = functions.createSession || (async () => {})
 
-const chatStore = useChatStore()
 const isLoading = ref<boolean>(false)
 
-const createSession = async () => {
-    try{
-        isLoading.value = true
-        await chatStore.createRagChatSession(articleId.value!)
-        emit('drawer-close')
-    } finally {
-        isLoading.value = false
-    }
+const handleCreate = async () => {
+  try {
+    isLoading.value = true
+    await createSession()
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 

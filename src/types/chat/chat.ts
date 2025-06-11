@@ -1,6 +1,5 @@
 export interface BaseRequest {
     chat_session_id: number,
-    user_id: number,
 }
 
 export interface ChatSessionResponse {

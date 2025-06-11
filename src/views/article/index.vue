@@ -49,7 +49,7 @@ import { SearchOutlined } from '@ant-design/icons-vue';
 import { useArticleStore } from '@/stores/articleStore'
 
 import CardAddTrigger from '@/components/article/cardAddTrigger.vue'
-import BookCard from '@/components/article/bookCard.vue';
+import BookCard from '@/components/article/book/bookCard.vue';
 import Empty from '@/components/common/empty.vue';
 
 const router = useRouter()

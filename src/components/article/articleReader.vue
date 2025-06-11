@@ -15,7 +15,19 @@
                 @touchend="handleTouchEnd"
             >
                 <div class="markdown-content" :style="{ fontSize: fontSize + 'px', lineHeight: lineHeight }">
-                    <MarkdownRenderer :content="currentPageContent" />
+                    <MarkdownRenderer 
+                        v-model:show-bubble-menu="showBubbleMenu"
+                        :content="currentPageContent"
+                    >
+                         <template #bubbleMenu="{ selectedText, position, instanceId }">
+                            <BubbleMenu
+                                :selected-text="selectedText"
+                                v-model:show="showBubbleMenu"
+                                :position="position"
+                                :instanceId="instanceId"
+                            />
+                        </template>
+                    </MarkdownRenderer>
                 </div>
             </div>
             
@@ -39,6 +51,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import MarkdownRenderer from '@/components/markdown/markdownRenderer.vue'
 import FloatingActionButtons from '@/components/article/floatingButtons/floatingActionButton.vue'
+import BubbleMenu from '@/components/article/bubbleMenu/articleBubbleMenu.vue'
 
 const props = defineProps({
     content: {
@@ -74,6 +87,7 @@ const touchEndX = ref(0)
 const isSwiping = ref(false)
 const swipeThreshold = 50
 const verticalThreshold = 30
+const showBubbleMenu = ref(false)
 
 function handleTouchStart(event: TouchEvent) {
     if (event.touches.length !== 1) return

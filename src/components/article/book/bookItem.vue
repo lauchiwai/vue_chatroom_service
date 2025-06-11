@@ -1,7 +1,6 @@
 <template>
-    <div class="article-card"
-        :style="{ backgroundColor: articleColor }"
-    >
+    <div class="article-card">
+        <div class="frosted-layer" :style="{ backgroundColor: articleColor }"></div>
         <div class="article-icon">
             <i class="material-icons">{{ articleIcon }}</i>
         </div>
@@ -44,7 +43,7 @@ const generateHSL = (text: string): string => {
         hash = text.charCodeAt(i) + ((hash << 5) - hash)
     }
     const h = Math.abs(hash % 360)
-    return `hsl(${h}, 50%, 40%)` 
+    return `hsla(${h}, 50%, 40%, 0.4)` // 添加透明度
 }
 
 const selectIcon = (text: string): string => {
@@ -68,10 +67,28 @@ const selectIcon = (text: string): string => {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    transform-style: preserve-3d;
+    
+    &:hover {
+        transform: scale(1.1);
+        .frosted-layer {
+            backdrop-filter: blur(16px) saturate(180%);
+        }
+    }
 }
 
-.article-card:hover {
-    transform: scale(1.1);
+.frosted-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border-radius: inherit;
+    z-index: 0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: backdrop-filter 0.3s ease;
 }
 
 .article-icon {
@@ -79,48 +96,50 @@ const selectIcon = (text: string): string => {
     transform: rotate(30deg);
     left: -40%;
     top: 15%;
-    z-index: 0;
+    z-index: 1;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.article-card:hover .article-icon {
+    opacity: 0.85;
 }
 
 .article-icon .material-icons {
     font-size: 15rem;
     color: rgba(255, 255, 255, 0.9); 
-    transition: font-size 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .article-title {
     font-size: 2.2rem;
-    color: white;
-    text-shadow: 
-        -2px -2px 0 gray,  
-        2px -2px 0 gray,
-        -2px 2px 0 gray,
-        2px 2px 0 gray,
-        0 0 4px gray;
+    color: black;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     text-align: center;
     margin: 0;
     line-height: 1.5;
     letter-spacing: 0.5px;
     font-weight: 500;
-    z-index: 1;
-    transition: font-size 0.3s ease;
+    z-index: 2;
+    transition: all 0.3s ease;
     padding: 0 10px;
     word-break: break-word;
 }
 
+/* 响应式设计 */
 @media (max-width: 1400px) {
     .article-icon .material-icons {
         font-size: 13rem;
     }
     
     .article-title {
-        font-size: 2rem;
+        font-size: 2.2rem;
     }
 }
 
@@ -130,7 +149,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.4rem;
+        font-size: 2.0rem;
     }
 }
 
@@ -140,7 +159,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.6rem;
+        font-size: 1.9rem;
     }
 }
 
@@ -150,7 +169,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
     }
 }
 
@@ -170,7 +189,7 @@ const selectIcon = (text: string): string => {
     }
   
     .article-title {
-        font-size: 2.3rem;
+        font-size: 2.2rem;
     }
 }
 
@@ -180,7 +199,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.3rem;
+        font-size: 1.6rem;
     }
 }
 
@@ -195,7 +214,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
     }
 }
 
@@ -205,7 +224,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 0.9rem;
+        font-size: 1.2rem;
     }
 }
 
@@ -215,7 +234,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
     }
 }
 </style>

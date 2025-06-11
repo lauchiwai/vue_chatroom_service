@@ -21,7 +21,7 @@
 import { useSiderStore } from '@/stores/siderStore';
 import { storeToRefs } from 'pinia'
 
-import MobileNavTabItem from '@/components/common/mobileNavTabItem.vue'; 
+import MobileNavTabItem from '@/components/layouts/mobileNavTabItem.vue'; 
 import SettingModal from '@/components/layouts/modal/settingModal.vue'
 
 const store = useSiderStore();

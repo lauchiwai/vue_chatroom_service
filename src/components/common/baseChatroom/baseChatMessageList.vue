@@ -1,6 +1,5 @@
 <template>
-    <div 
-        ref="listRef" 
+    <div ref="listRef" 
         class="message-wrapper"
         @scroll="handleScroll"
     >
@@ -11,61 +10,67 @@
         </template>
       
         <template v-else>
-            <EmptyMessage 
-                v-if="messages.length == 0 && !isChatAsyncing"
-            />
+            <slot name="empty" v-if="messages.length == 0 && !isChatAsyncing">
+                <EmptyMessage />
+            </slot>
 
-            <MessageItem 
-                v-for="(msg, index) in messages"
-                :key="index"
-                :message="msg"
-            />
+            <slot name="messages" :messages="messages">
+                <MessageItem 
+                    v-for="(msg, index) in messages"
+                    :key="index"
+                    :message="msg"
+                />
+            </slot>
 
-            <MessageLoading 
-                v-if="isChatAsyncing && !streamChatMsg.content"
-            />
+            <slot name="loading" v-if="isChatAsyncing && !streamChatMsg.content">
+                <MessageLoading />
+            </slot>
 
-            <MessageItem 
-                v-else-if="streamChatMsg.content"
-                :message="streamChatMsg"
-            />
+            <slot name="streaming" v-else-if="streamChatMsg.content">
+                <MessageItem :message="streamChatMsg" />
+            </slot>
         </template>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { ChatMessage } from '@/types/chatHistory/chatHistory'
-import { ref, watch, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { useChatStore } from '@/stores/chatStore'
-import { storeToRefs } from 'pinia'
 
-import MessageItem from '@/components/chatroom/messageItem.vue'
-import EmptyMessage from '@/components/chatroom/emptyMessage.vue'
-import MessageLoading from '@/components/chatroom/messageLoading.vue'
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+
+import MessageItem from '@/components/common/baseChatroom/messageItem.vue'
+import EmptyMessage from '@/components/common/baseChatroom/emptyMessage.vue'
+import MessageLoading from '@/components/common/baseChatroom/messageLoading.vue'
+
+const props = defineProps({
+    messages: {
+        type: Array as () => ChatMessage[],
+        required: true
+    },
+    isChatAsyncing: {
+        type: Boolean,
+        required: true
+    },
+    streamChatMsg: {
+        type: Object as () => ChatMessage,
+        required: true
+    },
+    loading: {
+        type: Boolean,
+        required: true
+    }
+})
+
+const emit = defineEmits(['scroll'])
 
 const listRef = ref<HTMLElement | null>(null)
-const chatStore = useChatStore()
-const loading = ref(false)
 const isUserInteracting = ref(false)
-
-const { 
-    messages, 
-    currentSession, 
-    tempAssistantMessage, 
-    isChatAsyncing 
-} = storeToRefs(chatStore)
-
-const streamChatMsg = computed<ChatMessage>(() => ({
-    role: 'assistant',
-    content: tempAssistantMessage.value,
-    timestamp: ''
-}))
 
 const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     if (!listRef.value) return
 
     listRef.value.style.overflowY = 'hidden'
-    void listRef.value.offsetHeight
+    void listRef.value.offsetHeight 
     listRef.value.style.overflowY = 'auto'
     
     listRef.value.scrollTo({
@@ -74,16 +79,21 @@ const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     })
 }
 
-const handleScroll = () => {
+const handleScroll = (e: Event) => {
     if (!listRef.value) return
     
     const { scrollTop, clientHeight, scrollHeight } = listRef.value
     const isNearBottom = scrollHeight - (scrollTop + clientHeight) < 50
     
     isUserInteracting.value = !isNearBottom
+    emit('scroll', e)
 }
 
-watch(() => messages.value, (newVal, oldVal) => {
+defineExpose({
+    scrollToBottom
+})
+
+watch(() => props.messages, (newVal, oldVal) => {
     if (oldVal.length === 0 || newVal[newVal.length - 1]?.role === "user") {
         nextTick(() => {
             requestAnimationFrame(() => scrollToBottom())
@@ -91,7 +101,7 @@ watch(() => messages.value, (newVal, oldVal) => {
     }
 }, { deep: true, flush: 'post' })
 
-watch(() => tempAssistantMessage.value, () => {
+watch(() => props.streamChatMsg.content, () => {
     if (!isUserInteracting.value) {
         nextTick(() => {
             requestAnimationFrame(() => scrollToBottom())
@@ -99,21 +109,7 @@ watch(() => tempAssistantMessage.value, () => {
     }
 }, { deep: true, flush: 'post' })
 
-watch(() => currentSession.value, async (newVal) => {
-    if (newVal[0] !== undefined) {
-        loading.value = true
-        await chatStore.fetchChatHistory(newVal[0])
-        loading.value = false
-        await chatStore.refreshChatSessionTime(newVal[0])
-        
-        nextTick(() => {
-            requestAnimationFrame(() => scrollToBottom('auto'))
-        })
-    }
-}, { deep: true })
-
 onMounted(() => {
-    listRef.value?.addEventListener('scroll', handleScroll, { passive: true })
     nextTick(() => {
         requestAnimationFrame(() => scrollToBottom('auto'))
     })

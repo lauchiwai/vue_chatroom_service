@@ -4,11 +4,13 @@
             class="custom-menu"
             theme="light"
             mode="inline"
-            :selected-keys="currentSession"
-            @select="handleSelect"
-            @click="handelClick"
+            :selected-keys="selectedKeys"
+            @select="handleMenuSelect"
         >   
-            <a-menu-item :key="chatSession.sessionId.toString()" v-for="chatSession in chatSessionList">
+            <a-menu-item 
+                :key="chatSession.sessionId.toString()" 
+                v-for="chatSession in chatSessionList"
+            >
                 <div class="menu-item-container">
                     <span>{{ chatSession.sessionName }}</span>
                     <div class="meun-item-bnt-wrapper">
@@ -27,55 +29,61 @@
     <DeleteModal 
         v-if="deleteModalOpen"
         v-model:open="deleteModalOpen"
-        :delete-fn="handleDelete"
+        :delete-fn="handleConfirmDelete"
         :loading="deleteLoading"
     />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { DeleteOutlined } from '@ant-design/icons-vue';
-import { useChatStore } from '@/stores/chatStore';
-import { storeToRefs } from 'pinia';
+import { ref, inject, computed } from 'vue'
+import { DeleteOutlined } from '@ant-design/icons-vue'
+import { storeToRefs } from 'pinia'
+import { useChatStore } from '@/stores/chatStore'
+import { ChatHandlersKey } from '@/constants/injectionKeys'
+import DeleteModal from '@/components/common/modal/deleteModal.vue'
 
-import DeleteModal from '@/components/common/deleteModal.vue';
+const injectedHandlers = inject(ChatHandlersKey, {
+    handleSelect: (sessionId: number) => {},
+    handleDelete: async (sessionId: number) => {}
+})
 
-const emit = defineEmits(['drawer-close']);
+const chatStore = useChatStore()
+const { chatSessionList, currentSession } = storeToRefs(chatStore)
 
-const chatStore = useChatStore();
-const { chatSessionList, currentSession } = storeToRefs(chatStore);
+const deleteModalOpen = ref(false)
+const deleteLoading = ref(false)
+const deletingId = ref<number | null>(null)
 
-const deleteModalOpen = ref(false);
-const deleteLoading = ref(false);
-const deletingId = ref<number | null>(null);
-
-const handleSelect = ({ key }: { key: number }) => {
-    chatStore.setCurrentSession(key);
-};
-
-const handelClick = () => {
-    emit('drawer-close');
-};
+const selectedKeys = computed(() => {
+    return currentSession.value ? [currentSession.value.toString()] : []
+})
 
 const showDeleteModal = (id: number) => {
-    deletingId.value = id;
-    deleteModalOpen.value = true;
-};
+    deletingId.value = id
+    deleteModalOpen.value = true
+}
 
-const handleDelete = async () => {
-    if (!deletingId.value) return;
-    
-    try {
-        deleteLoading.value = true;
-        await chatStore.deleteChatData(deletingId.value);
-    } catch (error) {
-        console.error('删除会话失败:', error);
-    } finally {
-        deleteLoading.value = false;
-        deleteModalOpen.value = false;
-        deletingId.value = null;
+const handleConfirmDelete = async () => {
+    if (deletingId.value !== null) {
+        try {
+            deleteLoading.value = true
+            await injectedHandlers.handleDelete(deletingId.value)
+        } finally {
+            deleteLoading.value = false
+            deleteModalOpen.value = false
+            deletingId.value = null
+        }
     }
-};
+}
+
+const handleMenuSelect = (info: any) => {
+    const sessionId = Number(info.key)
+    if (!isNaN(sessionId)) {
+        injectedHandlers.handleSelect(sessionId)
+    } else {
+        console.error('Invalid sessionId from menu selection:', info.key)
+    }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -100,6 +108,8 @@ const handleDelete = async () => {
             .menu-item-container{
                 position: relative;
                 height: 100%;
+                width: 100%;
+                padding: 0 16px;
 
                 .meun-item-bnt-wrapper{
                     position: absolute;

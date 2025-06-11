@@ -13,9 +13,9 @@
 </template>
 
 <script setup lang="ts">
-import messageList from '@/components/chatroom/messageList.vue'
-import chatInput from '@/components/chatroom/chatInput.vue'
-import chatHeader from '@/components/chatroom/chatHeader.vue'
+import messageList from '@/components/article/chatroom/ragMessageList.vue'
+import chatInput from '@/components/article/chatroom/ragChatInput.vue'
+import chatHeader from '@/components/article/chatroom/ragChatHeader.vue'
 </script>
 
 <style lang="scss" scoped>

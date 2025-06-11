@@ -50,12 +50,12 @@ import { ref, inject, watch, computed, onMounted } from 'vue'
 import { ArticleIdKey } from '@/constants/injectionKeys'
 import { useChatStore } from '@/stores/chatStore';
 
-import messageList from '@/components/chatroom/messageList.vue'
-import chatInput from '@/components/chatroom/chatInput.vue'
-import chatHeader from '@/components/chatroom/chatHeader.vue'
-import DraggableResizableModal from '@/components/common/draggableResizableModal.vue'
-import VectorizationStatusChecker from '@/components/article/vectorizationStatusChecker.vue'
-import VectorizationInProgress from '@/components/article/vectorizationInProgress.vue'
+import messageList from '@/components/article/chatroom/ragMessageList.vue'
+import chatInput from '@/components/article/chatroom/ragChatInput.vue'
+import chatHeader from '@/components/article/chatroom/ragChatHeader.vue'
+import DraggableResizableModal from '@/components/common/modal/draggableResizableModal.vue'
+import VectorizationStatusChecker from '@/components/article/vectorization/vectorizationStatusChecker.vue'
+import VectorizationInProgress from '@/components/article/vectorization/vectorizationInProgress.vue'
 
 const articleId = inject(ArticleIdKey, computed(() => 0 ))
 watch(articleId, ( newId: number | undefined ) => {

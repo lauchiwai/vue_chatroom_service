@@ -60,7 +60,7 @@ import { RightOutlined, LeftOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useArticleStore } from '@/stores/articleStore'
 
-import BookCard from '@/components/article/bookCard.vue'
+import BookCard from '@/components/article/book/bookCard.vue'
 import CardAddTrigger from '@/components/article/cardAddTrigger.vue'
 import StatsCard from '@/components/home/statsCard.vue'
 
