@@ -59,6 +59,7 @@ import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { RightOutlined, LeftOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useArticleStore } from '@/stores/articleStore'
+import { ROUTE_NAMES } from '@/router'
 
 import BookCard from '@/components/article/book/bookCard.vue'
 import CardAddTrigger from '@/components/article/cardAddTrigger.vue'
@@ -80,11 +81,14 @@ const articles = ref<ArticleList[]> ([]);
 const articleCount = ref(0);
 
 const handelAddEvent = () => {
-    router.push('BookShelf/Add')
+    router.push({ name: ROUTE_NAMES.BOOKSHELF_ADD })
 }
 
 const handelViewEvent = (article: ArticleList) => {
-    router.push(`/BookShelf/View/${article.articleId}`)
+    router.push({ 
+        name: ROUTE_NAMES.BOOKSHELF_VIEW, 
+        params: { id: article.articleId } 
+    })
 }
 
 const totalItems = () => {

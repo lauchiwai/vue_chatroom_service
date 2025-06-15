@@ -76,6 +76,7 @@ import { UserService } from '@/services/userService'
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ROUTE_NAMES } from '@/router'
 
 const route = useRoute()
 const router = useRouter()
@@ -98,7 +99,7 @@ const handleLogin = async () => {
         )
         
         if (response.isSuccess) {
-            const redirectPath = route.query.redirect?.toString() || '/home'
+            const redirectPath = route.query.redirect?.toString() || ROUTE_NAMES.HOME
             router.push(decodeURIComponent(redirectPath))
         } else {
             message.error("錯誤訊息: " + response.message)

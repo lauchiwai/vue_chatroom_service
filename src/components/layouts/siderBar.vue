@@ -29,6 +29,8 @@
 </template>
 
 <script setup lang="ts">
+import type { MenuKey } from '@/stores/siderStore';
+
 import { PictureOutlined } from '@ant-design/icons-vue'
 import { useSiderStore } from '@/stores/siderStore'
 import { storeToRefs } from 'pinia'
@@ -39,7 +41,7 @@ import SettingModal from '@/components/layouts/modal/settingModal.vue'
 const store = useSiderStore();
 const { settingOpen } = storeToRefs(store)
 
-const handleItemClick = (key: string) => {
+const handleItemClick = (key: MenuKey) => {
     store.setSelectedKeys([key]);
     store.selectEvent();
 };

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, h } from 'vue'
+import { ref, h, onMounted } from 'vue'
 import {
     HomeOutlined,
     BookOutlined,
@@ -7,37 +7,43 @@ import {
     SettingOutlined
 } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
+import { ROUTE_NAMES, ROUTE_PATHS } from '@/router'
+
+export type MenuKey = typeof ROUTE_NAMES[keyof typeof ROUTE_NAMES] | 'Setting'
 
 export interface MenuItem {
-    key: string,
-    icon: any,
-    label: string,
-    title: string
+    key: MenuKey;
+    icon: any;
+    label: string;
+    title: string;
+    path?: string;
 }
 
 export const useSiderStore = defineStore('sider', () => {
-    const selectedKeys = ref(['Home'])
     const router = useRouter()
     const settingOpen = ref(false)
 
     const items: MenuItem[] = [
         {
-            key: 'Home',
+            key: ROUTE_NAMES.HOME,
             icon: () => h(HomeOutlined),
             label: 'Home',
             title: 'Home',
+            path: ROUTE_PATHS.HOME
         },
         {
-            key: 'BookShelf',
+            key: ROUTE_NAMES.BOOKSHELF,
             icon: () => h(BookOutlined),
             label: 'BookShelf',
             title: 'BookShelf',
+            path: ROUTE_PATHS.BOOKSHELF
         },
         {
-            key: 'AiTalk',
+            key: ROUTE_NAMES.CHATROOM,
             icon: () => h(CommentOutlined),
             label: 'Ai Talk',
             title: 'Ai Talk',
+            path: ROUTE_PATHS.CHATROOM
         },
         {
             key: 'Setting',
@@ -47,20 +53,40 @@ export const useSiderStore = defineStore('sider', () => {
         },
     ];
 
-    const setSelectedKeys = (keys: string[]) => {
-        selectedKeys.value = keys
+    const selectedKeys = ref<MenuKey[]>([])
+
+    const syncRouteToMenu = () => {
+        const routeName = router.currentRoute.value.name as MenuKey | undefined
+        if (routeName && routeName !== 'Setting') {
+            selectedKeys.value = [routeName]
+        }
     }
 
+    onMounted(syncRouteToMenu)
+    router.afterEach(syncRouteToMenu)
+
     const selectEvent = () => {
-        if (selectedKeys.value[0] == "Setting") {
+        const selectedKey = selectedKeys.value[0]
+
+        if (selectedKey === 'Setting') {
             settingOpen.value = true
         } else {
-            router.push(`/${selectedKeys.value[0]}`);
+            const targetRoute = items.find(item => item.key === selectedKey)
+            if (targetRoute?.path) {
+                if (router.currentRoute.value.path !== targetRoute.path) {
+                    router.push(targetRoute.path)
+                }
+            }
         }
     }
 
     const closeSetting = () => {
         settingOpen.value = false
+        syncRouteToMenu()
+    }
+
+    const setSelectedKeys = (keys: MenuKey[]) => {
+        selectedKeys.value = keys
     }
 
     return {
@@ -69,6 +95,6 @@ export const useSiderStore = defineStore('sider', () => {
         items,
         setSelectedKeys,
         selectEvent,
-        closeSetting
+        closeSetting,
     }
 })

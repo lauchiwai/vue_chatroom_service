@@ -50,6 +50,7 @@
 <script setup lang="ts">
 import type { articleRequest } from '@/types/article/article'
 
+import { ROUTE_NAMES } from '@/router'
 import { ref, reactive, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { useArticleStore } from '@/stores/articleStore'
@@ -71,7 +72,7 @@ const router = useRouter()
 const articleStore = useArticleStore()
 
 const handelRouter = () =>{
-    router.push('BookShelf')
+    router.push(ROUTE_NAMES.BOOKSHELF)
 }
 
 const form = reactive({

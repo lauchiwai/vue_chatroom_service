@@ -47,6 +47,7 @@ import { useRouter } from 'vue-router'
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
 import { useArticleStore } from '@/stores/articleStore'
+import { ROUTE_NAMES } from '@/router'
 
 import CardAddTrigger from '@/components/article/cardAddTrigger.vue'
 import BookCard from '@/components/article/book/bookCard.vue';
@@ -71,11 +72,14 @@ onMounted(async () => {
 })
 
 const handelAddEvent = () => {
-    router.push('BookShelf/Add')
+    router.push({ name: ROUTE_NAMES.BOOKSHELF_ADD })
 }
 
 const handelViewEvent = (article: ArticleList) => {
-    router.push(`/BookShelf/View/${article.articleId}`)
+    router.push({ 
+        name: ROUTE_NAMES.BOOKSHELF_VIEW, 
+        params: { id: article.articleId } 
+    })
 }
 
 const performSearch = () => {
