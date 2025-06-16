@@ -37,8 +37,8 @@ import { useScreenStore } from '@/stores/screenStore';
 import { computed, onBeforeMount, ref } from 'vue';
 import { useEnglishAssistantStore } from '@/stores/englishAssistantStore';
 
-import EnglishAssistantMessageList from '@/components/englishAssistant/englishAssistantChatroom/englishAssistantMessageList.vue';
-import TextLinguisticAssistantInput from '@/components/englishAssistant/englishAssistantChatroom/textLinguisticAssistantInput.vue';
+import EnglishAssistantMessageList from '@/components/englishAssistant/englishAssistantChatroom/message/englishAssistantMessageList.vue';
+import TextLinguisticAssistantInput from '@/components/englishAssistant/englishAssistantChatroom/input/textLinguisticAssistantInput.vue';
 import DraggableResizableModal from '@/components/common/modal/draggableResizableModal.vue';
 import EnglishAssistantLayout from '@/components/englishAssistant/layout/englishAssistantLayout.vue'; // 新增导入
 import ChatInputTool from '@/components/englishAssistant/englishAssistantTools/chatInputTool.vue';

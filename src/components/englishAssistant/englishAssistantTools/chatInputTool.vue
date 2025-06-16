@@ -11,7 +11,6 @@
 
 <script setup lang="ts">
 import { CommentOutlined } from '@ant-design/icons-vue'
-
 import { defineProps, defineEmits } from 'vue';
 
 const emit = defineEmits(['click']);

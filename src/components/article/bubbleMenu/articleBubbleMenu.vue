@@ -15,14 +15,14 @@
                 </button>
             </a-tooltip>
 
-            <!-- <a-tooltip placement="top">
+            <a-tooltip placement="top">
                 <template #title>估下</template>
-                <button @click="handleHighlight">
+                <button @click="handleEnglishWordTipsEvent()">
                     <span class="icon-text">
                         <QuestionCircleOutlined />
                     </span>
                 </button>
-            </a-tooltip> -->
+            </a-tooltip>
 
             <a-tooltip placement="top">
                 <template #title>文法分析</template>
@@ -47,6 +47,12 @@
         </div>
     </teleport>
 
+    <EnglishWordTipsModal 
+        v-if="englishWordTipsModalOpen"
+        v-model:open="englishWordTipsModalOpen"
+        :selected-text="selectedText"
+    />
+
     <EnglishWordAssistantModal 
         v-if="englishWordAssistantModalOpen"
         v-model:open="englishWordAssistantModalOpen"
@@ -64,13 +70,14 @@
 import {
     TranslationOutlined,
     BulbOutlined,
+    QuestionCircleOutlined,
     CustomerServiceOutlined
 } from '@ant-design/icons-vue';
 import { ref, watch, onBeforeUnmount } from 'vue';
 import { tts } from '@/utils/common/ttsUtil';
 
+import EnglishWordTipsModal from '@/components/englishAssistant/modals/englishWordTipsModal.vue'
 import EnglishWordAssistantModal from '@/components/englishAssistant/modals/englishWordAssistantModal.vue'
-
 import TextLinguisticAssistantModal from '@/components/englishAssistant/modals/textLinguisticAssistantModal.vue'
 const props = defineProps({
     selectedText: {
@@ -93,6 +100,7 @@ const show = defineModel('show', { type: Boolean, required: true })
 const isSpeaking = ref(false);
 const englishWordAssistantModalOpen = ref(false)
 const textLinguisticAssistantModalOpen = ref(false)
+const englishWordTipsModalOpen = ref(false)
 
 tts.registerStatusCallback((status : string) => {
     isSpeaking.value = status === 'speaking';
@@ -108,6 +116,11 @@ const handlePronunciation = () => {
     if (!props.selectedText) return;
     tts.toggle(props.selectedText);
 };
+
+const handleEnglishWordTipsEvent = () =>{
+    englishWordTipsModalOpen.value = !englishWordTipsModalOpen.value
+    show.value = !show.value
+}
 
 const handleEnglishWordAssistantEvent = () =>{
     englishWordAssistantModalOpen.value = !englishWordAssistantModalOpen.value

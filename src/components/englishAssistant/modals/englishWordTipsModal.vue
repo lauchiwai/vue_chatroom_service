@@ -22,7 +22,7 @@
                 </template>
                 
                 <template #input-area>
-                    <WordAssistantInput 
+                    <WordTipsInput 
                         v-show="showChatInput"
                         :selected-text="selectedText"
                     />
@@ -38,7 +38,7 @@ import { computed, onBeforeMount, ref } from 'vue';
 import { useEnglishAssistantStore } from '@/stores/englishAssistantStore';
 
 import EnglishAssistantMessageList from '@/components/englishAssistant/englishAssistantChatroom/message/englishAssistantMessageList.vue';
-import WordAssistantInput from '@/components/englishAssistant/englishAssistantChatroom/input/wordAssistantInput.vue';
+import WordTipsInput from '@/components/englishAssistant/englishAssistantChatroom/input/wordTipsInput.vue';
 import DraggableResizableModal from '@/components/common/modal/draggableResizableModal.vue';
 import EnglishAssistantLayout from '@/components/englishAssistant/layout/englishAssistantLayout.vue';
 import ChatInputTool from '@/components/englishAssistant/englishAssistantTools/chatInputTool.vue';

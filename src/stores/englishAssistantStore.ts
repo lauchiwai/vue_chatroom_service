@@ -14,10 +14,12 @@ export const useEnglishAssistantStore = defineStore('englishAssistant', {
         inputText: '' as string,
         streamingController: null as AbortController | null,
         tempAssistantMessage: '' as string,
-        isChatAsyncing: false as boolean
+        isChatAsyncing: false as boolean,
+        isInit: true as boolean
     }),
     actions: {
         resetEnglishAssistantStore() {
+            this.isInit = true;
             this.text = '';
             this.messages = [];
             this.inputText = '';
@@ -26,6 +28,8 @@ export const useEnglishAssistantStore = defineStore('englishAssistant', {
             this.isChatAsyncing = false;
         },
         pushUserQuestion(question: string) {
+            if (this.isInit) return
+
             let newMsg: ChatMessage = {
                 role: 'user',
                 content: question,
@@ -66,6 +70,69 @@ export const useEnglishAssistantStore = defineStore('englishAssistant', {
             } catch (error) {
                 message.error('chat request errer')
             } finally {
+                this.isInit = false
+                this.isChatAsyncing = false
+                this.pushAssistantAnswer(this.tempAssistantMessage)
+                this.inputText = '';
+                this.streamingController = null
+                this.tempAssistantMessage = ''
+            }
+        },
+        async streamWordTipsService(request: EnglishWordAssistantRequest) {
+            try {
+                this.isChatAsyncing = true
+                this.pushUserQuestion(request.message)
+                this.tempAssistantMessage = ''
+                this.streamingController = new AbortController()
+                const response = await EnglishAssistantService.streamWordTipsService(
+                    {
+                        ...request,
+                    },
+                    (chunk) => {
+                        if (chunk.error) {
+                            message.error(chunk.error.message)
+                            return
+                        }
+
+                        this.tempAssistantMessage += chunk.content
+                    },
+                    this.streamingController.signal
+                )
+            } catch (error) {
+                message.error('chat request errer')
+            } finally {
+                this.isInit = false
+                this.isChatAsyncing = false
+                this.pushAssistantAnswer(this.tempAssistantMessage)
+                this.inputText = '';
+                this.streamingController = null
+                this.tempAssistantMessage = ''
+            }
+        },
+        async streamWordTranslateService(request: EnglishWordAssistantRequest) {
+            try {
+                this.isChatAsyncing = true
+                this.pushUserQuestion(request.message)
+                this.tempAssistantMessage = ''
+                this.streamingController = new AbortController()
+                const response = await EnglishAssistantService.streamWordTranslateService(
+                    {
+                        ...request,
+                    },
+                    (chunk) => {
+                        if (chunk.error) {
+                            message.error(chunk.error.message)
+                            return
+                        }
+
+                        this.tempAssistantMessage += chunk.content
+                    },
+                    this.streamingController.signal
+                )
+            } catch (error) {
+                message.error('chat request errer')
+            } finally {
+                this.isInit = false
                 this.isChatAsyncing = false
                 this.pushAssistantAnswer(this.tempAssistantMessage)
                 this.inputText = '';
@@ -96,6 +163,7 @@ export const useEnglishAssistantStore = defineStore('englishAssistant', {
             } catch (error) {
                 message.error('chat request errer')
             } finally {
+                this.isInit = false
                 this.isChatAsyncing = false
                 this.pushAssistantAnswer(this.tempAssistantMessage)
                 this.inputText = '';

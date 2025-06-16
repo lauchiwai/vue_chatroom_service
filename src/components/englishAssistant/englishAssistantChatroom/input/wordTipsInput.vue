@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import type { TextLinguisticAssistantRequest } from '@/types/englishAssistant/englishAssistant';
+import type { EnglishWordAssistantRequest } from '@/types/englishAssistant/englishAssistant';
 
 import { ref, onUnmounted, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
@@ -33,35 +33,35 @@ const handleInputUpdate = (val: string) => {
     inputText.value = val;
 };
 
-const generateTextLinguisticRequest = (): TextLinguisticAssistantRequest => {
+const generateWordTipsRequest = (): EnglishWordAssistantRequest => {
     return {
-        text: props.selectedText,
+        word: props.selectedText,
         message: inputText.value.trim(),
     };
 };
 
-const handleTranslateRequest = (): TextLinguisticAssistantRequest => {
+const handleTipsRequest = (): EnglishWordAssistantRequest => {
     return {
-        text: props.selectedText,
-        message: `translate ${props.selectedText}`,
+        word: props.selectedText,
+        message: `give the tips of ${props.selectedText}`,
     };
 };
 
 const handleSteamSend = async () => {
     try {
         loading.value = true;
-        const request = generateTextLinguisticRequest();
-        await englishAssistantStore.streamEnglishTextLinguisticAssistant(request);
+        const request = generateWordTipsRequest();
+        await englishAssistantStore.streamWordTipsService(request);
     } finally {
         loading.value = false;
     }
 };
 
-const handleTranslate = async () => {
+const handleTips = async () => {
     try {
         loading.value = true;
-        const request = handleTranslateRequest();
-        await englishAssistantStore.streamEnglishTextLinguisticAssistant(request);
+        const request = handleTipsRequest();
+        await englishAssistantStore.streamWordTipsService(request);
     } finally {
         loading.value = false;
     }
@@ -72,7 +72,7 @@ const handleAbort = () => {
 };
 
 onMounted(async() =>{
-    await handleTranslate()
+    await handleTips()
 })
 
 onUnmounted(() => {

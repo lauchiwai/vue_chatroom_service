@@ -121,7 +121,7 @@ const selectIcon = (text: string): string => {
     position: absolute;
     bottom: 20px;
     right: 0;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     color: black;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     text-align: center;
@@ -138,19 +138,11 @@ const selectIcon = (text: string): string => {
     .article-icon .material-icons {
         font-size: 13rem;
     }
-    
-    .article-title {
-        font-size: 1.8rem;
-    }
 }
 
 @media (max-width: 1200px) {
     .article-icon .material-icons {
         font-size: 11rem;
-    }
-    
-    .article-title {
-        font-size: 1.6rem;
     }
 }
 
@@ -158,19 +150,11 @@ const selectIcon = (text: string): string => {
     .article-icon .material-icons {
         font-size: 12rem;
     }
-    
-    .article-title {
-        font-size: 1.5rem;
-    }
 }
 
 @media (max-width: 900px) {
     .article-icon .material-icons {
         font-size: 11rem;
-    }
-    
-    .article-title {
-        font-size: 1.5rem;
     }
 }
 
@@ -187,10 +171,6 @@ const selectIcon = (text: string): string => {
     
     .article-icon .material-icons {
         font-size: 14rem;
-    }
-  
-    .article-title {
-        font-size: 1.4rem;
     }
 }
 
