@@ -82,7 +82,7 @@ const routes: RouteRecordRaw[] = [
             layout: 'main',
             requiresAuth: true,
             showHeader: false,
-            showMobileNav: false,
+            showMobileNav: true,
             showSideBar: true
         }
     },

@@ -1,7 +1,7 @@
 <template>
     <a-card title="向量資料狀態檢查" class="status-card">
         <div class="loading-wrapper" v-if="isChecking">
-            <a-spin  size="large" />
+            <a-spin size="large" />
         </div>
 
         <div v-else class="status-content">
@@ -12,7 +12,7 @@
                 sub-title="此文章已完成向量化處理"
             >
                 <template #icon>
-                    <a-icon type="check-circle" theme="filled" style="color: #52c41a" />
+                    <CheckCircleFilled style="color: #52c41a; font-size: 72px" />
                 </template>
             </a-result>
             
@@ -23,7 +23,7 @@
                 sub-title="此文章尚未進行向量化"
             >
                 <template #icon>
-                    <a-icon type="exclamation-circle" theme="filled" style="color: #faad14" />
+                    <ExclamationCircleFilled style="color: #faad14; font-size: 72px" />
                 </template>
                 <template #extra>
                     <a-button type="primary" @click="$emit('start-vectorization')">
@@ -36,40 +36,42 @@
 </template>
 
 <script setup lang="ts">
-    defineProps({
-        dataExist: {
-            type: Boolean,
-            required: true
-        },
-        isChecking: {
-            type: Boolean,
-            required: true
-        }
-    })
-    
-    defineEmits(['start-vectorization'])
+import { CheckCircleFilled, ExclamationCircleFilled } from '@ant-design/icons-vue';
+
+defineProps({
+    dataExist: {
+        type: Boolean,
+        required: true
+    },
+    isChecking: {
+        type: Boolean,
+        required: true
+    }
+})
+
+defineEmits(['start-vectorization'])
 </script>
 
 <style lang="scss" scoped>
-    .status-card {
-        border-radius: 8px;
-        margin-bottom: 24px;
-        border: none;
+.status-card {
+    border-radius: 8px;
+    margin-bottom: 24px;
+    border: none;
 
-        .loading-wrapper{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30% 0;
-        }
-        
-        :deep(.ant-card-head) {
-            border-bottom: none;
-        }
+    .loading-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15% 0;
     }
+    
+    :deep(.ant-card-head) {
+        border-bottom: none;
+    }
+}
 
-    .status-content {
-        padding: 24px 0;
-        text-align: center;
-    }
+.status-content {
+    padding: 24px 0;
+    text-align: center;
+}
 </style>

@@ -62,9 +62,6 @@ export const useChatStore = defineStore('chat', {
             try {
                 const response: ApiResponse<ChatHistory> =
                     await ChatHistoryService.getChatHistory(sessionId)
-
-                console.log(" response.data.response : ", JSON.stringify(response.data.response, null, 4))
-
                 if (response.isSuccess) {
                     this.messages.length = 0;
                     this.messages = response.data.response

@@ -4,7 +4,7 @@
         <div class="article-icon">
             <i class="material-icons">{{ articleIcon }}</i>
         </div>
-        <h3 class="article-title">{{ title }}</h3>
+        <span class="article-title">{{ title }}</span>
     </div>
 </template>
 
@@ -43,7 +43,7 @@ const generateHSL = (text: string): string => {
         hash = text.charCodeAt(i) + ((hash << 5) - hash)
     }
     const h = Math.abs(hash % 360)
-    return `hsla(${h}, 50%, 40%, 0.4)` // 添加透明度
+    return `hsla(${h}, 50%, 40%, 0.4)` 
 }
 
 const selectIcon = (text: string): string => {
@@ -118,28 +118,29 @@ const selectIcon = (text: string): string => {
 }
 
 .article-title {
-    font-size: 2.2rem;
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+    font-size: 1.8rem;
     color: black;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     text-align: center;
     margin: 0;
     line-height: 1.5;
     letter-spacing: 0.5px;
-    font-weight: 500;
     z-index: 2;
     transition: all 0.3s ease;
     padding: 0 10px;
     word-break: break-word;
 }
 
-/* 响应式设计 */
 @media (max-width: 1400px) {
     .article-icon .material-icons {
         font-size: 13rem;
     }
     
     .article-title {
-        font-size: 2.2rem;
+        font-size: 1.8rem;
     }
 }
 
@@ -149,7 +150,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 2.0rem;
+        font-size: 1.6rem;
     }
 }
 
@@ -159,7 +160,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.9rem;
+        font-size: 1.5rem;
     }
 }
 
@@ -169,7 +170,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
 }
 
@@ -189,7 +190,7 @@ const selectIcon = (text: string): string => {
     }
   
     .article-title {
-        font-size: 2.2rem;
+        font-size: 1.4rem;
     }
 }
 
@@ -199,7 +200,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.6rem;
+        font-size: 1.2rem;
     }
 }
 
@@ -214,7 +215,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.4rem;
+        font-size: 1rem;
     }
 }
 
@@ -224,17 +225,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.2rem;
-    }
-}
-
-@media (max-height: 600px) and (min-width: 768px) {
-    .article-icon .material-icons {
-        font-size: 8rem;
-    }
-    
-    .article-title {
-        font-size: 1.3rem;
+        font-size: 0.75rem;
     }
 }
 </style>

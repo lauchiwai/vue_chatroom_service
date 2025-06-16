@@ -33,13 +33,15 @@ const drawerOpen = ref(false)
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 40px;
-    width: 40px;
+    height: 100%;
+    padding: 4px 0;
+    min-height: 20px;
+    width: 30px;
     cursor: pointer;
 
     &:hover{
-        background-color: gray;
-        color: white;
+        background-color: #F0F0F0;
+        color: gray;
     }
 
 }

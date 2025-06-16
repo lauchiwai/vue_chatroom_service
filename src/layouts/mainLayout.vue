@@ -1,13 +1,13 @@
 <template>
     <a-layout class="main-layout">
-        <SiderBar v-if="!isMobile && showSideBar" />
-        <MobileNav v-if="isMobile && showMobileNav" />
+        <SiderBar v-if="isPc && showSideBar" />
+        <MobileNav v-if="!isPc && showMobileNav" />
 
         <a-layout class="sub-layout">
             <Breadcrumb v-if="!showBreadcrumb" />
           
             <a-layout-content class="main-content">
-                <div class="router-view-container" :class="isMobile && showMobileNav ? 'mobile-nav-padding' : '' ">
+                <div class="router-view-container" :class="!isPc && showMobileNav ? 'mobile-nav-padding' : '' ">
                     <router-view />
                 </div>
             </a-layout-content>
@@ -25,8 +25,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const store = useScreenStore()
-const isMobile = computed(() => store.isMobile)
-
+const isPc = computed(() => store.isPc)
 const route = useRoute()
 const title = ref<string>("")
 const showHeader = ref<boolean>(true)

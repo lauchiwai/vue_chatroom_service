@@ -32,20 +32,11 @@ import chatHeader from '@/components/article/chatroom/ragChatHeader.vue'
 
     .msg-container {
         flex: 1;
-        padding: 0 10%;
-        overflow: hidden; // 由内部组件控制滚动
+        overflow: hidden; 
     }
 
     .input-container {
         flex-shrink: 0;
-    }
-}
-
-@media (max-width: 768px) {
-    .chatroom-container {
-        .msg-container {
-            padding: 0 5%;
-        }
     }
 }
 </style>

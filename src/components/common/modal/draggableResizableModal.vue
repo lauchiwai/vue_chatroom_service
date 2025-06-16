@@ -7,6 +7,7 @@
         :mask="mask"
         :footer="footer"
         :destroyOnClose="destroyOnClose"
+        :closable="false"
         @ok="handleOk"
         @cancel="handleCancel"
     >
@@ -19,13 +20,35 @@
         </template>
     
         <template #title>
-            <div ref="modalTitleRef" style="width: 100%; cursor: move">
-                <slot name="movControler">
-                    <span style="display: flex; justify-content: center" v-if="enableDraggable">
+            <div style="width: 100%; cursor: move" class="modal-title-container">
+                <div style="min-width: 30px;"><slot name="modal-title-left"></slot></div>
+                <div ref="moveRef" 
+                    style="min-width: 30px; 
+                        display: flex; 
+                        justify-content: center; 
+                        align-items: center;
+                        touch-action: none;     
+                        user-select: none;   
+                        " 
+                    v-if="enableDraggable"
+                >
+                    <slot name="movControler">
                         <HolderOutlined class="rotated cursor-move"/>
-                    </span>
-                </slot>
-                <slot name="title"></slot>
+                    </slot>
+                </div>
+                <div style="min-width: 30px; display: flex; align-items: center; justify-content: center;">
+                    <slot name="modal-title-right">
+                        <a-button
+                            type="text"
+                            size="small"
+                            @click="handleCancel"
+                        >
+                            <template #icon>
+                                <CloseOutlined />
+                            </template>
+                        </a-button>
+                    </slot>
+                </div>
             </div>
         </template>
     
@@ -39,8 +62,8 @@
 
 <script lang="ts" setup>
 import type { CSSProperties, VNode, VNodeNormalizedChildren } from 'vue'
-import { ref, computed, watch, watchEffect, defineExpose, h, cloneVNode, isVNode, normalizeClass } from 'vue'
-import { HolderOutlined } from '@ant-design/icons-vue'
+import { ref, computed, watch, watchEffect, defineExpose, h, cloneVNode, isVNode, normalizeClass, onUnmounted, onMounted } from 'vue'
+import { HolderOutlined, CloseOutlined } from '@ant-design/icons-vue'
 import { useDraggable } from '@vueuse/core'
 
 const props = defineProps({
@@ -51,33 +74,42 @@ const props = defineProps({
     cssStyle: { type: Object, default: () => ({}) },
     destroyOnClose: { type: Boolean, default: false },
     footer: { type: String },
-    minHeight: { type: Number, default: 0 },
+    minHeight: { type: Number, default: 40 },
     minWidth: { type: Number, default: 200 },
     connersResizer: { type: Array as () => string[], default: () => ['top-left', 'top-right', 'bottom-right', 'bottom-left'] },
     sideResizer: { type: Array as () => string[], default: () => ['top', 'right', 'bottom', 'left'] },
     enableResize: { type: Boolean, default: true },
-    enableDraggable: { type: Boolean, default: true }
+    enableDraggable: { type: Boolean, default: true },
+    contentPadding: { type: String, default: '5px 20px 10px 20px' }
 })
 
 const emit = defineEmits(['handleCancel'])
 const open = defineModel('open', { type: Boolean, required: true })
 
-const modalTitleRef = ref<HTMLElement | null>(null)
+const moveRef = ref<HTMLElement | null>(null)
 const contentEl = ref<HTMLElement | null>(null)
 
-const { x, y, isDragging } = useDraggable(modalTitleRef)
-const startX = ref(0)
-const startY = ref(0)
-const startedDrag = ref(false)
-const transformX = ref(0)
-const transformY = ref(0)
-const preTransformX = ref(0)
-const preTransformY = ref(0)
-const dragRect = ref({ left: 0, right: 0, top: 0, bottom: 0 })
+const { x, y, isDragging } = useDraggable(moveRef, {
+    initialValue: { x: 0, y: 0 },
+    preventDefault: true,            
+    stopPropagation: true,
+    pointerTypes: ['mouse', 'touch']
+});
 
-const transformStyle = computed<CSSProperties>(() => ({
-    transform: `translate(${transformX.value}px, ${transformY.value}px)`
-}))
+const startX = ref<number>(0);
+const startY = ref<number>(0);
+const startedDrag = ref(false);
+const transformX = ref(0);
+const transformY = ref(0);
+const preTransformX = ref(0);
+const preTransformY = ref(0);
+const dragRect = ref({ left: 0, right: 0, top: 0, bottom: 0 });
+
+const transformStyle = computed<CSSProperties>(() => {
+    return {
+        transform: `translate(${transformX.value}px, ${transformY.value}px)`,
+    };
+});
 
 const mergedCssStyle = computed(() => ({
     ...props.cssStyle,
@@ -108,32 +140,37 @@ const resetModal = () => {
 }
 
 watch([x, y], () => {
-    if (!startedDrag.value) {
-        startX.value = x.value
-        startY.value = y.value
-        const bodyRect = document.body.getBoundingClientRect()
-        if (modalTitleRef.value) {
-            const titleRect = modalTitleRef.value.getBoundingClientRect()
-            dragRect.value.right = bodyRect.width - titleRect.width
-            dragRect.value.bottom = bodyRect.height - titleRect.height
-        }
-        preTransformX.value = transformX.value
-        preTransformY.value = transformY.value
+    if (!startedDrag.value && moveRef.value) {
+        startX.value = x.value;
+        startY.value = y.value;
+        const bodyRect = document.body.getBoundingClientRect();
+        const titleRect = moveRef.value.getBoundingClientRect();
+        dragRect.value.right = bodyRect.width - titleRect.width;
+        dragRect.value.bottom = bodyRect.height - titleRect.height;
+        preTransformX.value = transformX.value;
+        preTransformY.value = transformY.value;
     }
-    startedDrag.value = true
-})
+    startedDrag.value = true;
+});
+
+watch(isDragging, (dragging) => {
+    if (!dragging) {
+        startedDrag.value = false;
+    }
+});
 
 watchEffect(() => {
     if (startedDrag.value) {
-        transformX.value = preTransformX.value +
-        Math.min(Math.max(dragRect.value.left, x.value), dragRect.value.right) -
-        startX.value
-
-        transformY.value = preTransformY.value +
-        Math.min(Math.max(dragRect.value.top, y.value), dragRect.value.bottom) -
-        startY.value
+        transformX.value =
+            preTransformX.value +
+            Math.min(Math.max(dragRect.value.left, x.value), dragRect.value.right) -
+            startX.value;
+        transformY.value =
+            preTransformY.value +
+            Math.min(Math.max(dragRect.value.top, y.value), dragRect.value.bottom) -
+            startY.value;
     }
-})
+});
 
 const remakeVNode = (vnode: VNode): VNode => {
     if (!isVNode(vnode)) return vnode;
@@ -142,6 +179,24 @@ const remakeVNode = (vnode: VNode): VNode => {
     const normalizedClass = normalizeClass(classList);
 
     if (normalizedClass.includes("ant-modal-content")) {
+        const originalStyle = vnode.props?.style ? 
+            (typeof vnode.props.style === 'string' ? 
+                parseStyleString(vnode.props.style) : 
+                { ...vnode.props.style }
+            ) : {};
+        
+        const newStyle = { 
+            ...originalStyle, 
+            padding: props.contentPadding 
+        };
+
+        const newProps = {
+            ...vnode.props,
+            style: newStyle
+        };
+
+        const clonedVNode = cloneVNode(vnode, newProps);
+        
         const sideResizers = props.sideResizer.map((side) =>
             h("div", {
                 class: `resizer ${side} side`,
@@ -160,18 +215,28 @@ const remakeVNode = (vnode: VNode): VNode => {
             })
         );
 
-        const oldChildren = Array.isArray(vnode.children) ? vnode.children : [vnode.children];
-
-        const newChildren = [
+        const oldChildren = Array.isArray(clonedVNode.children) ? 
+            clonedVNode.children : 
+            [clonedVNode.children];
+        
+        clonedVNode.children = [
             ...oldChildren,
             ...sideResizers,
             ...connersResizers
-        ];
-        vnode.children = newChildren  as VNodeNormalizedChildren;
-        return cloneVNode(vnode);
+        ] as VNodeNormalizedChildren;
+        
+        return clonedVNode;
     } else {
         return vnode;
     }
+};
+
+const parseStyleString = (styleString: string): Record<string, string> => {
+    return styleString.split(';').reduce((acc, style) => {
+        const [key, value] = style.split(':').map(s => s.trim());
+        if (key && value) acc[key] = value;
+        return acc;
+    }, {} as Record<string, string>);
 };
 
 const onResizeStart  = (e: MouseEvent, className: string) =>{
@@ -263,6 +328,12 @@ defineExpose({ resetModal })
 
 <style lang="scss">
 .draggable-resizeable-modal-container {
+    .modal-title-container{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
     .ant-modal-content {
         display: flex;
         flex-direction: column;

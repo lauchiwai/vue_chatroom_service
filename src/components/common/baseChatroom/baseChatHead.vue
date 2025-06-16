@@ -29,8 +29,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 16px;
-    height: 64px;
+    height: 100%;
+    min-height: 20px;
     
     .header-left {
         height: 100%;
@@ -46,7 +46,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 40px;
+            height: 100%;
             width: 40px;
             cursor: pointer;
             transition: all 0.3s;
@@ -54,50 +54,6 @@
             &:hover {
                 background-color: #f5f5f5;
                 color: #1890ff;
-            }
-        }
-        
-        .header-action {
-            padding: 0 12px;
-            height: 32px;
-            border-radius: 4px;
-            background-color: #1890ff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            
-            &:hover {
-                background-color: #40a9ff;
-                transform: translateY(-2px);
-                box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
-            }
-        }
-    }
-    
-    .header-right {
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        
-        .user-avatar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            
-            img {
-                width: 32px;
-                height: 32px;
-                border-radius: 50%;
-                object-fit: cover;
-            }
-            
-            span {
-                font-weight: 500;
             }
         }
     }

@@ -14,7 +14,6 @@ import type { ArticleList } from '@/types/article/article';
 import MyCard from '@/components/common/myCard.vue';
 import BookItem from '@/components/article/book/bookItem.vue'
 
-
 const emit = defineEmits(['click-event'])
 const props = defineProps({
     article: {

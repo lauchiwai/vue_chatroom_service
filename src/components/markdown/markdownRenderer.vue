@@ -1,10 +1,7 @@
 <template>
     <div ref="markdownContainer"
         class="markdown-wrapper"
-        @mouseup.capture="handleTextSelection"
-        @touchstart="handleTouchStart"
-        @touchend="handleTouchEnd"
-        @touchmove="handleTouchMove"
+        @mouseup="handleTextSelection"
         :data-markdown-instance="instanceId"
     ></div>
 
@@ -17,8 +14,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, onBeforeUnmount } from 'vue'
+import { ref, onMounted, watch, nextTick, onBeforeUnmount, computed } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
+import { useScreenStore } from '@/stores/screenStore'
+
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import DOMPurify from 'dompurify'
@@ -35,9 +34,13 @@ const props = defineProps({
     }
 })
 
+const store = useScreenStore()
 const instanceId = uuidv4()
 const markdownContainer = ref<HTMLElement>()
 const selectedText = ref('')
+const isMobile = computed(() => store.isMobile)
+const isSystemMenuActive = ref(false)
+const systemMenuObserver = ref<MutationObserver | null>(null)
 
 const md: any = new MarkdownIt({
     html: false,
@@ -63,16 +66,32 @@ const md: any = new MarkdownIt({
 const showBubbleMenu = defineModel('showBubbleMenu', { type: Boolean, required: true })
 const bubblePosition = ref({ top: '0px', left: '0px' })
 
-const touchStartTime = ref(0)
-const isTouchMoving = ref(false)
-const touchStartPosition = ref({ x: 0, y: 0 })
-const touchEndPosition = ref({ x: 0, y: 0 })
+const setupSystemMenuObserver = () => {
+    systemMenuObserver.value = new MutationObserver((mutations) => {
+        const systemMenu = document.querySelector('div[role="menu"]')
+        isSystemMenuActive.value = !!systemMenu
+        
+        if (!systemMenu && !window.getSelection()?.toString()) {
+            showBubbleMenu.value = false
+            selectedText.value = ''
+        }
+    })
+    
+    if (systemMenuObserver.value && document.body) {
+        systemMenuObserver.value.observe(document.body, {
+            childList: true,
+            subtree: true
+        })
+    }
+}
 
 const processSelection = () => {
     const selection = window.getSelection()
     if (!selection || selection.toString().trim() === '') {
-        showBubbleMenu.value = false
-        selectedText.value = ''
+        if (!isSystemMenuActive.value) {
+            showBubbleMenu.value = false
+            selectedText.value = ''
+        }
         return false
     }
 
@@ -90,9 +109,16 @@ const processSelection = () => {
     const scrollX = window.scrollX || document.documentElement.scrollLeft
     const scrollY = window.scrollY || document.documentElement.scrollTop
 
-    bubblePosition.value = {
-        top: `${rect.top + scrollY - 40}px`,
-        left: `${rect.left + scrollX + rect.width / 2}px`
+    if (isMobile.value) {
+        bubblePosition.value = {
+            top: `${rect.bottom + scrollY + 25}px`,
+            left: `${rect.left + scrollX + rect.width / 2}px`
+        }
+    } else {
+        bubblePosition.value = {
+            top: `${rect.top + scrollY - 40}px`,
+            left: `${rect.left + scrollX + rect.width / 2}px`
+        }
     }
 
     showBubbleMenu.value = true
@@ -100,69 +126,47 @@ const processSelection = () => {
 }
 
 const handleTextSelection = (e: MouseEvent) => {
-    if (Date.now() - touchStartTime.value < 600) return
     processSelection()
 }
 
-const handleTouchStart = (e: TouchEvent) => {
-    if (!e.touches.length) return
-    
-    const touch = e.touches[0]
-    touchStartTime.value = Date.now()
-    isTouchMoving.value = false
-    touchStartPosition.value = {
-        x: touch.clientX,
-        y: touch.clientY
-    }
-    showBubbleMenu.value = false
-}
-
-const handleTouchMove = (e: TouchEvent) => {
-    if (!e.touches.length) return
-    
-    const touch = e.touches[0]
-    const moveThreshold = 10
-    
-    const deltaX = Math.abs(touch.clientX - touchStartPosition.value.x)
-    const deltaY = Math.abs(touch.clientY - touchStartPosition.value.y)
-    
-    if (deltaX > moveThreshold || deltaY > moveThreshold) {
-        isTouchMoving.value = true
-    }
-}
-
-const handleTouchEnd = (e: TouchEvent) => {
-    if (!e.changedTouches.length) return
-    
-    const touch = e.changedTouches[0]
-    touchEndPosition.value = {
-        x: touch.clientX,
-        y: touch.clientY
-    }
-    
-    const touchDuration = Date.now() - touchStartTime.value
-    if (touchDuration > 500 && !isTouchMoving.value) {
-        const element = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement
-        if (element) {
-            setTimeout(() => {
-                if (processSelection()) {
-                    if (navigator.vibrate) {
-                        navigator.vibrate(50)
-                    }
-                }
-            }, 100)
+const handleSelectionChange = () => {
+    const selection = window.getSelection()
+    if (!selection || selection.toString().trim() === '') {
+        if (!isSystemMenuActive.value) {
+            showBubbleMenu.value = false
+            selectedText.value = ''
+        }
+    } else {
+        if (isMobile.value) {
+            setTimeout(processSelection, 100)
+        } else {
+            processSelection()
         }
     }
 }
 
 const handleClickOutside = (e: MouseEvent) => {
     const target = e.target as HTMLElement
+    
+    const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA'
+    const isContentEditable = target.isContentEditable
+    
+    if (isInputElement || isContentEditable) {
+        return
+    }
+    
     const isBubbleMenu = target.closest(`[data-instance="${instanceId}"]`)
     const isCurrentMarkdown = target.closest(`[data-markdown-instance="${instanceId}"]`)
+    const isSystemMenu = target.closest('div[role="menu"]')
 
-    if (!isBubbleMenu && !isCurrentMarkdown) {
+    if (isBubbleMenu || isSystemMenu) return
+
+    if (!isCurrentMarkdown) {
         showBubbleMenu.value = false
         selectedText.value = ''
+        
+        const selection = window.getSelection()
+        if (selection) selection.removeAllRanges()
     }
 }
 
@@ -192,11 +196,17 @@ const renderMarkdown = async () => {
 
 onMounted(() => {
     document.addEventListener('click', handleClickOutside)
+    document.addEventListener('selectionchange', handleSelectionChange)
+    setupSystemMenuObserver()
     renderMarkdown()
 })
 
 onBeforeUnmount(() => {
     document.removeEventListener('click', handleClickOutside)
+    document.removeEventListener('selectionchange', handleSelectionChange)
+    if (systemMenuObserver.value) {
+        systemMenuObserver.value.disconnect()
+    }
 })
 
 watch(() => props.content, renderMarkdown)
@@ -209,8 +219,28 @@ watch(() => props.content, renderMarkdown)
     position: relative;
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
     border-radius: 12px;
+    -webkit-touch-callout: default;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+:deep(.bubble-menu-container) {
+    position: fixed;
+    z-index: 2147483647;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+:deep(.system-menu-active .bubble-menu-container) {
+    opacity: 0.9;
+    z-index: 2147483646;
+}
+
+:deep(.bubble-menu) {
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .hljs {
@@ -230,13 +260,16 @@ watch(() => props.content, renderMarkdown)
 
 @media (max-width: 768px) {
     .markdown-wrapper {
-        padding: 15px;
         border-radius: 8px;
     }
     
     .hljs {
         padding: 1rem !important;
         font-size: 14px;
+    }
+    
+    :deep(.bubble-menu) {
+        transform: translate(-50%, 10px);
     }
 }
 </style>
