@@ -14,7 +14,7 @@ import { ROUTE_NAMES} from '@/router'
 
 const router = useRouter()
 const goHome = () => {
-    router.push(ROUTE_NAMES.HOME) 
+    router.push({ name: ROUTE_NAMES.HOME })
 }
 </script>
   

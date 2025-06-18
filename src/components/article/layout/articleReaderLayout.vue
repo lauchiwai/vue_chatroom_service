@@ -119,7 +119,7 @@ const handleAdjustFontSize = (delta: number) => emit('adjust-font-size', delta)
 const handleResetFontSize = () => emit('reset-font-size')
 
 const goHome = () => {
-    router.push(ROUTE_NAMES.HOME)
+    router.push({ name: ROUTE_NAMES.HOME })
 }
 
 watch(() => props.currentPage, () => {

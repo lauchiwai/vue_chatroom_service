@@ -72,7 +72,7 @@ const router = useRouter()
 const articleStore = useArticleStore()
 
 const handelRouter = () =>{
-    router.push(ROUTE_NAMES.BOOKSHELF)
+    router.push({ name: ROUTE_NAMES.BOOKSHELF })
 }
 
 const form = reactive({
