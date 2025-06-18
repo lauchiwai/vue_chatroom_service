@@ -39,7 +39,8 @@ import { ref, inject, computed } from 'vue'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useChatStore } from '@/stores/chatStore'
-import { ChatHandlersKey } from '@/constants/injectionKeys'
+import { ChatHandlersKey, ArticleIdKey } from '@/constants/injectionKeys'
+
 import DeleteModal from '@/components/common/modal/deleteModal.vue'
 
 const injectedHandlers = inject(ChatHandlersKey, {
@@ -49,7 +50,7 @@ const injectedHandlers = inject(ChatHandlersKey, {
 
 const chatStore = useChatStore()
 const { chatSessionList, currentSession } = storeToRefs(chatStore)
-
+const articleId = inject(ArticleIdKey, computed(() => 0))
 const deleteModalOpen = ref(false)
 const deleteLoading = ref(false)
 const deletingId = ref<number | null>(null)
@@ -68,6 +69,7 @@ const handleConfirmDelete = async () => {
         try {
             deleteLoading.value = true
             await injectedHandlers.handleDelete(deletingId.value)
+            await chatStore.fetchRagChatSessionListByArticleId(articleId.value!)
         } finally {
             deleteLoading.value = false
             deleteModalOpen.value = false
