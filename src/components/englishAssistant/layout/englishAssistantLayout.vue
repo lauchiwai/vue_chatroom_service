@@ -24,7 +24,7 @@
     flex-direction: column;
     box-sizing: border-box;
     position: relative;
-    overflow: hidden;
+    overflow: auto;
 
     .tool-list{
         position: absolute;
@@ -48,6 +48,7 @@
         scroll-behavior: smooth;
         overflow: auto;
         position: relative;
+        max-height: 70vh;
 
         &::-webkit-scrollbar {
             width: 8px;
@@ -67,21 +68,8 @@
 /* 响应式样式 */
 @media (max-width: 767px) {
     .chatroom-container {
-        height: 70vh !important;
+        max-height: 35vh;
     }
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
-    .chatroom-container {
-        height: 70vh !important;
-    }
-}
-
-@media (min-width: 1025px) {
-    .chatroom-container {
-        .msg-container {
-            max-height: calc(70vh - 120px); 
-        }
-    }
-}
 </style>

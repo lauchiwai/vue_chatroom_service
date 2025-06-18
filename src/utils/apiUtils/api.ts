@@ -1,9 +1,6 @@
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import type { RefreshResponse } from '@/types/auth/user'
-import type { ApiResponse } from '@/types/api/apiResponse'
 
 import { useUserStore } from '@/stores/authStore'
-import { UserService } from '@/services/userService'
 import { handleUnauthorized } from '@/utils/apiUtils/authApi'
 
 import axios from 'axios'

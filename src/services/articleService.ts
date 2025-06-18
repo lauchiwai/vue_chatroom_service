@@ -1,5 +1,5 @@
 import type { ApiResponse, StreamChunk } from '@/types/api/apiResponse'
-import type { AiArticleRequest, Article, ArticleList, articleRequest, vectorizeArticleRequest } from '@/types/article/article'
+import type { AiArticleRequest, Article, ArticleList, ArticleReadingProgress, articleRequest, updateReadingProgressRequest, vectorizeArticleRequest } from '@/types/article/article'
 
 import { streamClient } from '@/utils/apiUtils/streamApi'
 import { api } from '@/utils/apiUtils/api'
@@ -20,8 +20,20 @@ export const articleService = {
         const response = await api.get<ApiResponse<Article>>(`/Article/GetArticle/${sessionId}`)
         return response.data;
     },
+    async deleteArticle(articleId: number): Promise<ApiResponse<any>> {
+        const response = await api.get<ApiResponse<any>>(`/Article/DeleteArticle/${articleId}`)
+        return response.data;
+    },
     async vectorizeArticle(request: vectorizeArticleRequest): Promise<ApiResponse<any>> {
         const response = await api.post<ApiResponse<any>>(`/Article/VectorizeArticle`, request)
+        return response.data;
+    },
+    async updateArticleReadingProgress(request: updateReadingProgressRequest): Promise<ApiResponse<any>> {
+        const response = await api.post<ApiResponse<any>>('/Article/UpdateArticleReadingProgress', request)
+        return response.data;
+    },
+    async getArticleReadingProgress(articleId: number): Promise<ApiResponse<ArticleReadingProgress>> {
+        const response = await api.get<ApiResponse<ArticleReadingProgress>>(`/Article/GetArticleReadingProgress/${articleId}`)
         return response.data;
     },
 }

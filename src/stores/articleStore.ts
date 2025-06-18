@@ -1,4 +1,4 @@
-import type { AiArticleRequest, Article, ArticleList, articleRequest, vectorizeArticleRequest } from '@/types/article/article'
+import type { AiArticleRequest, Article, ArticleList, ArticleReadingProgress, articleRequest, updateReadingProgressRequest, vectorizeArticleRequest } from '@/types/article/article'
 import type { ApiResponse } from '@/types/api/apiResponse'
 
 import { articleService } from '@/services/articleService'
@@ -64,6 +64,17 @@ export const useArticleStore = defineStore('article', {
             }
         },
 
+        async deleteArticle(articleId: number) {
+            try {
+                const response: ApiResponse<any> = await articleService.deleteArticle(articleId)
+                if (!response.isSuccess) {
+                    message.error("刪除文章錯誤: " + response.message)
+                }
+            } catch (error) {
+                message.error('刪除文章失敗，請重試')
+            }
+        },
+
         async vectorizeArticle(request: vectorizeArticleRequest) {
             try {
                 const response: ApiResponse<any> = await articleService.vectorizeArticle(request)
@@ -72,6 +83,29 @@ export const useArticleStore = defineStore('article', {
                 }
             } catch (error) {
                 message.error('文章向量化失敗，請重試')
+            }
+        },
+
+        async updateArticleReadingProgress(request: updateReadingProgressRequest) {
+            try {
+                const response: ApiResponse<any> = await articleService.updateArticleReadingProgress(request)
+                if (!response.isSuccess) {
+                    message.error("更新閲讀文章進度錯誤: " + response.message)
+                }
+            } catch (error) {
+                message.error('更新閲讀文章進度失敗，請重試')
+            }
+        },
+
+        async getArticleReadingProgress(articleId: number) {
+            try {
+                const response: ApiResponse<ArticleReadingProgress> = await articleService.getArticleReadingProgress(articleId)
+                if (!response.isSuccess && response.code != 401) {
+                    message.error("獲取閲讀文章進度錯誤: " + response.message)
+                }
+                return response.data || undefined;
+            } catch (error) {
+                message.error('獲取閲讀文章進度失敗，請重試')
             }
         },
 
