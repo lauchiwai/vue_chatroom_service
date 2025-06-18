@@ -70,6 +70,7 @@ export const useArticleStore = defineStore('article', {
                 if (!response.isSuccess) {
                     message.error("刪除文章錯誤: " + response.message)
                 }
+                return response.isSuccess
             } catch (error) {
                 message.error('刪除文章失敗，請重試')
             }
@@ -81,6 +82,7 @@ export const useArticleStore = defineStore('article', {
                 if (!response.isSuccess) {
                     message.error("文章向量化錯誤: " + response.message)
                 }
+                return response.isSuccess
             } catch (error) {
                 message.error('文章向量化失敗，請重試')
             }
@@ -92,6 +94,7 @@ export const useArticleStore = defineStore('article', {
                 if (!response.isSuccess) {
                     message.error("更新閲讀文章進度錯誤: " + response.message)
                 }
+                return response.isSuccess
             } catch (error) {
                 message.error('更新閲讀文章進度失敗，請重試')
             }

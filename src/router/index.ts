@@ -6,7 +6,6 @@ import { message } from 'ant-design-vue'
 const ROUTE_NAMES = {
     LOGIN: 'Login',
     HOME: 'Home',
-    HOME_PAGE: 'Home',
     BOOKSHELF: 'BookShelf',
     BookShelf_AiGenerater: 'BookShelfAiGenerater',
     BookShelf_File_Upload: 'BookShelfFileUpload',
@@ -17,7 +16,6 @@ const ROUTE_NAMES = {
 
 const ROUTE_PATHS = {
     LOGIN: '/login',
-    ROOT: '/',
     HOME: '/Home',
     BOOKSHELF: '/BookShelf',
     BookShelf_AiGenerater: '/BookShelf/AiGenerater',
@@ -28,6 +26,10 @@ const ROUTE_PATHS = {
 } as const
 
 const routes: RouteRecordRaw[] = [
+    {
+        path: '/',
+        redirect: ROUTE_PATHS.HOME
+    },
     {
         path: ROUTE_PATHS.LOGIN,
         name: ROUTE_NAMES.LOGIN,
@@ -41,20 +43,8 @@ const routes: RouteRecordRaw[] = [
         }
     },
     {
-        path: ROUTE_PATHS.ROOT,
-        name: ROUTE_NAMES.HOME,
-        component: () => import('@/views/home/index.vue'),
-        meta: {
-            layout: 'main',
-            requiresAuth: true,
-            showHeader: true,
-            showMobileNav: false,
-            showSideBar: true
-        }
-    },
-    {
         path: ROUTE_PATHS.HOME,
-        name: ROUTE_NAMES.HOME_PAGE,
+        name: ROUTE_NAMES.HOME,
         component: () => import('@/views/home/index.vue'),
         meta: {
             layout: 'main',
@@ -158,7 +148,7 @@ router.beforeEach((to: RouteLocationNormalized) => {
     else if (to.name === ROUTE_NAMES.LOGIN && isAuthenticated) {
         message.error("目前已經登入")
         return {
-            path: ROUTE_PATHS.CHATROOM
+            path: ROUTE_PATHS.HOME
         }
     }
 
@@ -166,4 +156,4 @@ router.beforeEach((to: RouteLocationNormalized) => {
 })
 
 export default router
-export { ROUTE_NAMES, ROUTE_PATHS } 
+export { ROUTE_NAMES, ROUTE_PATHS }
