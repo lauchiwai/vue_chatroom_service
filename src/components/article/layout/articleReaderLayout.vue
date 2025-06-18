@@ -158,8 +158,8 @@ function handleTouchMove(event: TouchEvent) {
     
     if (Math.abs(pageOffsetX.value) > 100) {
         pageOffsetX.value = pageOffsetX.value > 0 ? 
-            100 + (pageOffsetX.value - 100) * 0.2 : 
-            -100 + (pageOffsetX.value + 100) * 0.2
+            100 + (pageOffsetX.value - 100) * 0.3 : 
+            -100 + (pageOffsetX.value + 100) * 0.3
     }
     
     event.preventDefault()

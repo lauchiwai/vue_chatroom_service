@@ -23,6 +23,7 @@
                 
                 <template #input-area>
                     <TextLinguisticAssistantInput 
+                        v-model:show-input="showChatInput"
                         v-show="showChatInput"
                         v-if="text.trim().length > 0"
                         :selected-text="text"
@@ -35,7 +36,7 @@
 
 <script setup lang="ts">
 import { useScreenStore } from '@/stores/screenStore';
-import { computed, onMounted, onBeforeMount, ref } from 'vue';
+import { computed, watchEffect, onBeforeMount, ref } from 'vue';
 import { useEnglishAssistantStore } from '@/stores/englishAssistantStore';
 
 import EnglishAssistantMessageList from '@/components/englishAssistant/englishAssistantChatroom/message/englishAssistantMessageList.vue';
@@ -63,10 +64,12 @@ const handelShowInputEvent = () => {
     showChatInput.value = !showChatInput.value;
 };
 
-onMounted(()=>{
-    text.value = props.selectedText
-})
-
+watchEffect(() => {
+    const trimmedText = props.selectedText.trim();
+    if (trimmedText.length > 0) {
+        text.value = props.selectedText;
+    }
+});
 
 onBeforeMount(() => {
     englishAssistantStore.resetEnglishAssistantStore();
