@@ -111,7 +111,7 @@ const processSelection = () => {
 
     if (isMobile.value) {
         bubblePosition.value = {
-            top: `${rect.bottom + scrollY + 25}px`,
+            top: `${rect.bottom + scrollY + 40}px`,
             left: `${rect.left + scrollX + rect.width / 2}px`
         }
     } else {
