@@ -1,6 +1,6 @@
 <template>
     <teleport to="body">
-        <div v-if="show"
+        <div v-show="show"
             class="bubble-menu"
             :data-instance="instanceId"
             :style="position"
@@ -105,12 +105,6 @@ tts.registerStatusCallback((status : string) => {
     isSpeaking.value = status === 'speaking';
 });
 
-watch(() => show.value, (newVal) => {
-    if (!newVal) {
-        tts.stop();
-    }
-});
-
 const handlePronunciation = () => {
     if (!props.selectedText) return;
     tts.toggle(props.selectedText);
@@ -127,11 +121,6 @@ const handleEnglishWordAssistantEvent = () =>{
 const handleTextLinguisticAssistantEvent = () =>{
     textLinguisticAssistantModalOpen.value = !textLinguisticAssistantModalOpen.value
 }
-
-onBeforeUnmount(() => {
-    tts.stop();
-    tts.unregisterStatusCallback();
-});
 </script>
 
 <style scoped>
