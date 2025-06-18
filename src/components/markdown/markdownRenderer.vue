@@ -21,6 +21,7 @@ import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import DOMPurify from 'dompurify'
 import 'highlight.js/styles/github-dark.css'
+import { message } from 'ant-design-vue'
 
 const props = defineProps({
     content: {
@@ -130,8 +131,6 @@ const handleTextSelection = (e: MouseEvent) => {
 }
 
 const handleSelectionChange = () => {
-    if (showBubbleMenu.value) return
-    
     const selection = window.getSelection()
     if (!selection || selection.toString().trim() === '') {
         if (!isSystemMenuActive.value) {
