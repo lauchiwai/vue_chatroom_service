@@ -21,6 +21,7 @@
     "eslint": "^9.24.0",
     "eslint-plugin-vue": "^9.28.0",
     "highlight.js": "^11.11.1",
+    "mammoth": "^1.9.1",
     "markdown-it": "^14.1.0",
     "material-icons": "^1.13.14",
     "pinia": "^3.0.1",

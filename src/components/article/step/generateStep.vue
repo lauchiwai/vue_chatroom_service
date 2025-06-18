@@ -8,8 +8,22 @@
 
 <script setup lang="ts">
 import type { StepProps } from 'ant-design-vue'
-import { computed, h } from 'vue'
+
+import { StepType } from '@/constants/steps';
+import { computed, h, onMounted } from 'vue'
 import { useStepStore } from '@/stores/stepStore'
+
+const props = defineProps({
+    stepType: {
+        type: Object as () => StepType,
+        required: true,
+    }
+})
+
+onMounted(()=>{
+    stepStore.reset();
+    stepStore.initSteps(props.stepType)
+})
 
 const stepStore = useStepStore()
 const transformedSteps = computed<StepProps[]>(() => {
@@ -18,7 +32,7 @@ const transformedSteps = computed<StepProps[]>(() => {
             title: step.title,
             status: step.status,
             icon: h(step.icon)
-        }
+        } as StepProps
     })
 })
 </script>

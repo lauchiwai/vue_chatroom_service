@@ -1,7 +1,6 @@
 <template>
     <teleport to="body">
-        <div
-            v-if="show"
+        <div v-if="show"
             class="bubble-menu"
             :data-instance="instanceId"
             :style="position"
@@ -119,16 +118,14 @@ const handlePronunciation = () => {
 
 const handleEnglishWordTipsEvent = () =>{
     englishWordTipsModalOpen.value = !englishWordTipsModalOpen.value
-    show.value = !show.value
 }
 
 const handleEnglishWordAssistantEvent = () =>{
     englishWordAssistantModalOpen.value = !englishWordAssistantModalOpen.value
-    show.value = !show.value
 }
+
 const handleTextLinguisticAssistantEvent = () =>{
     textLinguisticAssistantModalOpen.value = !textLinguisticAssistantModalOpen.value
-    show.value = !show.value
 }
 
 onBeforeUnmount(() => {

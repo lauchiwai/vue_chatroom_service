@@ -8,7 +8,8 @@ const ROUTE_NAMES = {
     HOME: 'Home',
     HOME_PAGE: 'Home',
     BOOKSHELF: 'BookShelf',
-    BOOKSHELF_ADD: 'BookShelfAdd',
+    BookShelf_AiGenerater: 'BookShelfAiGenerater',
+    BookShelf_File_Upload: 'BookShelfFileUpload',
     BOOKSHELF_VIEW: 'BookShelfView',
     CHATROOM: 'Chatroom',
     NOT_FOUND: 'NotFound'
@@ -19,7 +20,8 @@ const ROUTE_PATHS = {
     ROOT: '/',
     HOME: '/Home',
     BOOKSHELF: '/BookShelf',
-    BOOKSHELF_ADD: '/BookShelf/Add',
+    BookShelf_AiGenerater: '/BookShelf/AiGenerater',
+    BookShelf_File_Upload: '/BookShelf/FileUpload',
     BOOKSHELF_VIEW: '/BookShelf/View/:id',
     CHATROOM: '/Chatroom',
     NOT_FOUND: '/:pathMatch(.*)*'
@@ -75,9 +77,21 @@ const routes: RouteRecordRaw[] = [
         }
     },
     {
-        path: ROUTE_PATHS.BOOKSHELF_ADD,
-        name: ROUTE_NAMES.BOOKSHELF_ADD,
-        component: () => import('@/views/article/add/index.vue'),
+        path: ROUTE_PATHS.BookShelf_File_Upload,
+        name: ROUTE_NAMES.BookShelf_File_Upload,
+        component: () => import('@/views/article/add/fileUpload.vue'),
+        meta: {
+            layout: 'main',
+            requiresAuth: true,
+            showHeader: false,
+            showMobileNav: true,
+            showSideBar: true
+        }
+    },
+    {
+        path: ROUTE_PATHS.BookShelf_AiGenerater,
+        name: ROUTE_NAMES.BookShelf_AiGenerater,
+        component: () => import('@/views/article/add/aiGenerater.vue'),
         meta: {
             layout: 'main',
             requiresAuth: true,

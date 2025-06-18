@@ -1,6 +1,8 @@
 import type { StepProps } from 'ant-design-vue';
+
+import { StepType } from '@/constants/steps';
+import { FIRST_STEP_CONFIGS, COMMON_STEPS } from '@/constants/steps';
 import { defineStore } from 'pinia';
-import { RobotOutlined, FormOutlined } from '@ant-design/icons-vue';
 
 export interface StepItem {
     title: string;
@@ -10,21 +12,25 @@ export interface StepItem {
 
 export const useStepStore = defineStore('step', {
     state: () => ({
-        currentStep: 1 as number,
-        steps: [
-            {
-                title: '輸入提示',
-                status: 'process' as StepProps['status'],
-                icon: FormOutlined
-            },
-            {
-                title: '生成文章',
-                status: 'wait' as StepProps['status'],
-                icon: RobotOutlined
-            }
-        ] as StepItem[]
+        currentStep: 1,
+        steps: [] as StepItem[]
     }),
     actions: {
+        createSteps(type: StepType) {
+            const firstStep = {
+                ...FIRST_STEP_CONFIGS[type],
+                status: 'process' as StepProps['status']
+            };
+            const commonSteps = COMMON_STEPS.map(step => ({
+                ...step,
+                status: 'wait' as StepProps['status']
+            }));
+            return [firstStep, ...commonSteps];
+        },
+        initSteps(type: StepType) {
+            this.steps = this.createSteps(type);
+            this.currentStep = 1;
+        },
         setCurrentStep(step: number) {
             this.currentStep = step;
             this.steps.forEach((item, index) => {

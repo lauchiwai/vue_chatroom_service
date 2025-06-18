@@ -17,7 +17,6 @@
 import { ref, onMounted, watch, nextTick, onBeforeUnmount, computed } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import { useScreenStore } from '@/stores/screenStore'
-
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import DOMPurify from 'dompurify'
@@ -46,6 +45,7 @@ const md: any = new MarkdownIt({
     html: false,
     linkify: true,
     typographer: true,
+    breaks: true,
     highlight: (str: string, lang: string) => {
         if (lang && hljs.getLanguage(lang)) {
             try {
@@ -130,6 +130,8 @@ const handleTextSelection = (e: MouseEvent) => {
 }
 
 const handleSelectionChange = () => {
+    if (showBubbleMenu.value) return
+    
     const selection = window.getSelection()
     if (!selection || selection.toString().trim() === '') {
         if (!isSystemMenuActive.value) {
@@ -155,11 +157,10 @@ const handleClickOutside = (e: MouseEvent) => {
         return
     }
     
-    const isBubbleMenu = target.closest(`[data-instance="${instanceId}"]`)
     const isCurrentMarkdown = target.closest(`[data-markdown-instance="${instanceId}"]`)
     const isSystemMenu = target.closest('div[role="menu"]')
 
-    if (isBubbleMenu || isSystemMenu) return
+    if (isSystemMenu) return
 
     if (!isCurrentMarkdown) {
         showBubbleMenu.value = false
@@ -212,7 +213,7 @@ onBeforeUnmount(() => {
 watch(() => props.content, renderMarkdown)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .markdown-wrapper {
     line-height: 1.6;
     color: #333;

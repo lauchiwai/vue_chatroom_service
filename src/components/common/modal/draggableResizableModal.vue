@@ -113,7 +113,7 @@ const transformStyle = computed<CSSProperties>(() => {
 
 const mergedCssStyle = computed(() => ({
     ...props.cssStyle,
-    padding: '5px 20px 10px 20px'
+    padding: '5px 20px 10px 20px',
 }))
 
 const mergedWrapClassName = computed(() => 

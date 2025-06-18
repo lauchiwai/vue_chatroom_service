@@ -1,30 +1,17 @@
 <template>
     <div class="book-search-page">
         <header class="header" :class="{ 'header-hidden': !isHeaderVisible }">
-            <div class="search-bar">
-                <button @click="performSearch" class="search-btn">
-                    <SearchOutlined />
-                </button>
-                <input
-                    type="text"
-                    v-model="searchQuery"
-                    placeholder="搜尋書籍..."
-                    @keyup.enter="performSearch"
-                    @focus="isFocused = true"
-                    @blur="isFocused = false"
-                    :class="{ 'input-focused': isFocused }"
-                />
-            </div>
+            <SearchBar 
+                v-model="searchQuery"
+                @search="performSearch"
+                ref="searchBarRef"
+            />
         </header>
 
         <main class="content" ref="contentElement">
-   
+            <div v-if="articles.length" class="book-grid">
+                <AddTrigger class="stats-item" />
 
-            <div v-if="filteredBooks.length" class="book-grid">
-                <CardAddTrigger 
-                    class="stats-item"
-                    @click-event="handelAddEvent"
-                />
                 <BookCard  
                     @click-event="handelViewEvent"
                     v-for="article in articles" 
@@ -34,65 +21,67 @@
                 />
             </div>
             <div v-else class="empty-state">
-                <Empty />
+                <Empty v-if="!loading"/>
             </div>
         </main>
     </div>
 </template>
 
 <script setup lang="ts">
-import type { ArticleList } from '@/types/article/article'
+import type { ArticleList } from '@/types/article/article';
 
-import { useRouter } from 'vue-router'
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { SearchOutlined } from '@ant-design/icons-vue';
-import { useArticleStore } from '@/stores/articleStore'
-import { ROUTE_NAMES } from '@/router'
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
+import { useArticleStore } from '@/stores/articleStore';
+import { ROUTE_NAMES } from '@/router';
 
-import CardAddTrigger from '@/components/article/cardAddTrigger.vue'
+import SearchBar from '@/components/article/searchBar/searchBar.vue';
+
 import BookCard from '@/components/article/book/bookCard.vue';
 import Empty from '@/components/common/empty.vue';
+import AddTrigger from '@/components/article/buttons/addTrigger.vue';
 
-const router = useRouter()
 
-const articleStore = useArticleStore()
+const router = useRouter();
+const articleStore = useArticleStore();
+
 const searchQuery = ref('');
+const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null);
+
 const isHeaderVisible = ref(true);
-const isFocused = ref(false);
 const lastScrollPosition = ref(0);
 const contentElement = ref<HTMLElement | null>(null);
+const loading = ref(false);
 
-const articles = ref<ArticleList[]> ([]);
+const articles = ref<ArticleList[]>([]);
 const articleCount = ref(0);
 
 onMounted(async () => {
-    articles.value = await articleStore.getArticleList()
-    articleCount.value = articles.value.length
-    await nextTick()
-})
+    await getArticle();
+});
 
-const handelAddEvent = () => {
-    router.push({ name: ROUTE_NAMES.BOOKSHELF_ADD })
-}
+const getArticle = async () => {
+    loading.value = true;
+    try {
+        articles.value = await articleStore.getArticleList();
+        articleCount.value = articles.value.length;
+    } catch (error) {
+        console.error('獲取文章列表失敗:', error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const performSearch = () => {
+
+};
 
 const handelViewEvent = (article: ArticleList) => {
     router.push({ 
         name: ROUTE_NAMES.BOOKSHELF_VIEW, 
         params: { id: article.articleId } 
-    })
-}
-
-const performSearch = () => {
-    console.log('搜索:', searchQuery.value);
+    });
 };
-
-const filteredBooks = computed(() => {
-    if (!searchQuery.value) return articles.value;
-    const query = searchQuery.value.toLowerCase();
-    return articles.value.filter(article => 
-        article.articleTitle.toLowerCase().includes(query)
-    );
-});
 
 const handleScroll = () => {
     if (!contentElement.value) return;
@@ -120,13 +109,24 @@ onMounted(() => {
     if (contentElement.value) {
         contentElement.value.addEventListener('scroll', handleScroll);
     }
+    
+    window.addEventListener('keydown', handleKeyPress);
 });
 
 onBeforeUnmount(() => {
     if (contentElement.value) {
         contentElement.value.removeEventListener('scroll', handleScroll);
     }
+    
+    window.removeEventListener('keydown', handleKeyPress);
 });
+
+const handleKeyPress = (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault();
+        searchBarRef.value?.focus();
+    }
+};
 </script>
 
 <style scoped lang="scss">
@@ -159,72 +159,6 @@ onBeforeUnmount(() => {
         transform: translateY(-100%);
         opacity: 0;
         pointer-events: none;
-    }
-
-    .search-bar {
-        display: flex;
-        width: 100%;
-        max-width: 600px;
-        height: 56px;
-        align-items: center;
-        background: rgba(255, 255, 255, 0.92);
-        border-radius: 28px;
-        padding: 0 8px;
-        transition: all 0.3s ease;
-        box-shadow: 
-            0 4px 20px rgba(0, 0, 0, 0.05),
-            0 0 0 1px rgba(0, 0, 0, 0.04);
-
-        &:hover {
-            box-shadow: 
-                0 6px 24px rgba(0, 0, 0, 0.08),
-                0 0 0 1px rgba(0, 0, 0, 0.06);
-        }
-
-        input {
-            flex: 1;
-            padding: 0 16px;
-            border: none;
-            background: transparent;
-            font-size: 1.1rem;
-            outline: none;
-            height: 100%;
-            box-sizing: border-box;
-            color: #222;
-            font-weight: 500;
-            transition: all 0.2s ease;
-
-            &::placeholder {
-                color: rgba(0, 0, 0, 0.4);
-                font-weight: 400;
-            }
-
-            &.input-focused {
-                &::placeholder {
-                    color: rgba(0, 0, 0, 0.3);
-                }
-            }
-        }
-
-        .search-btn {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            border: none;
-            background-color: transparent;
-            align-items: center;
-            justify-content: center;
-            color: rgba(0, 0, 0, 0.6);
-            transition: all 0.2s ease;
-
-            &:hover {
-                color: #000;
-            }
-
-            :deep(svg) {
-                font-size: 22px;
-            }
-        }
     }
 }
 
@@ -266,20 +200,12 @@ onBeforeUnmount(() => {
 
 .stats-item {
     aspect-ratio: 1/1;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #E0E0E0;
     border-radius: 12px;
     overflow: hidden;
-    background: #fff;
-    box-shadow: 
-        0 6px 16px rgba(0, 0, 0, 0.06),
-        0 0 0 1px rgba(0, 0, 0, 0.04);
-    
     &:hover {
         transform: translateY(-8px);
-        box-shadow: 
-            0 12px 24px rgba(0, 0, 0, 0.1),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-        background: #fcfcfc;
     }
 }
 

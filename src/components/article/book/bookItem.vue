@@ -1,10 +1,14 @@
 <template>
     <div class="article-card">
-        <div class="frosted-layer" :style="{ backgroundColor: articleColor }"></div>
-        <div class="article-icon">
-            <i class="material-icons">{{ articleIcon }}</i>
+        <div class="scale-container">
+            <div class="frosted-layer" :style="{ backgroundColor: articleColor }"></div>
+            <div class="article-icon">
+                <i class="material-icons">{{ articleIcon }}</i>
+            </div>
         </div>
-        <span class="article-title">{{ title }}</span>
+        <div class="title-container">
+            <span class="article-title">{{ title }}</span>
+        </div>
     </div>
 </template>
 
@@ -64,17 +68,21 @@ const selectIcon = (text: string): string => {
     justify-content: center;
     padding: 1.5rem;
     border-radius: 10px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    transform-style: preserve-3d;
-    
-    &:hover {
-        transform: scale(1.1);
-        .frosted-layer {
-            backdrop-filter: blur(16px) saturate(180%);
-        }
-    }
+}
+
+.scale-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.article-card:hover .scale-container {
+    transform: scale(1.1);
 }
 
 .frosted-layer {
@@ -83,11 +91,8 @@ const selectIcon = (text: string): string => {
     left: 0;
     right: 0;
     bottom: 0;
-    backdrop-filter: blur(12px) saturate(160%);
-    -webkit-backdrop-filter: blur(12px) saturate(160%);
     border-radius: inherit;
     z-index: 0;
-    border: 1px solid rgba(255, 255, 255, 0.15);
     transition: backdrop-filter 0.3s ease;
 }
 
@@ -117,21 +122,33 @@ const selectIcon = (text: string): string => {
     transition: all 0.3s ease;
 }
 
-.article-title {
+.title-container {
     position: absolute;
-    bottom: 20px;
-    right: 0;
+    bottom: 1.5rem;
+    right: 1rem;
+    z-index: 3;
+    padding: 5px 15px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    box-shadow: 
+        0 1px 1px rgba(255, 255, 255, 0.3) inset,
+        0 2px 6px rgba(0, 0, 0, 0.1);
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.article-title {
     font-size: 1.4rem;
-    color: black;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    color: rgba(0, 0, 0, 0.85);
     text-align: center;
     margin: 0;
     line-height: 1.5;
     letter-spacing: 0.5px;
-    z-index: 2;
-    transition: all 0.3s ease;
-    padding: 0 10px;
     word-break: break-word;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    font-weight: 600;
 }
 
 @media (max-width: 1400px) {
@@ -172,6 +189,16 @@ const selectIcon = (text: string): string => {
     .article-icon .material-icons {
         font-size: 14rem;
     }
+    
+    .title-container {
+        padding: 8px 12px;
+        bottom: 1rem;
+        right: 0.8rem;
+    }
+    
+    .article-title {
+        font-size: 1.3rem;
+    }
 }
 
 @media (max-width: 600px) {
@@ -180,7 +207,7 @@ const selectIcon = (text: string): string => {
     }
     
     .article-title {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
 }
 
@@ -194,6 +221,12 @@ const selectIcon = (text: string): string => {
         font-size: 8rem;
     }
     
+    .title-container {
+        padding: 6px 10px;
+        bottom: 0.8rem;
+        right: 0.6rem;
+    }
+    
     .article-title {
         font-size: 1rem;
     }
@@ -204,8 +237,12 @@ const selectIcon = (text: string): string => {
         font-size: 7rem;
     }
     
+    .title-container {
+        padding: 5px 8px;
+    }
+    
     .article-title {
-        font-size: 0.75rem;
+        font-size: 0.9rem;
     }
 }
 </style>

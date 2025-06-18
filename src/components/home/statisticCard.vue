@@ -5,7 +5,7 @@
                 <span>FlashCard</span>
             </div>
             <div class="title-right">
-                <button>
+                <button @click="handelViewMoreEvent">
                     <span>more</span>
                     <RightOutlined class="arrow-icon" />
                 </button>
@@ -27,10 +27,9 @@
                     class="stats-item"
                 />
 
-                <CardAddTrigger 
-                    v-if="articles.length == 0"
+                <AddTrigger 
+                    v-if="articles.length == 0 && !loading"
                     class="stats-item"
-                    @click-event="handelAddEvent"
                 />
 
                 <BookCard  
@@ -62,7 +61,7 @@ import { useArticleStore } from '@/stores/articleStore'
 import { ROUTE_NAMES } from '@/router'
 
 import BookCard from '@/components/article/book/bookCard.vue'
-import CardAddTrigger from '@/components/article/cardAddTrigger.vue'
+import AddTrigger from '@/components/article/buttons/addTrigger.vue';
 import StatsCard from '@/components/home/statsCard.vue'
 
 enum positionEnum {
@@ -76,18 +75,21 @@ const scrollContainer = ref<HTMLElement | null>(null)
 const containerWidth = ref(0)
 const leftControlsAble = ref(false)
 const rightControlsAble = ref(false)
+const loading = ref(false)
 const layoutMode = ref<'flex-start' | 'space-between'>('flex-start')
 const articles = ref<ArticleList[]> ([]);
 const articleCount = ref(0);
-
-const handelAddEvent = () => {
-    router.push({ name: ROUTE_NAMES.BOOKSHELF_ADD })
-}
 
 const handelViewEvent = (article: ArticleList) => {
     router.push({ 
         name: ROUTE_NAMES.BOOKSHELF_VIEW, 
         params: { id: article.articleId } 
+    })
+}
+
+const handelViewMoreEvent = () => {
+    router.push({ 
+        name: ROUTE_NAMES.BOOKSHELF, 
     })
 }
 
@@ -158,9 +160,15 @@ watch(() => articles.value.length, () => {
     })
 })
 
-onMounted(async () => {
+const initArticleList = async() =>{
+    loading.value = true;
     articles.value = await articleStore.getArticleList()
     articleCount.value = articles.value.length
+    loading.value = false;
+}
+
+onMounted(async () => {
+    await initArticleList();
     await nextTick()
     handleResize()
     window.addEventListener('resize', handleResize)

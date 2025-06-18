@@ -2,7 +2,9 @@
     <div class="article-reader-container center-box">
         <div class="article-reader-wrapper">
             <ArticleReader 
+                :articleId="articleId!"
                 :content="article?.articleContent ?? ''"
+                :initialProgress="readingProgress"
             />
         </div>
     </div>
@@ -10,6 +12,7 @@
 
 <script lang="ts" setup>
 import type { Article } from '@/types/article/article'
+import type { ArticleReadingProgress } from '@/types/article/article'
 
 import { useArticleStore } from '@/stores/articleStore'
 import { toSafeNumber } from '@/utils/common/toSafeNumber'
@@ -18,29 +21,49 @@ import { useRoute } from 'vue-router'
 import { ArticleIdKey } from '@/constants/injectionKeys'
 import { message } from 'ant-design-vue'
 
-import ArticleReader from '@/components/article/articleReader.vue'
+import ArticleReader from '@/components/article/view/articleReader.vue'
 
 const route = useRoute()
-const articleStore = useArticleStore();
+const articleStore = useArticleStore()
 
-const article = ref<Article> ();
+const article = ref<Article>()
+const readingProgress = ref<{ progress?: number } | null>(null) 
 const articleId = computed(() => {
     const id = route.params.id
     return toSafeNumber(id)
 })
 
 onMounted(async () => {
-    await initArticle();
+    await initArticle()
     await nextTick()
 })
 
-const initArticle = async () =>{
-    if(!articleId.value){
+const initArticle = async () => {
+    if (!articleId.value) {
         message.error("articleId is null")
         return 
     }
-    else 
-        article.value = await articleStore.getArticleById(articleId.value);
+    
+    try {
+        const [articleResponse, progressResponse] = await Promise.all([
+            articleStore.getArticleById(articleId.value),
+            articleStore.getArticleReadingProgress(articleId.value)
+        ])
+        
+        article.value = articleResponse
+        
+        // 确保类型兼容
+        if (progressResponse) {
+            readingProgress.value = {
+                progress: progressResponse.progress
+            }
+        } else {
+            readingProgress.value = null
+        }
+    } catch (error) {
+        message.error("加载文章失败")
+        console.error("initArticle error:", error)
+    }
 }
 
 provide(ArticleIdKey, articleId)

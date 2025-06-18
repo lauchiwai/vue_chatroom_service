@@ -130,7 +130,6 @@ const handleSubmit = async () => {
         
         await articleStore.generateArticle(request)
         closeDialog()
-        message.success('新增成功')
         handelRouter();
         emit('saved')
     } catch (error) {
