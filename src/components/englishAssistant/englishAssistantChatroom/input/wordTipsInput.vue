@@ -25,6 +25,7 @@ const props = defineProps({
     },
 })
 
+const showInput = defineModel('showInput', { type: Boolean, required: true })
 const loading = ref(false);
 const englishAssistantStore = useEnglishAssistantStore();
 const { inputText } = storeToRefs(englishAssistantStore);
@@ -49,6 +50,7 @@ const handleTipsRequest = (): EnglishWordAssistantRequest => {
 
 const handleSteamSend = async () => {
     try {
+        showInput.value = false;
         loading.value = true;
         const request = generateWordTipsRequest();
         await englishAssistantStore.streamWordTipsService(request);

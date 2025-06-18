@@ -65,11 +65,9 @@
     }
 }
 
-/* 响应式样式 */
 @media (max-width: 767px) {
     .chatroom-container {
-        max-height: 35vh;
+        max-height: 45vh;
     }
 }
-
 </style>
