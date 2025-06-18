@@ -114,7 +114,6 @@ export const useChatStore = defineStore('chat', {
 
                 if (response.isSuccess) {
                     message.success('delete success')
-                    await this.fetchChatSessionList()
                 } else {
                     message.error("errer message: " + response.message)
                 }
