@@ -12,8 +12,6 @@
             <EnglishAssistantLayout :is-mobile="isMobile">
                 <template #tool-list>
                     <ChatInputTool 
-                        @click="handelShowInputEvent" 
-                        v-show="!showChatInput"
                     />
                 </template>
                 

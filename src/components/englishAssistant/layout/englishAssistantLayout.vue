@@ -28,7 +28,7 @@
 
     .tool-list{
         position: absolute;
-        bottom: 10px;
+        top: 10px;
         right: 10px;
         transition: all 0.2s ease;
 
