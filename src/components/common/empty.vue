@@ -57,8 +57,6 @@ const handleButtonClick = () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 400px;
-    padding: 24px;
     text-align: center;
     color: rgba(0, 0, 0, 0.45);
     

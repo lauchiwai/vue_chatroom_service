@@ -11,7 +11,6 @@
         <main class="content" ref="contentElement">
             <div v-if="articles.length" class="book-grid">
                 <AddTrigger class="stats-item" />
-
                 <BookCard  
                     @click-event="handelViewEvent"
                     v-for="article in articles" 
@@ -21,7 +20,13 @@
                 />
             </div>
             <div v-else class="empty-state">
-                <Empty v-if="!loading"/>
+                <Empty v-if="!loading">
+                    <template #action>
+                        <EmptyStateActions 
+                            :handle-refresh="handleRefresh"
+                        />
+                    </template>
+                </Empty>
             </div>
         </main>
     </div>
@@ -29,18 +34,16 @@
 
 <script setup lang="ts">
 import type { ArticleList } from '@/types/article/article';
-
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useArticleStore } from '@/stores/articleStore';
 import { ROUTE_NAMES } from '@/router';
 
 import SearchBar from '@/components/article/searchBar/searchBar.vue';
-
 import BookCard from '@/components/article/book/bookCard.vue';
 import Empty from '@/components/common/empty.vue';
 import AddTrigger from '@/components/article/buttons/addTrigger.vue';
-
+import EmptyStateActions from '@/components/article/buttons/emptyStateActions.vue';
 
 const router = useRouter();
 const articleStore = useArticleStore();
@@ -58,6 +61,7 @@ const articleCount = ref(0);
 
 onMounted(async () => {
     await getArticle();
+    setupEventListeners();
 });
 
 const getArticle = async () => {
@@ -72,9 +76,13 @@ const getArticle = async () => {
     }
 };
 
-const performSearch = () => {
-
+const handleRefresh = () => {
+    getArticle();
 };
+
+const performSearch = () =>{
+    
+}
 
 const handelViewEvent = (article: ArticleList) => {
     router.push({ 
@@ -105,35 +113,33 @@ const handleScroll = () => {
     lastScrollPosition.value = currentScrollPosition;
 };
 
-onMounted(() => {
-    if (contentElement.value) {
-        contentElement.value.addEventListener('scroll', handleScroll);
-    }
-    
-    window.addEventListener('keydown', handleKeyPress);
-});
-
-onBeforeUnmount(() => {
-    if (contentElement.value) {
-        contentElement.value.removeEventListener('scroll', handleScroll);
-    }
-    
-    window.removeEventListener('keydown', handleKeyPress);
-});
-
 const handleKeyPress = (e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === '/') {
         e.preventDefault();
         searchBarRef.value?.focus();
     }
 };
+
+const setupEventListeners = () => {
+    if (contentElement.value) {
+        contentElement.value.addEventListener('scroll', handleScroll);
+    }
+    window.addEventListener('keydown', handleKeyPress);
+};
+
+onBeforeUnmount(() => {
+    if (contentElement.value) {
+        contentElement.value.removeEventListener('scroll', handleScroll);
+    }
+    window.removeEventListener('keydown', handleKeyPress);
+});
 </script>
 
 <style scoped lang="scss">
 .book-search-page {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100%;
     background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
     overflow: hidden;
     color: #333;
@@ -164,7 +170,6 @@ const handleKeyPress = (e: KeyboardEvent) => {
 
 .content {
     flex: 1;
-    padding: 24px;
     overflow-y: auto;
     box-sizing: border-box;
     transition: padding-top 0.3s ease;
