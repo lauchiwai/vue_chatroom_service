@@ -24,7 +24,7 @@
                 <VectorizationInProgress 
                     v-else
                     :progressPercent="progressPercent"
-                    :articleId="articleId ?? -1"
+                    :articleId="articleId!"
                 />
             </template>
 
@@ -142,12 +142,12 @@ const startVectorization = async () => {
             collectionName: DEFAULTCOLLECTION,
             articleId: articleId.value
         }
-        await articleStore.vectorizeArticle(request)
-        message.success('向量化處理完成')
-        dataExist.value = true
-    } catch (error) {
-        message.error('向量化處理失敗')
-        console.error('Vectorization error:', error)
+        let isSuccess = await articleStore.vectorizeArticle(request)
+        if (isSuccess){
+            message.success('向量化處理完成')
+            dataExist.value = true
+        }
+
     } finally {
         clearInterval(progressInterval.value)
         progressPercent.value = 100
