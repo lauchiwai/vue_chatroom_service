@@ -35,7 +35,7 @@
             <a-tooltip placement="top">
                 <template #title>發音</template>
                 <button 
-                    @click="handlePronunciation"
+                    @click="handleTTSEvent"
                     :class="{ active: isSpeaking }"
                 >
                     <span class="icon-text">
@@ -63,6 +63,12 @@
         v-model:open="textLinguisticAssistantModalOpen"
         :selected-text="selectedText"
     />
+
+    <EnglishTTSModal 
+        v-if="englishTTSModalOpen"
+        v-model:open="englishTTSModalOpen"
+        :selected-text="selectedText"
+    />
 </template>
 
 <script setup lang="ts">
@@ -72,12 +78,13 @@ import {
     QuestionCircleOutlined,
     CustomerServiceOutlined
 } from '@ant-design/icons-vue';
-import { ref, watch, onBeforeUnmount } from 'vue';
-import { tts } from '@/utils/common/ttsUtil';
+import { ref} from 'vue';
 
 import EnglishWordTipsModal from '@/components/englishAssistant/modals/englishWordTipsModal.vue'
 import EnglishWordAssistantModal from '@/components/englishAssistant/modals/englishWordAssistantModal.vue'
 import TextLinguisticAssistantModal from '@/components/englishAssistant/modals/textLinguisticAssistantModal.vue'
+import EnglishTTSModal from '@/components/englishAssistant/modals/englishTTSModal.vue'
+
 const props = defineProps({
     selectedText: {
         type: String,
@@ -100,15 +107,7 @@ const isSpeaking = ref(false);
 const englishWordAssistantModalOpen = ref(false)
 const textLinguisticAssistantModalOpen = ref(false)
 const englishWordTipsModalOpen = ref(false)
-
-tts.registerStatusCallback((status : string) => {
-    isSpeaking.value = status === 'speaking';
-});
-
-const handlePronunciation = () => {
-    if (!props.selectedText) return;
-    tts.toggle(props.selectedText);
-};
+const englishTTSModalOpen = ref(false)
 
 const handleEnglishWordTipsEvent = () =>{
     englishWordTipsModalOpen.value = !englishWordTipsModalOpen.value
@@ -120,6 +119,10 @@ const handleEnglishWordAssistantEvent = () =>{
 
 const handleTextLinguisticAssistantEvent = () =>{
     textLinguisticAssistantModalOpen.value = !textLinguisticAssistantModalOpen.value
+}
+
+const handleTTSEvent = () =>{
+    englishTTSModalOpen.value = !englishTTSModalOpen.value
 }
 </script>
 
