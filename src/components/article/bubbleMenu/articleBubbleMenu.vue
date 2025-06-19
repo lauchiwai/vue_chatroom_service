@@ -43,6 +43,14 @@
                     </span>
                 </button>
             </a-tooltip>
+
+            <CollectTextButton 
+                :text="selectedText"
+            >
+                <template #title="isCollected" >
+                    {{ isCollected ? '取消收藏' : '收藏文字' }}
+                </template>
+            </CollectTextButton>
         </div>
     </teleport>
 
@@ -84,6 +92,7 @@ import EnglishWordTipsModal from '@/components/englishAssistant/modals/englishWo
 import EnglishWordAssistantModal from '@/components/englishAssistant/modals/englishWordAssistantModal.vue'
 import TextLinguisticAssistantModal from '@/components/englishAssistant/modals/textLinguisticAssistantModal.vue'
 import EnglishTTSModal from '@/components/englishAssistant/modals/englishTTSModal.vue'
+import CollectTextButton from '@/components/word/button/collectTextButton.vue'
 
 const props = defineProps({
     selectedText: {

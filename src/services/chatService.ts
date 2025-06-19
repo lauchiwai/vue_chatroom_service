@@ -21,12 +21,12 @@ export const ChatService = {
         const response = await api.get<ApiResponse<ChatSessionResponse[]>>(`/Chat/GetRagChatSessionListByArticleId/${articleId}`, {})
         return response.data;
     },
-    async deleteChatData(sessionId: number): Promise<ApiResponse<object>> {
-        const response = await api.delete<ApiResponse<object>>(`/Chat/DeleteChatData/${sessionId}`, {})
+    async deleteChatData(sessionId: number): Promise<ApiResponse<void>> {
+        const response = await api.delete<ApiResponse<void>>(`/Chat/DeleteChatData/${sessionId}`, {})
         return response.data;
     },
-    async refreshChatSessionTime(sessionId: number): Promise<ApiResponse<object>> {
-        const response = await api.post<ApiResponse<object>>(`/Chat/RefreshChatSessionTime/?sessionId=${sessionId}`, {})
+    async refreshChatSessionTime(sessionId: number): Promise<ApiResponse<void>> {
+        const response = await api.post<ApiResponse<void>>(`/Chat/RefreshChatSessionTime/?sessionId=${sessionId}`, {})
         return response.data;
     },
     async streamChat(request: ChatRequest, onChunk?: (chunk: StreamChunk) => void, signal?: AbortSignal): Promise<ApiResponse<ChatResponse>> {
