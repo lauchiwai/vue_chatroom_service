@@ -8,8 +8,8 @@ export const articleService = {
     async streamGenerateArticle(request: AiArticleRequest, onChunk?: (chunk: StreamChunk) => void, signal?: AbortSignal): Promise<ApiResponse<any>> {
         return streamClient.chat(request, 'Article/FetchAiArticle', onChunk, signal)
     },
-    async generateArticle(request: articleRequest): Promise<ApiResponse<any>> {
-        const response = await api.post<ApiResponse<any>>('/Article/GenerateArticle', request)
+    async generateArticle(request: articleRequest): Promise<ApiResponse<void>> {
+        const response = await api.post<ApiResponse<void>>('/Article/GenerateArticle', request)
         return response.data;
     },
     async getArticleList(): Promise<ApiResponse<ArticleList[]>> {
@@ -20,16 +20,16 @@ export const articleService = {
         const response = await api.get<ApiResponse<Article>>(`/Article/GetArticle/${sessionId}`)
         return response.data;
     },
-    async deleteArticle(articleId: number): Promise<ApiResponse<any>> {
-        const response = await api.get<ApiResponse<any>>(`/Article/DeleteArticle/${articleId}`)
+    async deleteArticle(articleId: number): Promise<ApiResponse<void>> {
+        const response = await api.get<ApiResponse<void>>(`/Article/DeleteArticle/${articleId}`)
         return response.data;
     },
-    async vectorizeArticle(request: vectorizeArticleRequest): Promise<ApiResponse<any>> {
-        const response = await api.post<ApiResponse<any>>(`/Article/VectorizeArticle`, request)
+    async vectorizeArticle(request: vectorizeArticleRequest): Promise<ApiResponse<void>> {
+        const response = await api.post<ApiResponse<void>>(`/Article/VectorizeArticle`, request)
         return response.data;
     },
-    async updateArticleReadingProgress(request: updateReadingProgressRequest): Promise<ApiResponse<any>> {
-        const response = await api.post<ApiResponse<any>>('/Article/UpdateArticleReadingProgress', request)
+    async updateArticleReadingProgress(request: updateReadingProgressRequest): Promise<ApiResponse<void>> {
+        const response = await api.post<ApiResponse<void>>('/Article/UpdateArticleReadingProgress', request)
         return response.data;
     },
     async getArticleReadingProgress(articleId: number): Promise<ApiResponse<ArticleReadingProgress>> {
