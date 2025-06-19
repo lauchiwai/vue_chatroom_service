@@ -4,12 +4,13 @@ import {
     HomeOutlined,
     BookOutlined,
     CommentOutlined,
-    SettingOutlined
+    SettingOutlined,
+    StarOutlined
 } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES, ROUTE_PATHS } from '@/router'
 
-export type MenuKey = typeof ROUTE_NAMES[keyof typeof ROUTE_NAMES] | 'Setting'
+export type MenuKey = typeof ROUTE_NAMES[keyof typeof ROUTE_NAMES] | 'Setting' | 'Word'
 
 export interface MenuItem {
     key: MenuKey;
@@ -30,6 +31,13 @@ export const useSiderStore = defineStore('sider', () => {
             label: 'Home',
             title: 'Home',
             path: ROUTE_PATHS.HOME
+        },
+        {
+            key: 'Word',
+            icon: () => h(StarOutlined),
+            label: 'Word',
+            title: 'Word',
+            path: ROUTE_PATHS.Word
         },
         {
             key: ROUTE_NAMES.BOOKSHELF,
@@ -57,7 +65,7 @@ export const useSiderStore = defineStore('sider', () => {
 
     const syncRouteToMenu = () => {
         const routeName = router.currentRoute.value.name as MenuKey | undefined
-        if (routeName && routeName !== 'Setting') {
+        if (routeName && routeName !== 'Setting' && routeName !== 'Word') {
             selectedKeys.value = [routeName]
         }
     }

@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import type { WordRequest } from '@/types/word/word';
 
-import { ref, watch, onUnmounted } from 'vue';
+import { ref, onUnmounted, watchEffect } from 'vue';
 import { StarOutlined, LoadingOutlined } from '@ant-design/icons-vue';
 import { useWordStore } from '@/stores/wordStore';
 
@@ -50,8 +50,9 @@ const debounceCheck = (text: string) => {
     debounceTimer.value = setTimeout(() => {
         isDebouncing.value = false;
         checkCollectionStatus(text);
-    }, 2000) as unknown as number;
+    }, 1000) as unknown as number;
 };
+
 
 const checkCollectionStatus = async (text: string) => {
     if (!text.trim()) {
@@ -69,9 +70,12 @@ const checkCollectionStatus = async (text: string) => {
     }
 };
 
-watch(() => props.text, (newText) => {
-    debounceCheck(newText);
-}, { immediate: true });
+watchEffect(() => {
+    const trimmedText = props.text.trim();
+    if (trimmedText.length > 0) {
+        debounceCheck(props.text);
+    }
+});
 
 const handleCollectClick = async () => {
     if (loading.value || isDebouncing.value || !props.text.trim()) return;
@@ -108,6 +112,12 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.icon-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .star-active {
     color: #faad14;
     animation: pulse 1.5s infinite;
@@ -125,7 +135,7 @@ button.active {
 }
 
 button {
-    padding: 6px 10px;
+    padding: 4px 8px;
     border: none;
     background: #f8fafc;
     border-radius: 4px;

@@ -1,11 +1,10 @@
 export interface WordType {
     userWordId: number
     wordId: number
-    wordText: string,
-    nextReviewDate: Date,
-    lastReviewed: Date,
-    reviewCount: number,
-
+    word: string
+    nextReviewDate: string
+    lastReviewed: string | null
+    reviewCount: number
 }
 
 export interface WordRequest {

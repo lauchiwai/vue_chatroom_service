@@ -12,7 +12,6 @@
 
 <script lang="ts" setup>
 import type { Article } from '@/types/article/article'
-import type { ArticleReadingProgress } from '@/types/article/article'
 
 import { useArticleStore } from '@/stores/articleStore'
 import { toSafeNumber } from '@/utils/common/toSafeNumber'
@@ -52,7 +51,6 @@ const initArticle = async () => {
         
         article.value = articleResponse
         
-        // 确保类型兼容
         if (progressResponse) {
             readingProgress.value = {
                 progress: progressResponse.progress

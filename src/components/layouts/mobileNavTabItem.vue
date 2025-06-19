@@ -50,7 +50,6 @@ const handleClick = (item: MenuItem) => {
 .tab-item:hover {
     opacity: 0.8;
     border-radius: 4px;
-    background-color: #F0F0F0;
     transform: scale(1.1);
 }
 

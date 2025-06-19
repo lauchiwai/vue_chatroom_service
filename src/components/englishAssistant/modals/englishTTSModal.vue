@@ -1,6 +1,5 @@
 <template>
     <DraggableResizableModal
-        v-if="open"
         v-model:open="open"
         :mask="false"
         :css-style="{top:'5vh'}"
@@ -17,7 +16,7 @@
                 <div class="controls">
                     <a-button 
                         type="primary"
-                        @click="handleTogglePlayback"
+                        @click="handleTogglePlayback()"
                     >
                         <template #icon>
                             <CustomerServiceOutlined :class="{ 'swaying-animation': isSpeaking }" />
