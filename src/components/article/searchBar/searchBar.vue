@@ -8,7 +8,7 @@
             type="text"
             :value="modelValue"
             @input="handleInput"
-            placeholder="搜尋書籍..."
+            placeholder="search"
             @keyup.enter="emitSearch"
             @focus="handleFocus"
             @blur="handleBlur"

@@ -8,7 +8,7 @@
     >
         <template #actionTools>
             <a-button @click="handleSummary">
-                獲取摘要
+                摘要
             </a-button>
         </template>
     </BaseChatInput>

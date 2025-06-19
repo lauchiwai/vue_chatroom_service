@@ -1,6 +1,7 @@
 <template>
     <teleport to="body">
-        <div v-show="show"
+        <div 
+            v-show="show"
             class="bubble-menu"
             :data-instance="instanceId"
             :style="position"
@@ -35,7 +36,7 @@
             <a-tooltip placement="top">
                 <template #title>發音</template>
                 <button 
-                    @click="handleTTSEvent"
+                    @click="handleTTSEvent()"
                     :class="{ active: isSpeaking }"
                 >
                     <span class="icon-text">
@@ -47,7 +48,7 @@
             <CollectTextButton 
                 :text="selectedText"
             >
-                <template #title="isCollected" >
+                <template #title="{ isCollected }" >
                     {{ isCollected ? '取消收藏' : '收藏文字' }}
                 </template>
             </CollectTextButton>
@@ -86,7 +87,7 @@ import {
     QuestionCircleOutlined,
     CustomerServiceOutlined
 } from '@ant-design/icons-vue';
-import { ref} from 'vue';
+import { ref } from 'vue';
 
 import EnglishWordTipsModal from '@/components/englishAssistant/modals/englishWordTipsModal.vue'
 import EnglishWordAssistantModal from '@/components/englishAssistant/modals/englishWordAssistantModal.vue'

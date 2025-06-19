@@ -10,6 +10,7 @@ const ROUTE_NAMES = {
     BookShelf_AiGenerater: 'BookShelfAiGenerater',
     BookShelf_File_Upload: 'BookShelfFileUpload',
     BOOKSHELF_VIEW: 'BookShelfView',
+    Word: 'Word',
     CHATROOM: 'Chatroom',
     NOT_FOUND: 'NotFound'
 } as const
@@ -21,6 +22,7 @@ const ROUTE_PATHS = {
     BookShelf_AiGenerater: '/BookShelf/AiGenerater',
     BookShelf_File_Upload: '/BookShelf/FileUpload',
     BOOKSHELF_VIEW: '/BookShelf/View/:id',
+    Word: '/Word',
     CHATROOM: '/Chatroom',
     NOT_FOUND: '/:pathMatch(.*)*'
 } as const
@@ -94,6 +96,18 @@ const routes: RouteRecordRaw[] = [
         path: ROUTE_PATHS.BOOKSHELF_VIEW,
         name: ROUTE_NAMES.BOOKSHELF_VIEW,
         component: () => import('@/views/article/view/index.vue'),
+        meta: {
+            layout: 'main',
+            requiresAuth: true,
+            showHeader: false,
+            showMobileNav: true,
+            showSideBar: true
+        }
+    },
+    {
+        path: ROUTE_PATHS.Word,
+        name: ROUTE_NAMES.Word,
+        component: () => import('@/views/word/index.vue'),
         meta: {
             layout: 'main',
             requiresAuth: true,

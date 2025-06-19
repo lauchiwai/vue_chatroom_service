@@ -110,16 +110,57 @@ const processSelection = () => {
     const scrollX = window.scrollX || document.documentElement.scrollLeft
     const scrollY = window.scrollY || document.documentElement.scrollTop
 
+    let topPosition = 0
+    let leftPosition = 0
+
     if (isMobile.value) {
-        bubblePosition.value = {
-            top: `${rect.bottom + scrollY + 40}px`,
-            left: `${rect.left + scrollX + rect.width / 2}px`
+        topPosition = rect.bottom + scrollY + 50
+        leftPosition = rect.left + scrollX + rect.width / 2
+    } else {
+        topPosition = rect.top + scrollY - 50
+        leftPosition = rect.left + scrollX + rect.width / 2
+    }
+
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    const bubbleMenuWidth = 200
+    const bubbleMenuHeight = 50
+    const margin = 10
+
+    const halfBubbleWidth = bubbleMenuWidth / 2
+    const leftBound = leftPosition - halfBubbleWidth
+    const rightBound = leftPosition + halfBubbleWidth
+
+    if (leftBound < scrollX + margin) {
+        leftPosition = scrollX + margin + halfBubbleWidth
+    } else if (rightBound > scrollX + viewportWidth - margin) {
+        leftPosition = scrollX + viewportWidth - margin - halfBubbleWidth
+    }
+
+    if (isMobile.value) {
+        if (topPosition + bubbleMenuHeight > scrollY + viewportHeight - margin) {
+            topPosition = rect.top + scrollY - bubbleMenuHeight - margin
+            if (topPosition < scrollY + margin) {
+                topPosition = scrollY + viewportHeight - bubbleMenuHeight - margin
+            }
         }
     } else {
-        bubblePosition.value = {
-            top: `${rect.top + scrollY - 40}px`,
-            left: `${rect.left + scrollX + rect.width / 2}px`
+        if (topPosition < scrollY + margin) {
+            topPosition = rect.bottom + scrollY + margin
+            if (topPosition + bubbleMenuHeight > scrollY + viewportHeight - margin) {
+                topPosition = scrollY + margin
+            }
+        } else if (topPosition + bubbleMenuHeight > scrollY + viewportHeight - margin) {
+            topPosition = rect.top + scrollY - bubbleMenuHeight - margin
+            if (topPosition < scrollY + margin) {
+                topPosition = scrollY + viewportHeight - bubbleMenuHeight - margin
+            }
         }
+    }
+
+    bubblePosition.value = {
+        top: `${topPosition}px`,
+        left: `${leftPosition}px`
     }
 
     showBubbleMenu.value = true
@@ -219,6 +260,7 @@ watch(() => props.content, renderMarkdown)
     position: relative;
     max-width: 800px;
     margin: 0 auto;
+    padding-bottom: 60px;
     border-radius: 12px;
     -webkit-touch-callout: default;
     user-select: text;

@@ -1,6 +1,5 @@
 <template>
     <DraggableResizableModal 
-        v-if="open"
         v-model:open="open"
         :mask="false"
         :css-style="{top:'5vh'}"
