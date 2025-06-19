@@ -12,6 +12,7 @@
             <EnglishAssistantLayout :is-mobile="isMobile">
                 <template #tool-list>
                     <ChatInputTool 
+                        @click="handelShowInputEvent" 
                     />
                 </template>
                 
@@ -61,6 +62,7 @@ const text = ref('')
 const handelShowInputEvent = () => {
     showChatInput.value = !showChatInput.value;
 };
+
 
 watchEffect(() => {
     const trimmedText = props.selectedText.trim();
