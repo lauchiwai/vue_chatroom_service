@@ -20,25 +20,27 @@
                     'space-between-layout': layoutMode === 'space-between'
                 }"
             >
-                <StatsCard 
-                    :number="articleCount" 
-                    title="Article" 
-                    color="#2894FF" 
-                    class="stats-item"
-                />
+                <div class="stats-item">
+                    <StatsCard 
+                        :number="articleCount" 
+                        title="Article" 
+                        color="#2894FF" 
+                    
+                    />
+                </div>
 
-                <AddTrigger 
-                    v-if="articles.length == 0 && !loading"
-                    class="stats-item"
-                />
+                <div class="stats-item" v-if="articles.length == 0 && !loading">
+                    <AddTrigger />
+                </div>
 
-                <BookCard  
-                    @click-event="handelViewEvent"
-                    v-for="article in articles" 
-                    :key="article.articleId"
-                    :article="article"
-                    class="stats-item"
-                />
+                <div class="stats-item">
+                    <BookCard  
+                        @click-event="handelViewEvent"
+                        v-for="article in articles" 
+                        :key="article.articleId"
+                        :article="article"
+                    />
+                </div>
             </div>
 
             <button v-show="leftControlsAble" class="scroll-btn left" @click="scroll(positionEnum.left)">

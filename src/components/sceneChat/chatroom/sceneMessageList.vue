@@ -1,8 +1,8 @@
 <template>
     <BaseChatMessageList 
         ref="messageListRef"
-        :messages="ragMessages"
-        :is-chat-asyncing="isRagAsyncing"
+        :messages="sceneMessages"
+        :is-chat-asyncing="isSceneChatAsyncing"
         :stream-chat-msg="streamChatMsg"
         :loading="loading"
     >
@@ -32,7 +32,7 @@
 import type { ChatMessage } from '@/types/chatHistory/chatHistory'
 
 import { ref, watch, computed, onMounted, nextTick } from 'vue'
-import { useRagStore } from '@/stores/ragStore'
+import { useSceneChatStore } from '@/stores/sceneChatStore'
 import { useChatStore } from '@/stores/chatStore'
 import { storeToRefs } from 'pinia'
 
@@ -42,16 +42,16 @@ import EmptyMessage from '@/components/common/baseChatroom/emptyMessage.vue'
 import MessageLoading from '@/components/common/baseChatroom/messageLoading.vue'
 
 const messageListRef = ref<InstanceType<typeof BaseChatMessageList> | null>(null)
-const ragStore = useRagStore()
+const sceneChatStore = useSceneChatStore()
 const chatStore = useChatStore()
 const loading = ref(false)
 
 const { 
-    ragMessages, 
-    ragCurrentSession, 
+    sceneMessages, 
+    sceneCurrentSession, 
     tempAssistantMessage, 
-    isRagAsyncing 
-} = storeToRefs(ragStore)
+    isSceneChatAsyncing 
+} = storeToRefs(sceneChatStore)
 
 const streamChatMsg = computed<ChatMessage>(() => ({
     role: 'assistant',
@@ -60,10 +60,10 @@ const streamChatMsg = computed<ChatMessage>(() => ({
 }))
 
 
-watch(() => ragCurrentSession.value, async (newVal) => {
+watch(() => sceneCurrentSession.value, async (newVal) => {
     if (newVal[0] !== undefined) {
         loading.value = true
-        await ragStore.fetchChatHistory(newVal[0])
+        await sceneChatStore.fetchChatHistory(newVal[0])
         loading.value = false
         await chatStore.refreshChatSessionTime(newVal[0])
         

@@ -1,6 +1,6 @@
 <template>
     <BaseChatInput 
-        :inputText="inputText" 
+        :inputText="ragInputText" 
         :loading="loading"
         @update:inputText="handleInputUpdate"
         @send="handleSend"
@@ -15,13 +15,15 @@
 </template>
 
 <script setup lang="ts">
-import type { ChatRequest, SummaryRequest } from '@/types/chat/chat';
+import type { RagChatRequest, SummaryRequest } from '@/types/chat/rag';
 
 import { ref, inject, watch, computed, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useChatStore } from '@/stores/chatStore';
+import { useRagStore } from '@/stores/ragStore'
+import { useChatStore } from '@/stores/chatStore'
 import { DEFAULTCOLLECTION } from "@/types/article/article";
 import { ArticleIdKey } from '@/constants/injectionKeys';
+import { message } from 'ant-design-vue';
 
 import BaseChatInput from '@/components/common/baseChatroom/baseChatInput.vue'; 
 
@@ -30,9 +32,10 @@ watch(articleId, (newId: number | undefined) => {
     if (!newId) console.log('articleId is undefined');
 });
 
+const ragStore = useRagStore();
 const chatStore = useChatStore();
 const loading = ref(false);
-const { currentSession, inputText } = storeToRefs(chatStore);
+const { ragCurrentSession, ragInputText } = storeToRefs(ragStore);
 
 enum ChatStat {
     Chat,      
@@ -40,26 +43,20 @@ enum ChatStat {
 }
 
 const handleInputUpdate = (val: string) => {
-    inputText.value = val;
+    ragInputText.value = val;
 };
 
-const generateNewChatRequest = (): ChatRequest => {
-    if (articleId.value) {
-        return {
-            chat_session_id: currentSession.value[0],
-            message: inputText.value.trim(),
-            collection_name: DEFAULTCOLLECTION,
-            article_id: articleId.value
-        };
-    }
+const generateNewChatRequest = (): RagChatRequest => {
     return {
-        chat_session_id: currentSession.value[0],
-        message: inputText.value.trim(),
+        chat_session_id: ragCurrentSession.value[0],
+        message: ragInputText.value.trim(),
+        collection_name: DEFAULTCOLLECTION,
+        article_id: articleId.value!
     };
 };
 
 const generateNewSummaryRequest = (): SummaryRequest => ({
-    chat_session_id: currentSession.value[0],
+    chat_session_id: ragCurrentSession.value[0],
     collection_name: DEFAULTCOLLECTION,
     article_id: articleId.value!
 });
@@ -73,28 +70,32 @@ const handleSummary = async () => {
 };
 
 const handleSteamSend = async (chatStat: ChatStat) => {
+    if (! articleId.value) {
+            message.error("articleId is empty")
+            return;
+    }
     try {
         loading.value = true;
 
-        if (chatStat === ChatStat.Chat && inputText.value.trim().length > 0) {
+        if (chatStat === ChatStat.Chat && ragInputText.value.trim().length > 0) {
             const newQuestion = generateNewChatRequest();
-            await chatStore.streamChat(newQuestion);
+            await ragStore.streamChat(newQuestion);
         } else if (chatStat === ChatStat.Summary) {
             const newQuestion = generateNewSummaryRequest();
-            await chatStore.streamSummaryChat(newQuestion);
+            await ragStore.streamSummaryChat(newQuestion);
         }
 
-        await chatStore.refreshChatSessionTime(currentSession.value[0]);
+        await chatStore.refreshChatSessionTime(ragCurrentSession.value[0]);
     } finally {
         loading.value = false;
     }
 };
 
 const handleAbort = () => {
-    chatStore.abortStreaming();
+    ragStore.abortStreaming();
 };
 
 onUnmounted(() => {
-    chatStore.abortStreaming();
+    ragStore.abortStreaming();
 });
 </script>

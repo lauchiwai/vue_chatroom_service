@@ -1,5 +1,5 @@
-export interface BaseRequest {
-    chat_session_id: number,
+export interface ChatSessionRequset {
+    chat_session_name?: string
 }
 
 export interface ChatSessionResponse {
@@ -7,15 +7,8 @@ export interface ChatSessionResponse {
     sessionName: number
 }
 
-export interface ChatRequest extends BaseRequest {
-    message: string,
-    collection_name?: string,
-    article_id?: number
-}
-
-export interface SummaryRequest extends BaseRequest {
-    collection_name: string,
-    article_id: number
+export interface BasechatRequest {
+    chat_session_id: number,
 }
 
 export interface ChatResponse {
