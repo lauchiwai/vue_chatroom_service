@@ -15,9 +15,29 @@
 </template>
 
 <script setup lang="ts">
+import type { ChatSessionRequset } from '@/types/chat/chat'
+import { useSceneChatStore } from '@/stores/sceneChatStore'
+import { storeToRefs } from 'pinia'
+
 import SceneChatHeader from '@/components/sceneChat/chatroom/sceneChatHeader.vue'
 import SceneMessageList from '@/components/sceneChat/chatroom/sceneMessageList.vue'
 import SceneChatInput from '@/components/sceneChat/chatroom/sceneChatInput.vue'
+import { onMounted } from 'vue'
+
+const sceneChatStore = useSceneChatStore();
+const { sceneCurrentSession, sceneInputText } = storeToRefs(sceneChatStore);
+
+onMounted(async() =>{
+    await sceneChatStore.getSceneChatSessionList();
+
+    if (sceneCurrentSession.value.length == 0){
+        let newRequest: ChatSessionRequset = {
+            chat_session_name : sceneInputText.value
+        }
+
+        await sceneChatStore.generateSceneChatSession(newRequest);
+    }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -26,6 +46,7 @@ import SceneChatInput from '@/components/sceneChat/chatroom/sceneChatInput.vue'
     width: 100%;
     display: flex;
     flex-direction: column;
+    padding-bottom: 20px;
 
     .chat-header {
         height: 40px;
@@ -61,6 +82,9 @@ import SceneChatInput from '@/components/sceneChat/chatroom/sceneChatInput.vue'
                 background: #f5f5f5;
                 border-radius: 4px;
                 margin: 2px 0;
+            }
+            @media (max-width: 768px) {
+                width: 100vw;
             }
         }
     }
