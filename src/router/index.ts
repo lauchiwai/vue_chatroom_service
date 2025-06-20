@@ -41,6 +41,8 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: false,
             showHeader: false,
             showMobileNav: false,
+            showMobileHeader: false,
+            showBreadcrumb: false,
             showSideBar: true
         }
     },
@@ -53,6 +55,8 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: true,
             showHeader: true,
             showMobileNav: true,
+            showMobileHeader: false,
+            showBreadcrumb: false,
             showSideBar: true
         }
     },
@@ -65,6 +69,8 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: true,
             showHeader: false,
             showMobileNav: true,
+            showMobileHeader: false,
+            showBreadcrumb: false,
             showSideBar: true
         }
     },
@@ -76,7 +82,9 @@ const routes: RouteRecordRaw[] = [
             layout: 'main',
             requiresAuth: true,
             showHeader: false,
-            showMobileNav: true,
+            showMobileNav: false,
+            showMobileHeader: true,
+            showBreadcrumb: true,
             showSideBar: true
         }
     },
@@ -88,7 +96,9 @@ const routes: RouteRecordRaw[] = [
             layout: 'main',
             requiresAuth: true,
             showHeader: false,
-            showMobileNav: true,
+            showMobileNav: false,
+            showBreadcrumb: true,
+            showMobileHeader: true,
             showSideBar: true
         }
     },
@@ -100,7 +110,9 @@ const routes: RouteRecordRaw[] = [
             layout: 'main',
             requiresAuth: true,
             showHeader: false,
-            showMobileNav: true,
+            showMobileNav: false,
+            showBreadcrumb: true,
+            showMobileHeader: true,
             showSideBar: true
         }
     },
@@ -113,6 +125,8 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: true,
             showHeader: false,
             showMobileNav: true,
+            showBreadcrumb: true,
+            showMobileHeader: false,
             showSideBar: true
         }
     },
@@ -125,6 +139,8 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: true,
             showHeader: false,
             showMobileNav: false,
+            showBreadcrumb: true,
+            showMobileHeader: true,
             showSideBar: true
         }
     },
@@ -137,6 +153,8 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: true,
             showHeader: false,
             showMobileNav: false,
+            showBreadcrumb: false,
+            showMobileHeader: false,
             showSideBar: true
         }
     }

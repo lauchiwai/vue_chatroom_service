@@ -230,6 +230,7 @@ onUnmounted(() => {
     background: transparent;
     border-radius: 12px;
     box-sizing: border-box;
+    padding-bottom: 25px;
 }
 
 .content-wrapper {

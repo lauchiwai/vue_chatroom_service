@@ -7,7 +7,8 @@
             </div>
 
             <div class="header-right">
-                <slot name="right"></slot>
+                <slot name="right">
+                </slot>
             </div>
         </a-layout-header>
 
