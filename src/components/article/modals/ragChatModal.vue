@@ -50,7 +50,8 @@ import { useVectorStore } from '@/stores/vectorStore'
 import { message } from 'ant-design-vue'
 import { ref, inject, watch, computed, onMounted } from 'vue'
 import { ArticleIdKey } from '@/constants/injectionKeys'
-import { useChatStore } from '@/stores/chatStore';
+import { useRagStore } from '@/stores/ragStore'
+import { storeToRefs } from 'pinia'
 
 import messageList from '@/components/article/chatroom/ragMessageList.vue'
 import chatInput from '@/components/article/chatroom/ragChatInput.vue'
@@ -65,12 +66,13 @@ watch(articleId, ( newId: number | undefined ) => {
         console.log('articleId is undefine:')
 })
 
-const chatStore = useChatStore();
+const ragStore = useRagStore();
 const open = defineModel('open', { type: Boolean, required: true })
 const screenStore = useScreenStore()
 const articleStore = useArticleStore()
 const vectorStore = useVectorStore()
 
+const { ragCurrentSession } = storeToRefs(ragStore);
 const isMobile = computed(() => screenStore.isMobile)
 const isPad = computed(() => screenStore.isPad)
 const isPc = computed(() => screenStore.isPc)
@@ -110,8 +112,17 @@ onMounted(async () => {
 })
 
 watch((dataExist), async(newVal)=>{
+    if (!articleId.value) {
+        message.error(" article id empty")
+        return
+    }
+
     if (newVal) {
-        await chatStore.fetchRagChatSessionListByArticleId(articleId.value ?? -1);
+        await ragStore.fetchRagChatSessionListByArticleId(articleId.value);
+    }
+
+    if (ragCurrentSession.value.length == 0){
+        await ragStore.createRagChatSession(articleId.value);
     }
 })
 

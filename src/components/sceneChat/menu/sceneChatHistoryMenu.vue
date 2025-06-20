@@ -1,6 +1,6 @@
 <template>
     <BaseChatHistoryMenu 
-        :items="ragChatSessionList"
+        :items="sceneChatSessionList"
         :selected-keys="selectedKeys"
         @select="handleMenuSelect"
     >
@@ -27,11 +27,11 @@
 </template>
 
 <script setup lang="ts">
-import type { ChatSessionResponse } from '@/types/chat/chat'
+import type { ChatSessionRequset, ChatSessionResponse } from '@/types/chat/chat'
 import { ref, inject, computed } from 'vue'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { storeToRefs } from 'pinia'
-import { useRagStore } from '@/stores/ragStore'
+import { useSceneChatStore } from '@/stores/sceneChatStore'
 import { ChatHandlersKey, ArticleIdKey } from '@/constants/injectionKeys'
 import { message } from 'ant-design-vue'
 
@@ -43,15 +43,14 @@ const injectedHandlers = inject(ChatHandlersKey, {
     handleDelete: async (sessionId: number) => {}
 })
 
-const ragStore = useRagStore()
-const { ragChatSessionList, ragCurrentSession } = storeToRefs(ragStore)
-const articleId = inject(ArticleIdKey, computed(() => 0))
+const sceneChatStore = useSceneChatStore()
+const { sceneChatSessionList, sceneCurrentSession, sceneInputText } = storeToRefs(sceneChatStore)
 const deleteModalOpen = ref(false)
 const deleteLoading = ref(false)
 const deletingId = ref<number | null>(null)
 
 const selectedKeys = computed(() => {
-    return ragCurrentSession.value ? [ragCurrentSession.value.toString()] : []
+    return sceneCurrentSession.value ? [sceneCurrentSession.value.toString()] : []
 })
 
 const showDeleteModal = (id: number) => {
@@ -59,19 +58,22 @@ const showDeleteModal = (id: number) => {
     deleteModalOpen.value = true
 }
 
-const handleConfirmDelete = async () => {
-    if(!articleId.value) {
-        message.error("article id empty")
-        return
+const generateSession = async () =>{
+    let newReqest: ChatSessionRequset = {
+        chat_session_name: sceneInputText.value
     }
 
+     await sceneChatStore.generateSceneChatSession(newReqest);
+}
+
+const handleConfirmDelete = async () => {
     if (deletingId.value !== null) {
         try {
             deleteLoading.value = true
             await injectedHandlers.handleDelete(deletingId.value)
-            await ragStore.fetchRagChatSessionListByArticleId(articleId.value)
-            if (ragCurrentSession.value.length == 0) {
-                await ragStore.createRagChatSession(articleId.value);
+            await sceneChatStore.getSceneChatSessionList()
+            if (sceneCurrentSession.value.length == 0) {
+               await generateSession()
             }
         } finally {
             deleteLoading.value = false

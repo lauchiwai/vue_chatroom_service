@@ -1,14 +1,14 @@
 <template>
     <BaseChatDrawer v-model:open="open">
         <template #create-button="{ closeDrawer }">
-            <CreateSessionBnt 
+            <createSessionBnt 
                 :collapsed="false" 
                 @drawer-close="closeDrawer"
             />
         </template>
         
         <template #history-menu="{ closeDrawer }">
-            <RagChatHistoryMenu 
+            <SceneChatHistoryMenu 
                 @drawer-close="closeDrawer"
             />
         </template>
@@ -16,24 +16,30 @@
 </template>
 
 <script setup lang="ts">
-import { provide, inject, computed } from 'vue'
+import type { ChatSessionRequset } from '@/types/chat/chat'
+
+import { provide } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
-import { useRagStore } from '@/stores/ragStore'
-import { ArticleIdKey, ChatFunctionsKey, ChatHandlersKey } from '@/constants/injectionKeys'
+import { useSceneChatStore } from '@/stores/sceneChatStore'
+import { ChatFunctionsKey, ChatHandlersKey } from '@/constants/injectionKeys'
+import { storeToRefs } from 'pinia'
 
 import BaseChatDrawer from '@/components/common/baseChatroom/BasChatDrawer/baseChatDrawer.vue'
-import CreateSessionBnt from '@/components/common/baseChatroom/createSessionBnt.vue'
-import RagChatHistoryMenu from '@/components/article/menu/ragChatHistoryMenu.vue'
+import createSessionBnt from '@/components/common/baseChatroom/createSessionBnt.vue'
+import SceneChatHistoryMenu from '@/components/sceneChat/menu/sceneChatHistoryMenu.vue'
 
 const open = defineModel('open', { type: Boolean, required: true })
 
 const chatStore = useChatStore()
-const ragStore = useRagStore()
-const articleId = inject(ArticleIdKey, computed(() => 0))
+const sceneChatStore = useSceneChatStore()
+const { sceneInputText } = storeToRefs(sceneChatStore);
 
 provide(ChatFunctionsKey, {
     createSession: async () => {
-        await ragStore.createRagChatSession(articleId.value!)
+        let newRequrst: ChatSessionRequset ={
+            chat_session_name: sceneInputText.value
+        } 
+        await sceneChatStore.generateSceneChatSession(newRequrst)
         open.value = false
     },
     deleteSession: async (id: number) => {
@@ -45,7 +51,7 @@ provide(ChatHandlersKey, {
     handleSelect: (sessionId: number) => {
         const id = Number(sessionId)
         if (!isNaN(id)) {
-            ragStore.setRagCurrentSession(id)
+            sceneChatStore.setCurrentSession(id)
             open.value = false
         } else {
             console.error('Invalid sessionId:', sessionId)
