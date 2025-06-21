@@ -4,14 +4,16 @@
         <MobileNav v-if="!isPc && showMobileNav" />
 
         <a-layout class="sub-layout">
-            <MobileHead v-if="!isPc && showMobileHeader"/>
+            <div style="height:35px;" v-if="!isPc && showMobileHeader">
+                <MobileHead />
+            </div>
+
             <Breadcrumb v-if="showBreadcrumb" />
           
             <a-layout-content class="main-content">
                 <div class="router-view-container" 
                     :class="[
                         !isPc && showMobileNav ? 'mobile-nav-padding' : '',
-                        !isPc && showMobileHeader ? 'mobile-header-padding' : '',
                     ]">
                     <router-view />
                 </div>
@@ -73,7 +75,6 @@ watch(() => route.name, (newTitle) => {
 .main-layout {
     --content-padding: 10px;
     --header-height: 64px;
-    --mobile-header-height: 20px;
     
     height: 100vh;
     display: flex;
@@ -120,10 +121,6 @@ watch(() => route.name, (newTitle) => {
 
             .mobile-nav-padding {
                 padding-bottom: 80px;
-            }
-            
-            .mobile-header-padding {
-                padding-top: var(--mobile-header-height);
             }
         }
     }

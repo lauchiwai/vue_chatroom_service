@@ -37,7 +37,7 @@ export const useSiderStore = defineStore('sider', () => {
             icon: () => h(StarOutlined),
             label: 'Word',
             title: 'Word',
-            path: ROUTE_PATHS.Word
+            path: ROUTE_PATHS.WORD
         },
         {
             key: ROUTE_NAMES.BOOKSHELF,

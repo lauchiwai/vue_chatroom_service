@@ -13,7 +13,7 @@
                     @click-event="handelViewEvent"
                     v-for="word in words" 
                     :key="word.wordId"
-                    :word="word"
+                    :item="word"
                     class="stats-item"
                 />
             </div>
@@ -74,7 +74,10 @@ const performSearch = () =>{
 }
 
 const handelViewEvent = (word: WordType) => {
- 
+    router.push({ 
+        name: ROUTE_NAMES.WORD_VIEW, 
+        params: { id: word.wordId } 
+    });
 };
 
 const handleScroll = () => {
