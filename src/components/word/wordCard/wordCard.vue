@@ -2,7 +2,7 @@
     <div class="word-container" @click="handelClick">
         <MyCard :show-border="true">
             <template #content>
-                <WordItem :word="word" />
+                <WordItem :item="item" />
             </template>
         </MyCard>
     </div>
@@ -16,14 +16,14 @@ import WordItem from '@/components/word/wordCard/wordItem.vue'
 
 const emit = defineEmits(['click-event'])
 const props = defineProps({
-    word: {
+    item: {
         type: Object as () => WordType,
         required: true
     },
 })
 
 const handelClick = () => {
-    emit('click-event', props.word)
+    emit('click-event', props.item)
 }
 </script>
 

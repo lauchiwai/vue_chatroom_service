@@ -10,7 +10,8 @@ const ROUTE_NAMES = {
     BookShelf_AiGenerater: 'BookShelfAiGenerater',
     BookShelf_File_Upload: 'BookShelfFileUpload',
     BOOKSHELF_VIEW: 'BookShelfView',
-    Word: 'Word',
+    WORD: 'Word',
+    WORD_VIEW: 'WordView',
     CHATROOM: 'Chatroom',
     NOT_FOUND: 'NotFound'
 } as const
@@ -22,7 +23,8 @@ const ROUTE_PATHS = {
     BookShelf_AiGenerater: '/BookShelf/AiGenerater',
     BookShelf_File_Upload: '/BookShelf/FileUpload',
     BOOKSHELF_VIEW: '/BookShelf/View/:id',
-    Word: '/Word',
+    WORD: '/Word',
+    WORD_VIEW: '/Word/View/:id',
     CHATROOM: '/Chatroom',
     NOT_FOUND: '/:pathMatch(.*)*'
 } as const
@@ -117,8 +119,8 @@ const routes: RouteRecordRaw[] = [
         }
     },
     {
-        path: ROUTE_PATHS.Word,
-        name: ROUTE_NAMES.Word,
+        path: ROUTE_PATHS.WORD,
+        name: ROUTE_NAMES.WORD,
         component: () => import('@/views/word/index.vue'),
         meta: {
             layout: 'main',
@@ -127,6 +129,20 @@ const routes: RouteRecordRaw[] = [
             showMobileNav: true,
             showBreadcrumb: true,
             showMobileHeader: false,
+            showSideBar: true
+        }
+    },
+    {
+        path: ROUTE_PATHS.WORD_VIEW,
+        name: ROUTE_NAMES.WORD_VIEW,
+        component: () => import('@/views/word/view/index.vue'),
+        meta: {
+            layout: 'main',
+            requiresAuth: true,
+            showHeader: false,
+            showMobileNav: false,
+            showBreadcrumb: true,
+            showMobileHeader: true,
             showSideBar: true
         }
     },

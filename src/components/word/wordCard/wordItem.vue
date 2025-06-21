@@ -2,7 +2,7 @@
     <div class="word-card">
         <div class="frosted-layer" :style="{ backgroundColor: articleColor }"></div>
         <div class="word-container">
-            <span class="word-title">{{ word.word }}</span>
+            <span class="word-title">{{ item.word }}</span>
         </div>
         <div class="review-status-container">
             <span class="review-status-text">{{ reviewStatusText }}</span>
@@ -15,22 +15,22 @@ import type { WordType } from '@/types/word/word';
 import { computed } from 'vue'
 
 const props = defineProps({
-    word: {
+    item: {
         type: Object as () => WordType,
         required: true
     },
 })
 
 const articleColor = computed(() => {
-    return generateHSL(props.word.word)
+    return generateHSL(props.item.word)
 })
 
 const reviewStatusText = computed(() => {
-    if (!props.word.lastReviewed) {
+    if (!props.item.lastReviewed) {
         return 'new';
     }
     
-    const date = new Date(props.word.lastReviewed);
+    const date = new Date(props.item.lastReviewed);
     return `last: ${date.toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
