@@ -1,4 +1,4 @@
-type TTSStatus = 'idle' | 'speaking' | 'error';
+type TTSStatus = 'idle' | 'speaking' | 'paused' | 'error';
 type TTSStatusCallback = (status: TTSStatus) => void;
 
 interface TTSConfig {
@@ -9,20 +9,21 @@ interface TTSConfig {
     voiceName?: string;
 }
 
-class TTSService {
+class EnhancedTTSService {
     private utterance: SpeechSynthesisUtterance | null = null;
     private status: TTSStatus = 'idle';
     private statusCallback: TTSStatusCallback | null = null;
-    private defaultConfig: TTSConfig = {
-        lang: 'zh-HK',
-        rate: 0.9,
-        pitch: 1.1,
-        volume: 1,
-        voiceName: ''
-    };
+    private defaultConfig: TTSConfig;
+    private audioContext: AudioContext | null = null;
 
     constructor(config?: TTSConfig) {
-        this.defaultConfig = { ...this.defaultConfig, ...config };
+        this.defaultConfig = {
+            lang: 'zh-HK',
+            rate: 0.9,
+            pitch: 1.1,
+            volume: 1,
+            ...config
+        };
         this.init();
     }
 
@@ -32,34 +33,54 @@ class TTSService {
             return;
         }
         window.speechSynthesis.getVoices();
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
 
     isSupported(): boolean {
         return 'speechSynthesis' in window;
     }
 
-    getStatus(): TTSStatus {
-        return this.status;
+    private preprocessText(text: string): string {
+        const MAX_LENGTH = 30;
+        if (text.length > MAX_LENGTH) {
+            const segments = [];
+            let currentSegment = '';
+
+            text.split('').forEach(char => {
+                if (currentSegment.length >= MAX_LENGTH && /[，。！？；]/.test(char)) {
+                    segments.push(currentSegment);
+                    currentSegment = '';
+                }
+                currentSegment += char;
+            });
+
+            if (currentSegment) segments.push(currentSegment);
+            return segments.join('。');
+        }
+
+        return text;
     }
 
-    registerStatusCallback(callback: TTSStatusCallback) {
-        this.statusCallback = callback;
+    private optimizeParams(text: string): TTSConfig {
+        const config: TTSConfig = { ...this.defaultConfig };
+        if (text.length > 100) config.rate = Math.min(1.2, config.rate || 1.0);
+        if (/！$/.test(text)) {
+            config.volume = Math.min(1.5, (config.volume || 1.0) * 1.2);
+        }
+        return config;
     }
 
-    unregisterStatusCallback() {
-        this.statusCallback = null;
+    private async getEnhancedVoices(): Promise<SpeechSynthesisVoice[]> {
+        return new Promise((resolve) => {
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length) return resolve(voices);
+            window.speechSynthesis.onvoiceschanged = () => {
+                resolve(window.speechSynthesis.getVoices());
+            };
+        });
     }
 
-    private findVoice(lang: string) {
-        const voices = window.speechSynthesis.getVoices();
-        return voices.find(voice =>
-            voice.lang === lang ||
-            voice.name.includes('Chinese') ||
-            voice.name.includes('Cantonese')
-        );
-    }
-
-    speak(text: string, config?: TTSConfig) {
+    async speak(text: string, config?: TTSConfig): Promise<boolean> {
         if (!text || !this.isSupported()) {
             this.updateStatus('error');
             return false;
@@ -67,17 +88,28 @@ class TTSService {
 
         this.stop();
 
-        const finalConfig = { ...this.defaultConfig, ...config };
-        this.utterance = new SpeechSynthesisUtterance(text);
+        const processedText = this.preprocessText(text);
+        const finalConfig = {
+            ...this.defaultConfig,
+            ...this.optimizeParams(text),
+            ...config
+        };
 
+        this.utterance = new SpeechSynthesisUtterance(processedText);
         this.utterance.lang = finalConfig.lang || 'zh-HK';
         this.utterance.rate = finalConfig.rate || 0.9;
         this.utterance.pitch = finalConfig.pitch || 1.1;
         this.utterance.volume = finalConfig.volume || 1;
 
-        const preferredVoice = this.findVoice(this.utterance.lang);
-        if (preferredVoice) {
-            this.utterance.voice = preferredVoice;
+        const voices = await this.getEnhancedVoices();
+        const langMatch = voices.filter(v => v.lang.startsWith(this.utterance!.lang));
+
+        if (finalConfig.voiceName) {
+            this.utterance.voice = voices.find(v =>
+                v.name === finalConfig.voiceName) || null;
+        }
+        if (!this.utterance.voice && langMatch.length) {
+            this.utterance.voice = langMatch.find(v => v.localService) || langMatch[0];
         }
 
         this.utterance.onstart = () => this.updateStatus('speaking');
@@ -86,6 +118,20 @@ class TTSService {
 
         window.speechSynthesis.speak(this.utterance);
         return true;
+    }
+
+    pause() {
+        if (this.status === 'speaking') {
+            window.speechSynthesis.pause();
+            this.updateStatus('paused');
+        }
+    }
+
+    resume() {
+        if (this.status === 'paused') {
+            window.speechSynthesis.resume();
+            this.updateStatus('speaking');
+        }
     }
 
     stop() {
@@ -109,12 +155,22 @@ class TTSService {
         }
     }
 
+    getStatus(): TTSStatus {
+        return this.status;
+    }
+
+    registerStatusCallback(callback: TTSStatusCallback) {
+        this.statusCallback = callback;
+    }
+
+    unregisterStatusCallback() {
+        this.statusCallback = null;
+    }
+
     private updateStatus(status: TTSStatus) {
         this.status = status;
-        if (this.statusCallback) {
-            this.statusCallback(status);
-        }
+        this.statusCallback?.(status);
     }
 }
 
-export const tts = new TTSService();
+export const tts = new EnhancedTTSService();
