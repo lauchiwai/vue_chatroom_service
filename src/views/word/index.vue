@@ -20,7 +20,6 @@
             <div v-else class="empty-state">
                 <Empty v-if="!loading">
                     <template #action>
-                        
                     </template>
                 </Empty>
             </div>
