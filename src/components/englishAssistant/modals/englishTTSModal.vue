@@ -30,13 +30,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onBeforeUnmount, watchEffect } from 'vue';
+import { ref, watch, onBeforeUnmount, watchEffect, nextTick } from 'vue';
 import { CustomerServiceOutlined } from '@ant-design/icons-vue';
 import { tts } from '@/utils/common/ttsUtil';
 
 import DraggableResizableModal from '@/components/common/modal/draggableResizableModal.vue';
 
-type TTSStatus = 'idle' | 'speaking' | 'error';
+type TTSStatus = 'idle' | 'speaking' | 'paused' | 'error';
 const props = defineProps({
     selectedText: {
         type: String,
@@ -48,7 +48,8 @@ const open = defineModel('open', { type: Boolean, required: true });
 
 const isSpeaking = ref(false);
 const isLoading = ref(false);
-const text = ref('')
+const text = ref('');
+const isPending = ref(false);
 
 tts.registerStatusCallback((status: TTSStatus) => {
     isSpeaking.value = status === 'speaking';
@@ -57,8 +58,8 @@ tts.registerStatusCallback((status: TTSStatus) => {
     }
 });
 
-const handleTogglePlayback = () => {
-    if (!text.value) return;
+const handleTogglePlayback = async () => {
+    if (!text.value || isPending.value) return;
     
     if (isSpeaking.value) {
         tts.stop();
@@ -66,7 +67,12 @@ const handleTogglePlayback = () => {
     }
 
     isLoading.value = true;
+    isPending.value = true;
+    
+    await nextTick();
+    
     const success = tts.speak(text.value);
+    isPending.value = false;
     
     if (!success) {
         isLoading.value = false;
@@ -80,11 +86,12 @@ const stopTTS = () => {
     }
 };
 
-watchEffect(() => {
+watchEffect(async () => {
     const trimmedText = props.selectedText.trim();
     if (trimmedText.length > 0) {
         text.value = props.selectedText;
-        handleTogglePlayback()
+        await nextTick();
+        handleTogglePlayback();
     }
 });
 

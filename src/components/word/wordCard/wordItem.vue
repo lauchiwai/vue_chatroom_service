@@ -87,7 +87,7 @@ const generateHSL = (text: string): string => {
     line-height: 1.4;
     letter-spacing: 0.5px;
     word-break: break-word;
-    font-weight: 700;
+    font-weight: 400;
 }
 
 .review-status-container {

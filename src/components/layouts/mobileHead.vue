@@ -1,10 +1,10 @@
 <template>
     <header class="mobile-header">
         <div class="header-title" v-if="title">{{ title }}</div>
-        <button class="menu-button" @click="toggleMenu">
-            <span class="menu-text">menu</span>
+        <button class="menu-button" @click.stop="toggleMenu" ref="menuButtonRef">
+            <AppstoreOutlined />
         </button>
-        <div v-if="menuOpen" class="mobile-menu">
+        <div v-if="menuOpen" class="mobile-menu" ref="menuRef">
             <div 
                 v-for="item in store.items" 
                 :key="item.key"
@@ -24,8 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { AppstoreOutlined } from '@ant-design/icons-vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useSiderStore, type MenuItem } from '@/stores/siderStore'
+
 import SettingModal from '@/components/layouts/modal/settingModal.vue'
 
 const props = defineProps({
@@ -37,6 +39,27 @@ const props = defineProps({
 
 const store = useSiderStore()
 const menuOpen = ref(false)
+const menuButtonRef = ref<HTMLElement | null>(null)
+const menuRef = ref<HTMLElement | null>(null)
+
+const handleClickOutside = (event: MouseEvent) => {
+    if (!menuOpen.value) return
+    
+    const clickedMenu = menuRef.value?.contains(event.target as Node)
+    const clickedButton = menuButtonRef.value?.contains(event.target as Node)
+    
+    if (!clickedMenu && !clickedButton) {
+        menuOpen.value = false
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside)
+})
 
 const handleItemClick = (item: MenuItem) => {
     store.setSelectedKeys([item.key])

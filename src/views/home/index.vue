@@ -1,25 +1,23 @@
 <template>
-    <div class="statistic-container">
-        <StatisticCard />
+    <div class="article-container">
+        <ArticleStatisticCard />
     </div>
-    <div class="aichat-container">
-        <StatisticCard />
-    </div>
-    <div class="aichat-container">
-        <StatisticCard />
+    <div class="word-container">
+        <WordStatisticCard />
     </div>
 </template>
 
 <script lang="ts"setup>
-import StatisticCard from '@/components/home/statisticCard.vue'
+import ArticleStatisticCard from '@/components/home/articleStatisticCard.vue'
+import WordStatisticCard from '@/components/home/wordStatisticCard.vue'
 </script>
 
 <style scoped lang="scss">
-.statistic-container{
+.article-container{
     padding: 4px;
 }
 
-.aichat-container{
+.word-container{
     padding:10px
 }
 </style>

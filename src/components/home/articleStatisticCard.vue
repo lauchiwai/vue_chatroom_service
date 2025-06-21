@@ -2,7 +2,7 @@
     <div class="flashcard-container">
         <div class="title-container">
             <div class="title-left">
-                <span>FlashCard</span>
+                <span>ArticleFlashCard</span>
             </div>
             <div class="title-right">
                 <button @click="handelViewMoreEvent">
@@ -25,7 +25,6 @@
                         :number="articleCount" 
                         title="Article" 
                         color="#2894FF" 
-                    
                     />
                 </div>
 
@@ -33,10 +32,9 @@
                     <AddTrigger />
                 </div>
 
-                <div class="stats-item">
+                <div class="stats-item" v-for="article in articles" >
                     <BookCard  
                         @click-event="handelViewEvent"
-                        v-for="article in articles" 
                         :key="article.articleId"
                         :article="article"
                     />

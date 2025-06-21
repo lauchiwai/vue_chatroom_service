@@ -61,7 +61,7 @@ const props = defineProps({
     },
     pageCharCount: {
         type: Number,
-        default: 3000
+        default: 1500
     },
     initialProgress: {
         type: Object as () => { progress?: number } | null,
