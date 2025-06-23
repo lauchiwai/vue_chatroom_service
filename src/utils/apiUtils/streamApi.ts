@@ -80,6 +80,7 @@ export class StreamClient {
         sessionId?: string
     ): Promise<ApiResponse<any>> {
         const decoder = new TextDecoder()
+        let errorCode: number = 500;
 
         try {
             while (true) {
@@ -95,6 +96,7 @@ export class StreamClient {
                     onChunk?.(chunk)
 
                     if (chunk.error) {
+                        errorCode = chunk.error.code ?? 500;
                         return this.formatError(chunk.error.message, chunk.error.code, sessionId)
                     }
                 }
@@ -102,7 +104,8 @@ export class StreamClient {
 
             return {
                 isSuccess: true,
-                message: null,
+                message: '',
+                code: errorCode,
                 data: { response: content, chat_session_id: sessionId || '' }
             }
         } catch (error) {
@@ -125,6 +128,7 @@ export class StreamClient {
     ): ApiResponse<any> {
         return {
             isSuccess: false,
+            code: code ?? 500,
             message: code ? `[${code}] ${message}` : message,
             data: { response: '', chat_session_id: sessionId || '' }
         }

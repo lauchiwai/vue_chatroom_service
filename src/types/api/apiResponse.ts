@@ -1,6 +1,6 @@
 export interface ApiResponse<T> {
     isSuccess: boolean
-    message: string | null
+    message: string
     data: T
     code: number
 }

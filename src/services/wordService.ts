@@ -14,6 +14,11 @@ export const wordService = {
         return response.data
     },
 
+    async updateWordReviewStatus(wordId: number): Promise<ApiResponse<void>> {
+        const response = await api.patch<ApiResponse<void>>(`/Word/UpdateWordReviewStatus/${wordId}`)
+        return response.data
+    },
+
     async getWordById(wordId: number): Promise<ApiResponse<WordType>> {
         const response = await api.get<ApiResponse<WordType>>(`/Word/GetWordById/${wordId}`)
         return response.data
@@ -37,5 +42,15 @@ export const wordService = {
     async checkUserWordExistsByText(word: string): Promise<ApiResponse<boolean>> {
         const response = await api.get<ApiResponse<boolean>>(`/Word/CheckUserWordExistsByText/${word}`)
         return response.data
-    }
+    },
+
+    async getNextReviewWord(): Promise<ApiResponse<WordType>> {
+        const response = await api.get<ApiResponse<WordType>>(`/Word/GetNextReviewWord/`)
+        return response.data
+    },
+
+    async getReviewWordCount(): Promise<ApiResponse<number>> {
+        const response = await api.get<ApiResponse<number>>(`/Word/GetReviewWordCount/`)
+        return response.data
+    },
 }

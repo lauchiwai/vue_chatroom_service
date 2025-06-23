@@ -81,7 +81,7 @@ const generateHSL = (text: string): string => {
 }
 
 .word-title {
-    font-size: 1rem;
+    font-size: 1.6rem;
     color: rgba(0, 0, 0, 0.9);
     margin: 0;
     line-height: 1.4;

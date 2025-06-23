@@ -66,7 +66,6 @@
 <script setup lang="ts">
 import {
     TranslationOutlined,
-    BulbOutlined,
     QuestionCircleOutlined,
     CustomerServiceOutlined,
     CloseOutlined
@@ -127,7 +126,7 @@ const handleTTSEvent = () => {
     height: 56px;
     border-radius: 50%;
     background: white;
-    color: #1890ff;
+    color: gray;
     border: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     cursor: pointer;

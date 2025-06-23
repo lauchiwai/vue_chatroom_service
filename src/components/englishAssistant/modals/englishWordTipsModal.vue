@@ -2,7 +2,7 @@
     <DraggableResizableModal 
         v-model:open="open"
         :mask="false"
-        :css-style="{top:'5vh'}"
+    number
         :enable-resize="true"
         :enable-draggable="true"
         :contentPadding="'10px'"

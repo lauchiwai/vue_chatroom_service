@@ -45,6 +45,20 @@ export const useWordStore = defineStore('word', {
             }
         },
 
+        async updateWordReviewStatus(wordId: number) {
+            try {
+                const response = await wordService.updateWordReviewStatus(wordId);
+                if (!response.isSuccess) {
+                    message.error('更新復習進度失敗: ' + (response.message || "未知錯誤"));
+                }
+                return response.isSuccess;
+            } catch (error) {
+                message.error('更新復習進度時發生異常');
+                console.error('updateWordReviewStatus error:', error);
+                return null;
+            }
+        },
+
         async getWordById(wordId: number) {
             try {
                 if (this.currentWord?.wordId === wordId) {
@@ -138,6 +152,38 @@ export const useWordStore = defineStore('word', {
         async refreshWordList() {
             this.wordList = [];
             return await this.getWordList();
+        },
+
+        async fetchNextReviewWord() {
+            try {
+                const response = await wordService.getNextReviewWord();
+                if (!response.isSuccess) {
+                    message.error("獲取下一個複習單字錯誤: " + (response.message || "未知錯誤"));
+                    return null;
+                }
+
+                return response.data;
+            } catch (error) {
+                message.error('獲取下一個複習單字失敗，請重試');
+                console.error('fetchNextReviewWord error:', error);
+                return null;
+            }
+        },
+
+        async fetchReviewWordCount() {
+            try {
+                const response = await wordService.getReviewWordCount();
+                if (!response.isSuccess) {
+                    message.error("獲取複習單字數量錯誤: " + (response.message || "未知錯誤"));
+                    return 0;
+                }
+
+                return response.data;
+            } catch (error) {
+                message.error('獲取複習單字數量失敗，請重試');
+                console.error('fetchReviewWordCount error:', error);
+                return 0;
+            }
         }
     }
 })
