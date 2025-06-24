@@ -1,4 +1,5 @@
 import type { ApiResponse } from '@/types/api/apiResponse'
+import type { PagedViewModel, SearchParams } from '@/types/search/search'
 import type { WordType, WordRequest } from '@/types/word/word'
 
 import { api } from '@/utils/apiUtils/api'
@@ -9,9 +10,12 @@ export const wordService = {
         return response.data
     },
 
-    async getWordList(): Promise<ApiResponse<WordType[]>> {
-        const response = await api.get<ApiResponse<WordType[]>>('/Word/GetWordList')
-        return response.data
+    async getWordList(params?: SearchParams): Promise<ApiResponse<PagedViewModel<WordType[]>>> {
+        const response = await api.get<ApiResponse<PagedViewModel<WordType[]>>>(
+            '/Word/GetWordList',
+            { params }
+        );
+        return response.data;
     },
 
     async updateWordReviewStatus(wordId: number): Promise<ApiResponse<void>> {

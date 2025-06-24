@@ -23,30 +23,30 @@ const wordItem = ref<WordType>()
 const wordId = ref(toSafeNumber(route.params.id))
 
 watch(
-  () => route.params.id,
-  async (newId) => {
-    wordId.value = toSafeNumber(newId)
-    await fetchWordData()
-    componentKey.value += 1
-  }
+    () => route.params.id,
+    async (newId) => {
+        wordId.value = toSafeNumber(newId)
+        await fetchWordData()
+        componentKey.value += 1
+    }
 )
 
 onMounted(async () => {
-  await fetchWordData()
+     await fetchWordData()
 })
 
 const fetchWordData = async () => {
-  if (!wordId.value) {
-    message.error("wordId is null")
-    return 
-  }
-  
-  try {
-    const wordResponse = await wordStore.getWordById(wordId.value)
-    wordItem.value = wordResponse ?? undefined
-  } catch (error) {
-    message.error("加载單字失败")
-    console.error("fetchWordData error:", error)
-  }
+    if (!wordId.value) {
+        message.error("wordId is null")
+        return 
+    }
+    
+    try {
+        const wordResponse = await wordStore.getWordById(wordId.value)
+        wordItem.value = wordResponse ?? undefined
+    } catch (error) {
+        message.error("加载單字失败")
+        console.error("fetchWordData error:", error)
+    }
 }
 </script>

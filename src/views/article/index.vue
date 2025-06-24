@@ -9,11 +9,11 @@
         </header>
 
         <main class="content" ref="contentElement">
-            <div v-if="articles.length" class="book-grid">
+            <div v-if="articleList.length" class="book-grid">
                 <AddTrigger class="stats-item" />
                 <BookCard  
                     @click-event="handelViewEvent"
-                    v-for="article in articles" 
+                    v-for="article in articleList" 
                     :key="article.articleId"
                     :article="article"
                     class="stats-item"
@@ -28,14 +28,24 @@
                     </template>
                 </Empty>
             </div>
+            
+            <div v-if="loadingMore" class="loading-more">
+                <div class="loading-spinner"></div>
+                <span>載入更多文章...</span>
+            </div>
+            
+            <div v-if="noMoreData" class="no-more-data">
+                <span>沒有更多文章了</span>
+            </div>
         </main>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { ArticleList } from '@/types/article/article';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import { useArticleStore } from '@/stores/articleStore';
 import { ROUTE_NAMES } from '@/router';
 
@@ -47,6 +57,7 @@ import EmptyStateActions from '@/components/article/buttons/emptyStateActions.vu
 
 const router = useRouter();
 const articleStore = useArticleStore();
+const { pagination, articleList } = storeToRefs(articleStore);
 
 const searchQuery = ref('');
 const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null);
@@ -55,9 +66,12 @@ const isHeaderVisible = ref(true);
 const lastScrollPosition = ref(0);
 const contentElement = ref<HTMLElement | null>(null);
 const loading = ref(false);
+const loadingMore = ref(false);
 
-const articles = ref<ArticleList[]>([]);
-const articleCount = ref(0);
+const noMoreData = computed(() => 
+    pagination.value.pageNumber >= pagination.value.totalPages && 
+    pagination.value.totalPages > 0
+);
 
 onMounted(async () => {
     await getArticle();
@@ -67,22 +81,43 @@ onMounted(async () => {
 const getArticle = async () => {
     loading.value = true;
     try {
-        articles.value = await articleStore.getArticleList();
-        articleCount.value = articles.value.length;
+        await articleStore.getArticleList(true);
     } catch (error) {
-        console.error('獲取文章列表失敗:', error);
+        console.error('取得文章列表失敗:', error);
     } finally {
         loading.value = false;
     }
 };
 
+const loadNextPage = async () => {
+    if (loadingMore.value || noMoreData.value) return;
+    
+    loadingMore.value = true;
+    try {
+        const nextPage = pagination.value.pageNumber + 1;
+        articleStore.setSearchParams({
+            pageNumber: nextPage
+        });
+        await articleStore.getArticleList(false);
+    } catch (error) {
+        console.error('載入下一頁失敗:', error);
+    } finally {
+        loadingMore.value = false;
+    }
+};
+
 const handleRefresh = () => {
+    articleStore.setSearchParams({});
+    searchQuery.value = '';
     getArticle();
 };
 
-const performSearch = () =>{
-    
-}
+const performSearch = () => {
+    articleStore.setSearchParams({
+        keyword: searchQuery.value
+    });
+    getArticle();
+};
 
 const handelViewEvent = (article: ArticleList) => {
     router.push({ 
@@ -111,6 +146,13 @@ const handleScroll = () => {
     }
     
     lastScrollPosition.value = currentScrollPosition;
+    
+    const { scrollTop, clientHeight, scrollHeight } = contentElement.value;
+    const distanceToBottom = scrollHeight - (scrollTop + clientHeight);
+    
+    if (distanceToBottom < 300 && !loadingMore.value && !noMoreData.value) {
+        loadNextPage();
+    }
 };
 
 const handleKeyPress = (e: KeyboardEvent) => {
@@ -173,6 +215,7 @@ onBeforeUnmount(() => {
     overflow-y: auto;
     box-sizing: border-box;
     transition: padding-top 0.3s ease;
+    padding-bottom: 60px;
 
     @media (min-width: 768px) {
         padding: 32px;
@@ -224,5 +267,41 @@ onBeforeUnmount(() => {
     color: rgba(0, 0, 0, 0.5);
     padding: 40px;
     font-size: 1.2rem;
+}
+
+.loading-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #666;
+    
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #3498db;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 10px;
+    }
+    
+    span {
+        font-size: 0.9rem;
+    }
+}
+
+.no-more-data {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>

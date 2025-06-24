@@ -20,11 +20,11 @@
                     'space-between-layout': layoutMode === 'space-between'
                 }"
             >
-                <div class="stats-item" v-if="words.length == 0 && !loading">
+                <div class="stats-item" v-if="wordList.length == 0 && !loading">
                     <EmptyCard />
                 </div>
 
-                <div class="stats-item"  v-for="word in words" >
+                <div class="stats-item"  v-for="word in wordList" >
                     <WordCard  
                         @click-event="handelViewEvent"
                         :key="word.wordId"
@@ -51,6 +51,7 @@ import { RightOutlined, LeftOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useWordStore } from '@/stores/wordStore';
 import { ROUTE_NAMES } from '@/router'
+import { storeToRefs } from 'pinia';
 
 import EmptyCard from '@/components/common/emptyCard.vue'
 import WordCard from '@/components/word/wordCard/wordCard.vue'
@@ -68,7 +69,7 @@ const leftControlsAble = ref(false)
 const rightControlsAble = ref(false)
 const loading = ref(false)
 const layoutMode = ref<'flex-start' | 'space-between'>('flex-start')
-const words = ref<WordType[]> ([]);
+const { wordList } = storeToRefs(wordStore);
 
 const handelViewEvent = (word: WordType) => {
     router.push({ 
@@ -84,7 +85,7 @@ const handelViewMoreEvent = () => {
 }
 
 const totalItems = () => {
-    return words.value.length
+    return wordList.value.length
 }
 
 const checkLayoutMode = () => {
@@ -143,7 +144,7 @@ const handleResize = () => {
     checkOverflow()
 }
 
-watch(() => words.value.length, () => {
+watch(() => wordList.value.length, () => {
     nextTick(() => {
         checkLayoutMode()
         checkOverflow()
@@ -152,7 +153,7 @@ watch(() => words.value.length, () => {
 
 const initArticleList = async() =>{
     loading.value = true;
-    words.value = await wordStore.getWordList()
+    await wordStore.getWordList(true)
     loading.value = false;
 }
 

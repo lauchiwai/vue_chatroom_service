@@ -1,5 +1,6 @@
 import type { ApiResponse } from '@/types/api/apiResponse'
 import type { WordType, WordRequest } from '@/types/word/word'
+import type { PagedViewModel, SearchParams } from '@/types/search/search'
 
 import { wordService } from '@/services/wordService'
 import { defineStore } from 'pinia'
@@ -8,23 +9,103 @@ import { message } from 'ant-design-vue'
 export const useWordStore = defineStore('word', {
     state: () => ({
         wordList: [] as WordType[],
+        wordCache: new Map<number, WordType>(),
         currentWord: null as WordType | null,
+        searchParams: {
+            pageNumber: 1,
+            pageSize: 10,
+            keyword: undefined,
+            sortBy: undefined,
+            sortDirection: 'asc',
+            startDate: undefined,
+            endDate: undefined
+        } as SearchParams,
+        pagination: {
+            totalCount: 0,
+            pageNumber: 1,
+            pageSize: 10,
+            totalPages: 1
+        }
     }),
     actions: {
-        async getWordList() {
+        setSearchParams(params: Partial<SearchParams>) {
+            this.searchParams = {
+                ...this.searchParams,
+                ...params
+            };
+            if (params.keyword !== undefined || params.startDate !== undefined || params.endDate !== undefined) {
+                this.searchParams.pageNumber = 1;
+            }
+        },
+
+        reset() {
+            this.wordList = [];
+            this.pagination = {
+                totalCount: 0,
+                pageNumber: 1,
+                pageSize: 10,
+                totalPages: 1
+            };
+        },
+
+        async getWordList(forceRefresh = false) {
             try {
-                const response: ApiResponse<WordType[]> = await wordService.getWordList()
-                if (!response.isSuccess) {
-                    message.error("獲取單字列表錯誤: " + (response.message || "未知錯誤"))
-                    return []
+                if (forceRefresh) {
+                    this.reset()
                 }
 
-                this.wordList = response.data || [];
+                const response: ApiResponse<PagedViewModel<WordType[]>> =
+                    await wordService.getWordList(this.searchParams);
+
+                if (!response.isSuccess) {
+                    message.error("獲取單字列表錯誤: " + (response.message || "未知錯誤"));
+                    return this.wordList;
+                }
+                this.wordList = [...this.wordList, ...response.data.items];
+                this.pagination = {
+                    totalCount: response.data.totalCount,
+                    pageNumber: response.data.pageNumber,
+                    pageSize: response.data.pageSize,
+                    totalPages: response.data.totalPages
+                };
+
                 return this.wordList;
             } catch (error) {
-                message.error('獲取單字列表失敗，請重試')
-                console.error('getWordList error:', error)
-                return []
+                message.error('獲取單字列表失敗，請重試');
+                console.error('getWordList error:', error);
+                return this.wordList;
+            }
+        },
+
+        async handlePageChange(pageNumber: number, pageSize: number) {
+            this.setSearchParams({
+                pageNumber,
+                pageSize
+            });
+            await this.getWordList(true);
+        },
+
+        async getWordById(wordId: number, forceRefresh = false) {
+            try {
+                if (!forceRefresh && this.wordCache.has(wordId)) {
+                    return this.wordCache.get(wordId);
+                }
+
+                const response = await wordService.getWordById(wordId);
+                if (!response.isSuccess) {
+                    message.error("獲取單字詳情錯誤: " + (response.message || "未知錯誤"));
+                    return this.wordCache.get(wordId);
+                }
+
+                if (response.data) {
+                    this.wordCache.set(wordId, response.data);
+                }
+
+                return response.data;
+            } catch (error) {
+                message.error('獲取單字詳情失敗，請重試');
+                console.error('getWordById error:', error);
+                return this.wordCache.get(wordId);
             }
         },
 
@@ -33,6 +114,7 @@ export const useWordStore = defineStore('word', {
                 const response = await wordService.addWord(wordParams);
                 if (response.isSuccess) {
                     message.success('單字添加成功！');
+                    await this.getWordList(true);
                     return response.data;
                 } else {
                     message.error('添加單字失敗: ' + (response.message || "未知錯誤"));
@@ -59,27 +141,6 @@ export const useWordStore = defineStore('word', {
             }
         },
 
-        async getWordById(wordId: number) {
-            try {
-                if (this.currentWord?.wordId === wordId) {
-                    return this.currentWord;
-                }
-
-                const response = await wordService.getWordById(wordId);
-                if (!response.isSuccess) {
-                    message.error("獲取單字詳情錯誤: " + (response.message || "未知錯誤"))
-                    return null;
-                }
-
-                this.currentWord = response.data;
-                return this.currentWord;
-            } catch (error) {
-                message.error('獲取單字詳情失敗，請重試');
-                console.error('getWordById error:', error);
-                return null;
-            }
-        },
-
         async removeWordById(wordId: number) {
             try {
                 const response = await wordService.removeWordById(wordId);
@@ -87,6 +148,8 @@ export const useWordStore = defineStore('word', {
                     message.success('單字刪除成功！');
 
                     this.wordList = this.wordList.filter(word => word.wordId !== wordId);
+                    this.wordCache.delete(wordId);
+
                     if (this.currentWord?.wordId === wordId) {
                         this.currentWord = null;
                     }
@@ -108,6 +171,7 @@ export const useWordStore = defineStore('word', {
                 const response = await wordService.removeWordByText(word);
                 if (response.isSuccess) {
                     message.success('單字刪除成功！');
+                    await this.getWordList(true);
                     return true;
                 } else {
                     message.error('刪除單字失敗: ' + (response.message || "未知錯誤"));
@@ -124,7 +188,7 @@ export const useWordStore = defineStore('word', {
             try {
                 const response = await wordService.checkUserWordExistsById(wordId);
                 if (!response.isSuccess) {
-                    message.error("檢查單字存在狀態錯誤: " + (response.message || "未知錯誤"))
+                    message.error("檢查單字存在狀態錯誤: " + (response.message || "未知錯誤"));
                     return false;
                 }
                 return response.data;
@@ -141,7 +205,6 @@ export const useWordStore = defineStore('word', {
                 if (!response.isSuccess) {
                     return false;
                 }
-
                 return response.data;
             } catch (error) {
                 console.error('checkWordExistsByText error:', error);
@@ -151,7 +214,7 @@ export const useWordStore = defineStore('word', {
 
         async refreshWordList() {
             this.wordList = [];
-            return await this.getWordList();
+            await this.getWordList(true);
         },
 
         async fetchNextReviewWord() {
@@ -161,7 +224,6 @@ export const useWordStore = defineStore('word', {
                     message.error("獲取下一個複習單字錯誤: " + (response.message || "未知錯誤"));
                     return null;
                 }
-
                 return response.data;
             } catch (error) {
                 message.error('獲取下一個複習單字失敗，請重試');
@@ -177,13 +239,22 @@ export const useWordStore = defineStore('word', {
                     message.error("獲取複習單字數量錯誤: " + (response.message || "未知錯誤"));
                     return 0;
                 }
-
                 return response.data;
             } catch (error) {
                 message.error('獲取複習單字數量失敗，請重試');
                 console.error('fetchReviewWordCount error:', error);
                 return 0;
             }
+        },
+
+        async performSearch(keyword: string) {
+            this.setSearchParams({ keyword });
+            await this.getWordList(true);
+        },
+
+        clearCache() {
+            this.wordList = [];
+            this.wordCache.clear();
         }
     }
 })

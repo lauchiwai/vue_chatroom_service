@@ -28,11 +28,11 @@
                     />
                 </div>
 
-                <div class="stats-item" v-if="articles.length == 0 && !loading">
+                <div class="stats-item" v-if="articleList.length == 0 && !loading">
                     <AddTrigger />
                 </div>
 
-                <div class="stats-item" v-for="article in articles" >
+                <div class="stats-item" v-for="article in articleList" >
                     <BookCard  
                         @click-event="handelViewEvent"
                         :key="article.articleId"
@@ -59,6 +59,7 @@ import { RightOutlined, LeftOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useArticleStore } from '@/stores/articleStore'
 import { ROUTE_NAMES } from '@/router'
+import { storeToRefs } from 'pinia';
 
 import BookCard from '@/components/article/book/bookCard.vue'
 import AddTrigger from '@/components/article/buttons/addTrigger.vue';
@@ -77,8 +78,8 @@ const leftControlsAble = ref(false)
 const rightControlsAble = ref(false)
 const loading = ref(false)
 const layoutMode = ref<'flex-start' | 'space-between'>('flex-start')
-const articles = ref<ArticleList[]> ([]);
 const articleCount = ref(0);
+const { articleList } = storeToRefs(articleStore);
 
 const handelViewEvent = (article: ArticleList) => {
     router.push({ 
@@ -94,7 +95,7 @@ const handelViewMoreEvent = () => {
 }
 
 const totalItems = () => {
-    return articles.value.length
+    return articleList.value.length
 }
 
 const checkLayoutMode = () => {
@@ -153,7 +154,7 @@ const handleResize = () => {
     checkOverflow()
 }
 
-watch(() => articles.value.length, () => {
+watch(() => articleList.value.length, () => {
     nextTick(() => {
         checkLayoutMode()
         checkOverflow()
@@ -162,8 +163,8 @@ watch(() => articles.value.length, () => {
 
 const initArticleList = async() =>{
     loading.value = true;
-    articles.value = await articleStore.getArticleList()
-    articleCount.value = articles.value.length
+    await articleStore.getArticleList(true)
+    articleCount.value = articleList.value.length
     loading.value = false;
 }
 
@@ -191,6 +192,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .flashcard-container {
     width: 100%;
+    min-height: 150px;
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 

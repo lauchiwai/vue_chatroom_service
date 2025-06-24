@@ -8,10 +8,13 @@ import type {
     vectorizeArticleRequest
 } from '@/types/article/article'
 import type { ApiResponse } from '@/types/api/apiResponse'
+import type { PagedViewModel } from '@/types/search/search'
 
 import { articleService } from '@/services/articleService'
 import { defineStore } from 'pinia'
 import { message } from 'ant-design-vue'
+
+import type { SearchParams } from '@/types/search/search';
 
 export const useArticleStore = defineStore('article', {
     state: () => ({
@@ -22,6 +25,21 @@ export const useArticleStore = defineStore('article', {
         streamingController: null as AbortController | null,
         assistantMessage: '' as string,
         isArticleCreated: false as boolean,
+        searchParams: {
+            pageNumber: 1,
+            pageSize: 10,
+            keyword: undefined,
+            sortBy: undefined,
+            sortDirection: 'asc',
+            startDate: undefined,
+            endDate: undefined
+        } as SearchParams,
+        pagination: {
+            totalCount: 0,
+            pageNumber: 1,
+            pageSize: 10,
+            totalPages: 1
+        }
     }),
     actions: {
         resetAssistantMessage() {
@@ -41,25 +59,52 @@ export const useArticleStore = defineStore('article', {
             this.readingProgressCache.clear();
         },
 
+        setSearchParams(params: Partial<SearchParams>) {
+            this.searchParams = {
+                ...this.searchParams,
+                ...params
+            };
+            if (params.keyword !== undefined || params.startDate !== undefined || params.endDate !== undefined) {
+                this.searchParams.pageNumber = 1;
+            }
+        },
+
         async getArticleList(forceRefresh = false) {
             try {
-                if (!forceRefresh && this.articleList.length > 0) {
-                    return this.articleList;
+                if (forceRefresh) {
+                    this.reset()
                 }
 
-                const response: ApiResponse<ArticleList[]> = await articleService.getArticleList()
+                const response: ApiResponse<PagedViewModel<ArticleList[]>> =
+                    await articleService.getArticleList(this.searchParams);
+
                 if (!response.isSuccess) {
                     message.error("獲取文章列表錯誤: " + (response.message || "未知錯誤"))
                     return this.articleList;
                 }
+                this.articleList = [...this.articleList, ...response.data.items];
 
-                this.articleList = response.data || [];
+                this.pagination = {
+                    totalCount: response.data.totalCount,
+                    pageNumber: response.data.pageNumber,
+                    pageSize: response.data.pageSize,
+                    totalPages: response.data.totalPages
+                };
+
                 return this.articleList;
             } catch (error) {
                 message.error('獲取文章列表失敗，請重試')
                 console.error('getArticleList error:', error)
                 return this.articleList;
             }
+        },
+
+        async handlePageChange(pageNumber: number, pageSize: number) {
+            this.setSearchParams({
+                pageNumber,
+                pageSize
+            });
+            await this.getArticleList(true);
         },
 
         async getArticleById(articleId: number, forceRefresh = false) {
@@ -89,7 +134,6 @@ export const useArticleStore = defineStore('article', {
             try {
                 const response: ApiResponse<any> = await articleService.generateArticle(request)
                 if (response.isSuccess) {
-                    this.getArticleList(true);
                     return true;
                 } else {
                     message.error("生成文章錯誤: " + (response.message || "未知錯誤"))
@@ -211,7 +255,6 @@ export const useArticleStore = defineStore('article', {
 
                 if (!hasError) {
                     this.isArticleCreated = true;
-                    this.getArticleList(true);
                 }
             } catch (error) {
                 if ((error as Error).name !== 'AbortError') {

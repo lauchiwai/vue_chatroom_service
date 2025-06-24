@@ -1,27 +1,42 @@
 <template>
-    <div class="book-search-page">
+    <div class="word-search-page">
         <header class="header" :class="{ 'header-hidden': !isHeaderVisible }">
             <SearchBar 
                 v-model="searchQuery"
                 @search="performSearch"
+                @clear="clearSearch"
                 ref="searchBarRef"
             />
         </header>
         <main class="content" ref="contentElement">
-            <div v-if="words.length" class="book-grid">
+            <div v-if="loading" class="loading-state">
+                <a-spin size="large" />
+            </div>
+            <div v-else-if="wordList.length" class="word-grid">
                 <WordCard  
                     @click-event="handelViewEvent"
-                    v-for="word in words" 
+                    v-for="word in wordList" 
                     :key="word.wordId"
                     :item="word"
-                    class="stats-item"
+                    class="word-item"
                 />
             </div>
             <div v-else class="empty-state">
-                <Empty v-if="!loading">
-                    <template #action>
+                <Empty>
+                    <template #description>
+                        <p v-if="searchQuery">沒有找到匹配 "{{ searchQuery }}" 的單字</p>
+                        <p v-else>您還沒有添加任何單字</p>
                     </template>
                 </Empty>
+            </div>
+            
+            <div v-if="loadingMore" class="loading-more">
+                <div class="loading-spinner"></div>
+                <span>載入更多單字...</span>
+            </div>
+            
+            <div v-if="noMoreData" class="no-more-data">
+                <span>沒有更多單字了</span>
             </div>
         </main>
     </div>
@@ -29,8 +44,9 @@
 
 <script setup lang="ts">
 import type { WordType } from '@/types/word/word';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
 import { useWordStore } from '@/stores/wordStore';
 import { ROUTE_NAMES } from '@/router';
 
@@ -40,6 +56,7 @@ import Empty from '@/components/common/empty.vue';
 
 const router = useRouter();
 const wordStore = useWordStore();
+const { pagination, wordList } = storeToRefs(wordStore);
 
 const searchQuery = ref('');
 const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null);
@@ -48,9 +65,12 @@ const isHeaderVisible = ref(true);
 const lastScrollPosition = ref(0);
 const contentElement = ref<HTMLElement | null>(null);
 const loading = ref(false);
+const loadingMore = ref(false);
 
-const words = ref<WordType[]>([]);
-const wordCount = ref(0);
+const noMoreData = computed(() => 
+    pagination.value.pageNumber >= pagination.value.totalPages && 
+    pagination.value.totalPages > 0
+);
 
 onMounted(async () => {
     await getWords();
@@ -60,17 +80,47 @@ onMounted(async () => {
 const getWords = async () => {
     loading.value = true;
     try {
-        words.value = await wordStore.getWordList();
-        wordCount.value = words.value.length;
+        await wordStore.getWordList(true);
     } finally {
         loading.value = false;
     }
 };
 
-
-const performSearch = () =>{
+const loadNextPage = async () => {
+    if (loadingMore.value || noMoreData.value) return;
     
-}
+    loadingMore.value = true;
+    try {
+        const nextPage = pagination.value.pageNumber + 1;
+        wordStore.setSearchParams({
+            pageNumber: nextPage
+        });
+        
+        await wordStore.getWordList(false);
+    } catch (error) {
+        console.error('載入下一頁失敗:', error);
+    } finally {
+        loadingMore.value = false;
+    }
+};
+
+const performSearch = (query: string) => {
+    searchQuery.value = query;
+    wordStore.setSearchParams({
+        keyword: query,
+        pageNumber: 1
+    });
+    getWords();
+};
+
+const clearSearch = () => {
+    searchQuery.value = '';
+    wordStore.setSearchParams({
+        keyword: '',
+        pageNumber: 1
+    });
+    getWords();
+};
 
 const handelViewEvent = (word: WordType) => {
     router.push({ 
@@ -99,6 +149,13 @@ const handleScroll = () => {
     }
     
     lastScrollPosition.value = currentScrollPosition;
+    
+    const { scrollTop, scrollHeight, clientHeight } = contentElement.value;
+    const distanceToBottom = scrollHeight - (scrollTop + clientHeight);
+    
+    if (distanceToBottom < 300 && !loadingMore.value && !noMoreData.value) {
+        loadNextPage();
+    }
 };
 
 const handleKeyPress = (e: KeyboardEvent) => {
@@ -124,7 +181,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
-.book-search-page {
+.word-search-page {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -161,13 +218,14 @@ onBeforeUnmount(() => {
     overflow-y: auto;
     box-sizing: border-box;
     transition: padding-top 0.3s ease;
+    padding-bottom: 60px;
 
     @media (min-width: 768px) {
         padding: 32px;
     }
 }
 
-.book-grid {
+.word-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 24px;
@@ -191,7 +249,7 @@ onBeforeUnmount(() => {
     }
 }
 
-.stats-item {
+.word-item {
     aspect-ratio: 1/1;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid #E0E0E0;
@@ -212,5 +270,48 @@ onBeforeUnmount(() => {
     color: rgba(0, 0, 0, 0.5);
     padding: 40px;
     font-size: 1.2rem;
+}
+
+.loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+}
+
+.loading-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #666;
+    
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #3498db;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 10px;
+    }
+    
+    span {
+        font-size: 0.9rem;
+    }
+}
+
+.no-more-data {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>
