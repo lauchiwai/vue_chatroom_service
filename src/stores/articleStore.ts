@@ -51,6 +51,13 @@ export const useArticleStore = defineStore('article', {
             this.abortStreaming();
             this.assistantMessage = '';
             this.isArticleCreated = false;
+            this.articleList = [];
+            this.pagination = {
+                totalCount: 0,
+                pageNumber: 1,
+                pageSize: 10,
+                totalPages: 1
+            };
         },
 
         clearCache() {

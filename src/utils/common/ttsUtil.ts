@@ -18,7 +18,7 @@ class EnhancedTTSService {
 
     constructor(config?: TTSConfig) {
         this.defaultConfig = {
-            lang: 'zh-HK',
+            lang: 'en-US',
             rate: 0.9,
             pitch: 1.1,
             volume: 1,

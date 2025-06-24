@@ -41,6 +41,15 @@
                     </span>
                 </button>
             </a-tooltip>
+
+            <a-tooltip placement="left">
+                <template #title>刪除單字</template>
+                <button @click="handleDeleteEvent">
+                    <span class="icon-text">
+                        <DeleteOutlined />
+                    </span>
+                </button>
+            </a-tooltip>
         </div>
     </div>
 
@@ -61,6 +70,13 @@
         v-model:open="englishTTSModalOpen"
         :selected-text="selectedText"
     />
+
+    <DeleteModal
+        v-model:open="deleteModalOpen"
+        :delete-fn="deleteWord"
+        title="刪除單字確認"
+        :message="`確定要刪除單字「${selectedText}」嗎？此操作無法復原。`"
+    />
 </template>
 
 <script setup lang="ts">
@@ -68,13 +84,19 @@ import {
     TranslationOutlined,
     QuestionCircleOutlined,
     CustomerServiceOutlined,
-    CloseOutlined
+    CloseOutlined,
+    DeleteOutlined
 } from '@ant-design/icons-vue';
 import { ref } from 'vue';
+import { useWordStore } from '@/stores/wordStore';
+import { message } from 'ant-design-vue';
+import { useRouter } from 'vue-router'
+import { ROUTE_NAMES } from '@/router';
 
 import EnglishWordTipsModal from '@/components/englishAssistant/modals/englishWordTipsModal.vue'
 import EnglishWordAssistantModal from '@/components/englishAssistant/modals/englishWordAssistantModal.vue'
 import EnglishTTSModal from '@/components/englishAssistant/modals/englishTTSModal.vue'
+import DeleteModal from '@/components/common/modal/deleteModal.vue'
 
 const props = defineProps({
     selectedText: {
@@ -83,11 +105,15 @@ const props = defineProps({
     }
 });
 
+const router = useRouter()
 const isMenuOpen = ref(false);
 const isSpeaking = ref(false);
 const englishWordAssistantModalOpen = ref(false)
 const englishWordTipsModalOpen = ref(false)
 const englishTTSModalOpen = ref(false)
+const deleteModalOpen = ref(false)
+
+const wordStore = useWordStore();
 
 const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value;
@@ -107,6 +133,28 @@ const handleTTSEvent = () => {
     englishTTSModalOpen.value = !englishTTSModalOpen.value
     isMenuOpen.value = false;
 }
+
+const handleDeleteEvent = () => {
+    deleteModalOpen.value = true;
+    isMenuOpen.value = false;
+};
+
+const goWordHome = () => {
+    router.push({ name: ROUTE_NAMES.WORD })
+}
+
+const deleteWord = async () => {
+    try {
+        const success = await wordStore.removeWordByText(props.selectedText);
+        wordStore.reset();
+        goWordHome();
+        return success;
+    } catch (error) {
+        message.error('刪除單字時發生錯誤');
+        console.error('刪除單字失敗:', error);
+        return false;
+    }
+};
 </script>
 
 <style scoped>
@@ -228,10 +276,7 @@ const handleTTSEvent = () => {
     }
 }
 
-
 @media (max-width: 640px) {
-
-    
     .main-button {
         width: 48px;
         height: 48px;
