@@ -19,7 +19,7 @@
 import { provide, inject, computed } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useRagStore } from '@/stores/ragStore'
-import { ArticleIdKey, ChatFunctionsKey, ChatHandlersKey } from '@/constants/injectionKeys'
+import { ArticleIdKey, ChatHandlersKey } from '@/constants/injectionKeys'
 
 import BaseChatDrawer from '@/components/common/baseChatroom/BasChatDrawer/baseChatDrawer.vue'
 import CreateSessionBnt from '@/components/common/baseChatroom/createSessionBnt.vue'
@@ -30,16 +30,6 @@ const open = defineModel('open', { type: Boolean, required: true })
 const chatStore = useChatStore()
 const ragStore = useRagStore()
 const articleId = inject(ArticleIdKey, computed(() => 0))
-
-provide(ChatFunctionsKey, {
-    createSession: async () => {
-        await ragStore.createRagChatSession(articleId.value!)
-        open.value = false
-    },
-    deleteSession: async (id: number) => {
-        await chatStore.deleteChatData(id)
-    }
-})
 
 provide(ChatHandlersKey, {
     handleSelect: (sessionId: number) => {
@@ -58,6 +48,10 @@ provide(ChatHandlersKey, {
         } else {
             console.error('Invalid sessionId:', sessionId)
         }
-    }
+    },
+    createSession: async () => {
+        await ragStore.createRagChatSession(articleId.value!)
+        open.value = false
+    },
 })
 </script>

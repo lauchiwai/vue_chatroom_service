@@ -18,17 +18,18 @@
 <script setup lang="ts">
 import { PlusSquareOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { ref, inject } from 'vue'
-import { ChatFunctionsKey } from '@/constants/injectionKeys'
+import { ChatHandlersKey } from '@/constants/injectionKeys'
 
-const functions = inject(ChatFunctionsKey, {})
-const createSession = functions.createSession || (async () => {})
+const injectedHandlers = inject(ChatHandlersKey, {
+    createSession: async () => {}
+})
 
 const isLoading = ref<boolean>(false)
 
 const handleCreate = async () => {
   try {
     isLoading.value = true
-    await createSession()
+    await injectedHandlers.createSession()
   } finally {
     isLoading.value = false
   }

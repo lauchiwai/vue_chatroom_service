@@ -59,7 +59,6 @@ const streamChatMsg = computed<ChatMessage>(() => ({
     timestamp: ''
 }))
 
-
 watch(() => sceneCurrentSession.value, async (newVal) => {
     if (newVal[0] !== undefined) {
         loading.value = true

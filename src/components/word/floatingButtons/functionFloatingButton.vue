@@ -112,7 +112,7 @@ const handleTTSEvent = () => {
 <style scoped>
 .floating-assistant {
     position: fixed;
-    bottom: 24px;
+    bottom: 60px;
     right: 24px;
     z-index: 1000;
     display: flex;
@@ -221,11 +221,16 @@ const handleTTSEvent = () => {
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1200px) {
     .floating-assistant {
-        bottom: 16px;
+        bottom: 120px;
         right: 16px;
     }
+}
+
+
+@media (max-width: 640px) {
+
     
     .main-button {
         width: 48px;

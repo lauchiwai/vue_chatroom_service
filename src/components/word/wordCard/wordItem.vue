@@ -31,7 +31,7 @@ const reviewStatusText = computed(() => {
     }
     
     const date = new Date(props.item.lastReviewed);
-    return `last: ${date.toLocaleDateString('zh-CN', {
+    return `${date.toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
@@ -107,7 +107,7 @@ const generateHSL = (text: string): string => {
 }
 
 .review-status-text {
-    font-size: 0.6rem;
+    font-size: 0.5rem;
     color: rgba(255, 255, 255, 0.95);
     font-weight: 500;
     white-space: nowrap;
@@ -126,6 +126,9 @@ const generateHSL = (text: string): string => {
         font-size: 1.4rem;
     }
     
+    .review-status-text {
+        font-size: 0.6rem; 
+    }
 }
 
 @media (max-width: 480px) {
@@ -134,7 +137,7 @@ const generateHSL = (text: string): string => {
     }
     
     .review-status-text {
-        font-size: 0.8rem;
+        font-size: 0.6rem;
     }
 }
 

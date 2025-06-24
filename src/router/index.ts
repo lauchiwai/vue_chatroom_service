@@ -140,16 +140,16 @@ const routes: RouteRecordRaw[] = [
             layout: 'main',
             requiresAuth: true,
             showHeader: false,
-            showMobileNav: false,
+            showMobileNav: true,
             showBreadcrumb: true,
-            showMobileHeader: true,
+            showMobileHeader: false,
             showSideBar: true
         }
     },
     {
         path: ROUTE_PATHS.CHATROOM,
         name: ROUTE_NAMES.CHATROOM,
-        component: () => import('@/views/chatroom/index.vue'),
+        component: () => import('@/views/sceneChat/index.vue'),
         meta: {
             layout: 'main',
             requiresAuth: true,

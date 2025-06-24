@@ -13,57 +13,71 @@
             />
         </template>
     </BaseChatDrawer>
+    
+    <ScenarioDialogModal 
+        v-model:modalOpen="configModalOpen" 
+        @submit="handleConfigSubmit"
+    />
 </template>
 
 <script setup lang="ts">
 import type { ChatSessionRequset } from '@/types/chat/chat'
 
-import { provide } from 'vue'
-import { useChatStore } from '@/stores/chatStore'
-import { useSceneChatStore } from '@/stores/sceneChatStore'
-import { ChatFunctionsKey, ChatHandlersKey } from '@/constants/injectionKeys'
+import { ref, provide, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { ChatHandlersKey } from '@/constants/injectionKeys'
+import { useSceneChatStore } from '@/stores/sceneChatStore'
+import { useChatStore } from '@/stores/chatStore'
 
-import BaseChatDrawer from '@/components/common/baseChatroom/BasChatDrawer/baseChatDrawer.vue'
+import ScenarioDialogModal from '@/components/sceneChat/modal/scenarioDialogModal.vue'
 import createSessionBnt from '@/components/common/baseChatroom/createSessionBnt.vue'
 import SceneChatHistoryMenu from '@/components/sceneChat/menu/sceneChatHistoryMenu.vue'
+import BaseChatDrawer from '@/components/common/baseChatroom/BasChatDrawer/baseChatDrawer.vue'
 
 const open = defineModel('open', { type: Boolean, required: true })
-
-const chatStore = useChatStore()
+const configModalOpen = ref(false)
 const sceneChatStore = useSceneChatStore()
-const { sceneInputText } = storeToRefs(sceneChatStore);
+const chatStore = useChatStore()
 
-provide(ChatFunctionsKey, {
-    createSession: async () => {
-        let newRequrst: ChatSessionRequset ={
-            chat_session_name: sceneInputText.value
-        } 
-        await sceneChatStore.generateSceneChatSession(newRequrst)
-        open.value = false
-    },
-    deleteSession: async (id: number) => {
-        await chatStore.deleteChatData(id)
+const { sceneChatSessionList } = storeToRefs(sceneChatStore)
+watch(sceneChatSessionList, (newList) => {
+    if (newList.length == 0) {
+        configModalOpen.value = true;
     }
-})
+}, { deep: true, immediate: true });
 
 provide(ChatHandlersKey, {
-    handleSelect: (sessionId: number) => {
-        const id = Number(sessionId)
-        if (!isNaN(id)) {
-            sceneChatStore.setCurrentSession(id)
+    handleSelect: (session: number) => {
+        if (session) {
+            sceneChatStore.setCurrentSession(session)
             open.value = false
-        } else {
-            console.error('Invalid sessionId:', sessionId)
         }
     },
+    
     handleDelete: async (sessionId: number) => {
         const id = Number(sessionId)
         if (!isNaN(id)) {
             await chatStore.deleteChatData(id)
-        } else {
-            console.error('Invalid sessionId:', sessionId)
+            await sceneChatStore.getSceneChatSessionList()
+            open.value = false
         }
-    }
+    },
+    
+    createSession: async () => {
+        configModalOpen.value = true
+        open.value = false
+    },
 })
+
+const handleConfigSubmit = async (configData: any) => {
+    const sessionName = `${configData.scene}|${configData.userRole}|${configData.aiRole}`
+    
+    const newRequest: ChatSessionRequset = {
+        chat_session_name: sessionName,
+    }
+    
+    await sceneChatStore.generateSceneChatSession(newRequest);
+    await sceneChatStore.initSceneChat(sessionName)
+    open.value = false
+}
 </script>

@@ -1,7 +1,7 @@
 <template>
     <div class="chatroom-container">
         <div class="chat-header">
-            <SceneChatHeader />
+            <SceneChatHeader v-if="!loading"/>
         </div>
         <div class="msg-container">
             <div class="msg-content">
@@ -15,28 +15,20 @@
 </template>
 
 <script setup lang="ts">
-import type { ChatSessionRequset } from '@/types/chat/chat'
 import { useSceneChatStore } from '@/stores/sceneChatStore'
-import { storeToRefs } from 'pinia'
+import { onMounted, ref } from 'vue'
 
 import SceneChatHeader from '@/components/sceneChat/chatroom/sceneChatHeader.vue'
 import SceneMessageList from '@/components/sceneChat/chatroom/sceneMessageList.vue'
 import SceneChatInput from '@/components/sceneChat/chatroom/sceneChatInput.vue'
-import { onMounted } from 'vue'
 
 const sceneChatStore = useSceneChatStore();
-const { sceneCurrentSession, sceneInputText } = storeToRefs(sceneChatStore);
-
+const loading = ref(false)
 onMounted(async() =>{
+    loading.value = true;
+    sceneChatStore.reset();
     await sceneChatStore.getSceneChatSessionList();
-
-    if (sceneCurrentSession.value.length == 0){
-        let newRequest: ChatSessionRequset = {
-            chat_session_name : sceneInputText.value
-        }
-
-        await sceneChatStore.generateSceneChatSession(newRequest);
-    }
+    loading.value = false;
 })
 </script>
 

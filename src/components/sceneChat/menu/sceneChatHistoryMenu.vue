@@ -27,20 +27,20 @@
 </template>
 
 <script setup lang="ts">
-import type { ChatSessionRequset, ChatSessionResponse } from '@/types/chat/chat'
+import type { ChatSessionResponse } from '@/types/chat/chat'
 import { ref, inject, computed } from 'vue'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useSceneChatStore } from '@/stores/sceneChatStore'
-import { ChatHandlersKey, ArticleIdKey } from '@/constants/injectionKeys'
-import { message } from 'ant-design-vue'
+import { ChatHandlersKey } from '@/constants/injectionKeys'
 
 import BaseChatHistoryMenu from '@/components/common/baseChatroom/baseMenu/baseChatHistoryMenu.vue'
 import DeleteModal from '@/components/common/modal/deleteModal.vue'
 
 const injectedHandlers = inject(ChatHandlersKey, {
     handleSelect: (sessionId: number) => {},
-    handleDelete: async (sessionId: number) => {}
+    handleDelete: async (sessionId: number) => {},
+    createSession: async () => {}
 })
 
 const sceneChatStore = useSceneChatStore()
@@ -58,14 +58,6 @@ const showDeleteModal = (id: number) => {
     deleteModalOpen.value = true
 }
 
-const generateSession = async () =>{
-    let newReqest: ChatSessionRequset = {
-        chat_session_name: sceneInputText.value
-    }
-
-     await sceneChatStore.generateSceneChatSession(newReqest);
-}
-
 const handleConfirmDelete = async () => {
     if (deletingId.value !== null) {
         try {
@@ -73,7 +65,7 @@ const handleConfirmDelete = async () => {
             await injectedHandlers.handleDelete(deletingId.value)
             await sceneChatStore.getSceneChatSessionList()
             if (sceneCurrentSession.value.length == 0) {
-               await generateSession()
+               await injectedHandlers.createSession()
             }
         } finally {
             deleteLoading.value = false
@@ -84,7 +76,6 @@ const handleConfirmDelete = async () => {
 }
 
 const handleMenuSelect = (info: ChatSessionResponse) => {
-    console.log("info : ", JSON.stringify(info, null, 4))
     const sessionId = Number(info.sessionId)
     if (!isNaN(sessionId)) {
         injectedHandlers.handleSelect(sessionId)

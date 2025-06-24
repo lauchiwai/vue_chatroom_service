@@ -1,9 +1,9 @@
 <template>
-  <ReviewWordCard 
-    :item="wordItem" 
-    v-if="wordItem" 
-    :key="componentKey"
-  />
+    <ReviewWordCard 
+        :item="wordItem" 
+        v-if="wordItem" 
+        :key="componentKey"
+    />
 </template>
 
 <script lang="ts" setup>

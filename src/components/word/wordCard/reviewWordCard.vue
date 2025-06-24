@@ -20,7 +20,6 @@ import type { WordType } from '@/types/word/word'
 import { useRouter } from 'vue-router'
 import { useWordStore } from '@/stores/wordStore';
 import { ROUTE_NAMES } from '@/router'
-import { ref, watch } from 'vue'
 
 import FunctionFloatingButton from '@/components/word/floatingButtons/functionFloatingButton.vue'
 
@@ -32,14 +31,6 @@ const props = defineProps({
         required: true
     }
 })
-
-watch(
-  () => props.item,
-  (newItem) => {
-    console.log('单词已更新:', newItem.word)
-  },
-  { immediate: true }
-)
 
 const handleBntEvent = async() =>{
     let isSuccess =  await wordStore.updateWordReviewStatus(props.item.wordId)
@@ -178,7 +169,6 @@ const handelViewEvent = (word: WordType) => {
     font-size: 2rem;
     font-weight: 700;
     color: gray;
-    text-transform: uppercase;
     letter-spacing: 1px;
     text-shadow: 
         0 2px 6px rgba(0, 0, 0, 0.4),

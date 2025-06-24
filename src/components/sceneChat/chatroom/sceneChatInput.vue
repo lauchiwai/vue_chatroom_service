@@ -7,9 +7,6 @@
         @abort="handleAbort"
     >
         <template #actionTools>
-            <a-button @click="handleTips()">
-                範例
-            </a-button>
         </template>
     </BaseChatInput>
 </template>
@@ -22,8 +19,8 @@ import { storeToRefs } from 'pinia';
 import { useSceneChatStore } from '@/stores/sceneChatStore'
 import { useChatStore } from '@/stores/chatStore'
 
-import BaseChatInput from '@/components/common/baseChatroom/baseChatInput.vue'; 
-const TIPS_TEXT = '場景|使用者角色|ai角色'
+import BaseChatInput from '@/components/common/baseChatroom/baseChatInput.vue';
+ 
 const sceneChatStore = useSceneChatStore();
 const chatStore = useChatStore();
 const loading = ref(false);
@@ -32,10 +29,6 @@ const { sceneCurrentSession, sceneInputText } = storeToRefs(sceneChatStore);
 const handleInputUpdate = (val: string) => {
     sceneInputText.value = val;
 };
-
-const handleTips = () =>{
-    sceneInputText.value = TIPS_TEXT;
-}
 
 const generateNewSceneChatRequest = (): SceneChatRequest => {
     return {

@@ -4,7 +4,7 @@ export interface ChatSessionRequset {
 
 export interface ChatSessionResponse {
     sessionId: number
-    sessionName: number
+    sessionName: string
 }
 
 export interface BasechatRequest {
