@@ -32,7 +32,7 @@ watch(
 )
 
 onMounted(async () => {
-     await fetchWordData()
+    await fetchWordData()
 })
 
 const fetchWordData = async () => {

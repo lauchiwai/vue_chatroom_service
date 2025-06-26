@@ -146,7 +146,6 @@ const goWordHome = () => {
 const deleteWord = async () => {
     try {
         const success = await wordStore.removeWordByText(props.selectedText);
-        wordStore.reset();
         goWordHome();
         return success;
     } catch (error) {

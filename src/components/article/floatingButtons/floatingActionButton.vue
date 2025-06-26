@@ -40,6 +40,14 @@
             
             <a-float-button
                 type="default"
+                tooltip="刪除"
+                @click="handleDeleteClick(), handleOpenChange(false)"
+            >
+                <template #icon><DeleteOutlined /></template>
+            </a-float-button>
+            
+            <a-float-button
+                type="default"
                 tooltip="Rag"
                 @click="handleChatOpen(), handleOpenChange(false)"
             >
@@ -74,14 +82,20 @@
         </a-float-button-group>
 
         <RagChatModal 
-            v-if="modelOpen"
+            v-if="modelOpen && articleId"
             v-model:open="modelOpen"
+            :articleId="articleId"
+        />
+        
+        <DeleteModal 
+            v-if="deleteModalOpen &&  articleId"
+            v-model:open="deleteModalOpen"
+            :deleteFn="deleteArticle"
         />
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import {
     PlusOutlined,
     LeftOutlined,
@@ -90,10 +104,18 @@ import {
     ZoomInOutlined,
     ZoomOutOutlined,
     RestOutlined,
-    CommentOutlined
+    CommentOutlined,
+    DeleteOutlined 
 } from '@ant-design/icons-vue'
+import { ref, inject, computed } from 'vue'
+import { ArticleIdKey } from '@/constants/injectionKeys'
+import { useRouter } from 'vue-router'
+import { ROUTE_NAMES } from '@/router';
+import { message } from 'ant-design-vue'
+import { useArticleStore } from '@/stores/articleStore'
 
 import RagChatModal from '@/components/article/modals/ragChatModal.vue'
+import DeleteModal from '@/components/common/modal/deleteModal.vue' 
 
 const props = defineProps({
     currentPage: {
@@ -122,19 +144,57 @@ const props = defineProps({
     }
 })
 
+const router = useRouter()
 const expanded = ref(false)
 const modelOpen = ref(false)
+const deleteModalOpen = ref(false) 
+const articleId = inject(ArticleIdKey, computed(() => 0 ))
+const articleStore = useArticleStore();
 
 const handleOpenChange = (open: boolean) => {
     expanded.value = open
 }
 
 const handleChatOpen = () => {
+    if (!articleId.value){
+        message.error("articleId is empty")
+        return 
+    }
     modelOpen.value = !modelOpen.value
 }
+
+const handleDeleteClick = () => {
+    if (!articleId.value){
+        message.error("articleId is empty")
+        return
+    }
+    
+    deleteModalOpen.value = true
+}
+
+const goBOOKSHELF  = () => {
+    router.push({ name: ROUTE_NAMES.BOOKSHELF })
+}
+
+const deleteArticle = async () => {
+    if (!articleId.value){
+        message.error("articleId is empty")
+        return
+    }
+
+    try {
+        const success = await articleStore.deleteArticle(articleId.value);
+        goBOOKSHELF();
+        return success;
+    } catch (error) {
+        message.error('刪除文章時發生錯誤');
+        console.error('刪除文章失敗:', error);
+        return false;
+    }
+};
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .floating-actions {
     position: relative;
 }

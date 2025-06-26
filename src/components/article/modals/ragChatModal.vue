@@ -48,8 +48,7 @@ import { useScreenStore } from '@/stores/screenStore'
 import { useArticleStore } from '@/stores/articleStore'
 import { useVectorStore } from '@/stores/vectorStore'
 import { message } from 'ant-design-vue'
-import { ref, inject, watch, computed, onMounted } from 'vue'
-import { ArticleIdKey } from '@/constants/injectionKeys'
+import { ref, watch, computed, onMounted } from 'vue'
 import { useRagStore } from '@/stores/ragStore'
 import { storeToRefs } from 'pinia'
 
@@ -60,10 +59,11 @@ import DraggableResizableModal from '@/components/common/modal/draggableResizabl
 import VectorizationStatusChecker from '@/components/article/vectorization/vectorizationStatusChecker.vue'
 import VectorizationInProgress from '@/components/article/vectorization/vectorizationInProgress.vue'
 
-const articleId = inject(ArticleIdKey, computed(() => 0 ))
-watch(articleId, ( newId: number | undefined ) => {
-    if (!newId)
-        console.log('articleId is undefine:')
+const props = defineProps({
+    articleId: {
+        type: Number,
+        required: true
+    }
 })
 
 const ragStore = useRagStore();
@@ -106,23 +106,18 @@ const modalStyle = computed(() => {
 })
 
 onMounted(async () => {    
-    if (articleId.value) {
+    if (props.articleId) {
         await checkDataExist()
     }
 })
 
 watch((dataExist), async(newVal)=>{
-    if (!articleId.value) {
-        message.error(" article id empty")
-        return
-    }
-
     if (newVal) {
-        await ragStore.fetchRagChatSessionListByArticleId(articleId.value);
+        await ragStore.fetchRagChatSessionListByArticleId(props.articleId);
     }
 
     if (ragCurrentSession.value.length == 0){
-        await ragStore.createRagChatSession(articleId.value);
+        await ragStore.createRagChatSession(props.articleId);
     }
 })
 
@@ -131,7 +126,7 @@ const checkDataExist = async () => {
         isChecking.value = true
         const request: checkVectorDataExistRequest = {
             collection_name: DEFAULTCOLLECTION,
-            id: articleId.value ?? -1
+            id: props.articleId ?? -1
         }
         dataExist.value = await vectorStore.checkVectorDataExist(request)
     } catch (error) {
@@ -143,15 +138,13 @@ const checkDataExist = async () => {
 }
 
 const startVectorization = async () => {
-    if (!articleId.value) return
-  
     isVectorizing.value = true
     startProgressSimulation()
   
     try {
         const request: vectorizeArticleRequest = {
             collectionName: DEFAULTCOLLECTION,
-            articleId: articleId.value
+            articleId: props.articleId
         }
         let isSuccess = await articleStore.vectorizeArticle(request)
         if (isSuccess){

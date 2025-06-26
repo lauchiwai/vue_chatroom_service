@@ -73,6 +73,7 @@ const noMoreData = computed(() =>
 );
 
 onMounted(async () => {
+    wordStore.reset();
     await getWords();
     setupEventListeners();
 });

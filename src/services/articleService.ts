@@ -42,7 +42,7 @@ export const articleService = {
         return response.data;
     },
     async deleteArticle(articleId: number): Promise<ApiResponse<void>> {
-        const response = await api.get<ApiResponse<void>>(`/Article/DeleteArticle/${articleId}`)
+        const response = await api.delete<ApiResponse<void>>(`/Article/DeleteArticle/${articleId}`)
         return response.data;
     },
     async vectorizeArticle(request: vectorizeArticleRequest): Promise<ApiResponse<void>> {
