@@ -58,6 +58,16 @@ export const useArticleStore = defineStore('article', {
                 pageSize: 10,
                 totalPages: 1
             };
+
+            this.searchParams = {
+                pageNumber: 1,
+                pageSize: 10,
+                keyword: undefined,
+                sortBy: undefined,
+                sortDirection: 'asc',
+                startDate: undefined,
+                endDate: undefined
+            } as SearchParams
         },
 
         clearCache() {

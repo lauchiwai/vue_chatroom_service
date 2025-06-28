@@ -46,6 +46,15 @@ export const useWordStore = defineStore('word', {
                 pageSize: 10,
                 totalPages: 1
             };
+            this.searchParams = {
+                pageNumber: 1,
+                pageSize: 10,
+                keyword: undefined,
+                sortBy: undefined,
+                sortDirection: 'asc',
+                startDate: undefined,
+                endDate: undefined
+            } as SearchParams
         },
 
         async getWordList(forceRefresh = false) {
@@ -217,9 +226,9 @@ export const useWordStore = defineStore('word', {
             await this.getWordList(true);
         },
 
-        async fetchNextReviewWord() {
+        async fetchNextReviewWord(wordId: number) {
             try {
-                const response = await wordService.getNextReviewWord();
+                const response = await wordService.getNextReviewWord(wordId);
                 if (!response.isSuccess) {
                     message.error("獲取下一個複習單字錯誤: " + (response.message || "未知錯誤"));
                     return null;
