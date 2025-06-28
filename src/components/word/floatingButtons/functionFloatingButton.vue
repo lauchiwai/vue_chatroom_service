@@ -1,56 +1,43 @@
 <template>
     <div class="floating-assistant">
-        <button 
-            class="main-button"
-            @click="toggleMenu"
-            :class="{ active: isMenuOpen }"
-        >
-            <span class="icon-text">
-                <TranslationOutlined v-if="!isMenuOpen" />
-                <CloseOutlined v-else />
-            </span>
-        </button>
+        <a-tooltip placement="left">
+            <template #title>翻譯</template>
+            <button @click="handleEnglishWordAssistantEvent">
+                <span class="icon-text">
+                    <TranslationOutlined />
+                </span>
+            </button>
+        </a-tooltip>
 
-        <div class="menu-items" v-show="isMenuOpen">
-            <a-tooltip placement="left">
-                <template #title>翻譯</template>
-                <button @click="handleEnglishWordAssistantEvent">
-                    <span class="icon-text">
-                        <TranslationOutlined />
-                    </span>
-                </button>
-            </a-tooltip>
+        <a-tooltip placement="left">
+            <template #title>估下</template>
+            <button @click="handleEnglishWordTipsEvent">
+                <span class="icon-text">
+                    <QuestionCircleOutlined />
+                </span>
+            </button>
+        </a-tooltip>
 
-            <a-tooltip placement="left">
-                <template #title>估下</template>
-                <button @click="handleEnglishWordTipsEvent">
-                    <span class="icon-text">
-                        <QuestionCircleOutlined />
-                    </span>
-                </button>
-            </a-tooltip>
+        <a-tooltip placement="left">
+            <template #title>發音</template>
+            <button 
+                @click="handleTTSEvent"
+                :class="{ active: isSpeaking }"
+            >
+                <span class="icon-text">
+                    <CustomerServiceOutlined :class="{ 'swaying-animation': isSpeaking }" />
+                </span>
+            </button>
+        </a-tooltip>
 
-            <a-tooltip placement="left">
-                <template #title>發音</template>
-                <button 
-                    @click="handleTTSEvent"
-                    :class="{ active: isSpeaking }"
-                >
-                    <span class="icon-text">
-                        <CustomerServiceOutlined :class="{ 'swaying-animation': isSpeaking }" />
-                    </span>
-                </button>
-            </a-tooltip>
-
-            <a-tooltip placement="left">
-                <template #title>刪除單字</template>
-                <button @click="handleDeleteEvent">
-                    <span class="icon-text">
-                        <DeleteOutlined />
-                    </span>
-                </button>
-            </a-tooltip>
-        </div>
+        <a-tooltip placement="left">
+            <template #title>刪除單字</template>
+            <button @click="handleDeleteEvent">
+                <span class="icon-text">
+                    <DeleteOutlined />
+                </span>
+            </button>
+        </a-tooltip>
     </div>
 
     <EnglishWordTipsModal 
@@ -84,7 +71,6 @@ import {
     TranslationOutlined,
     QuestionCircleOutlined,
     CustomerServiceOutlined,
-    CloseOutlined,
     DeleteOutlined
 } from '@ant-design/icons-vue';
 import { ref } from 'vue';
@@ -106,7 +92,6 @@ const props = defineProps({
 });
 
 const router = useRouter()
-const isMenuOpen = ref(false);
 const isSpeaking = ref(false);
 const englishWordAssistantModalOpen = ref(false)
 const englishWordTipsModalOpen = ref(false)
@@ -115,28 +100,20 @@ const deleteModalOpen = ref(false)
 
 const wordStore = useWordStore();
 
-const toggleMenu = () => {
-    isMenuOpen.value = !isMenuOpen.value;
-};
-
 const handleEnglishWordTipsEvent = () => {
     englishWordTipsModalOpen.value = !englishWordTipsModalOpen.value
-    isMenuOpen.value = false;
 }
 
 const handleEnglishWordAssistantEvent = () => {
     englishWordAssistantModalOpen.value = !englishWordAssistantModalOpen.value
-    isMenuOpen.value = false;
 }
 
 const handleTTSEvent = () => {
     englishTTSModalOpen.value = !englishTTSModalOpen.value
-    isMenuOpen.value = false;
 }
 
 const handleDeleteEvent = () => {
     deleteModalOpen.value = true;
-    isMenuOpen.value = false;
 };
 
 const goWordHome = () => {
@@ -163,12 +140,12 @@ const deleteWord = async () => {
     right: 24px;
     z-index: 1000;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     align-items: flex-end;
-    gap: 12px;
+    gap: 16px;
 }
 
-.main-button {
+.floating-assistant button {
     width: 56px;
     height: 56px;
     border-radius: 50%;
@@ -183,45 +160,13 @@ const deleteWord = async () => {
     transition: all 0.3s;
 }
 
-.main-button:hover {
+.floating-assistant button:hover {
     background: #f0f0f0;
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-.main-button.active {
-    background: #f0f0f0;
-    transform: rotate(180deg);
-}
-
-.menu-items {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
-    animation: fadeIn 0.2s ease-out;
-}
-
-.menu-items button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: white;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.menu-items button:hover {
-    background: #f0f0f0;
-    transform: translateX(-2px);
-}
-
-.menu-items button.active {
+.floating-assistant button.active {
     background: #f0f0f0;
     box-shadow: inset 0 0 0 1px #93c5fd;
 }
@@ -230,6 +175,7 @@ const deleteWord = async () => {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 18px;
 }
 
 .swaying-animation {
@@ -257,17 +203,6 @@ const deleteWord = async () => {
     }
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 @media (max-width: 1200px) {
     .floating-assistant {
         bottom: 120px;
@@ -276,14 +211,17 @@ const deleteWord = async () => {
 }
 
 @media (max-width: 640px) {
-    .main-button {
+    .floating-assistant {
+        gap: 12px;
+    }
+    
+    .floating-assistant button {
         width: 48px;
         height: 48px;
     }
     
-    .menu-items button {
-        width: 36px;
-        height: 36px;
+    .icon-text {
+        font-size: 16px;
     }
 }
 </style>

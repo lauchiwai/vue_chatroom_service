@@ -73,7 +73,8 @@ const noMoreData = computed(() =>
 );
 
 onMounted(async () => {
-    wordStore.reset();
+    wordStore.resetData();
+    wordStore.resetSearchParams();
     await getWords();
     setupEventListeners();
 });
@@ -81,7 +82,7 @@ onMounted(async () => {
 const getWords = async () => {
     loading.value = true;
     try {
-        await wordStore.getWordList(true);
+        await wordStore.getWordList();
     } finally {
         loading.value = false;
     }
@@ -97,7 +98,7 @@ const loadNextPage = async () => {
             pageNumber: nextPage
         });
         
-        await wordStore.getWordList(false);
+        await wordStore.getWordList();
     } catch (error) {
         console.error('載入下一頁失敗:', error);
     } finally {
@@ -105,22 +106,24 @@ const loadNextPage = async () => {
     }
 };
 
-const performSearch = (query: string) => {
+const performSearch = async (query: string) => {
     searchQuery.value = query;
+    wordStore.resetData();
+    wordStore.resetSearchParams();
     wordStore.setSearchParams({
         keyword: query,
         pageNumber: 1
     });
-    getWords();
+    await getWords();
 };
 
-const clearSearch = () => {
+const clearSearch = async () => {
     searchQuery.value = '';
     wordStore.setSearchParams({
         keyword: '',
         pageNumber: 1
     });
-    getWords();
+    await getWords();
 };
 
 const handelViewEvent = (word: WordType) => {

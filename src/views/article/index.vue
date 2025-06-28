@@ -74,6 +74,8 @@ const noMoreData = computed(() =>
 );
 
 onMounted(async () => {
+    articleStore.resetData();
+    articleStore.resetSearchParams();
     await getArticle();
     setupEventListeners();
 });
@@ -81,7 +83,7 @@ onMounted(async () => {
 const getArticle = async () => {
     loading.value = true;
     try {
-        await articleStore.getArticleList(true);
+        await articleStore.getArticleList();
     } catch (error) {
         console.error('取得文章列表失敗:', error);
     } finally {
@@ -98,7 +100,7 @@ const loadNextPage = async () => {
         articleStore.setSearchParams({
             pageNumber: nextPage
         });
-        await articleStore.getArticleList(false);
+        await articleStore.getArticleList();
     } catch (error) {
         console.error('載入下一頁失敗:', error);
     } finally {
@@ -107,12 +109,14 @@ const loadNextPage = async () => {
 };
 
 const handleRefresh = () => {
-    articleStore.setSearchParams({});
+    articleStore.resetSearchParams();
     searchQuery.value = '';
     getArticle();
 };
 
 const performSearch = () => {
+    articleStore.resetSearchParams();
+    articleStore.resetData();
     articleStore.setSearchParams({
         keyword: searchQuery.value
     });

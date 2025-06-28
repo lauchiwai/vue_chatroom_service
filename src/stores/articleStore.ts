@@ -46,7 +46,7 @@ export const useArticleStore = defineStore('article', {
             this.assistantMessage = ''
         },
 
-        reset() {
+        resetData() {
             this.prompt = '';
             this.abortStreaming();
             this.assistantMessage = '';
@@ -58,6 +58,18 @@ export const useArticleStore = defineStore('article', {
                 pageSize: 10,
                 totalPages: 1
             };
+        },
+
+        resetSearchParams() {
+            this.searchParams = {
+                pageNumber: 1,
+                pageSize: 10,
+                keyword: undefined,
+                sortBy: undefined,
+                sortDirection: 'asc',
+                startDate: undefined,
+                endDate: undefined
+            } as SearchParams
         },
 
         clearCache() {
@@ -76,12 +88,8 @@ export const useArticleStore = defineStore('article', {
             }
         },
 
-        async getArticleList(forceRefresh = false) {
+        async getArticleList() {
             try {
-                if (forceRefresh) {
-                    this.reset()
-                }
-
                 const response: ApiResponse<PagedViewModel<ArticleList[]>> =
                     await articleService.getArticleList(this.searchParams);
 
@@ -104,14 +112,6 @@ export const useArticleStore = defineStore('article', {
                 console.error('getArticleList error:', error)
                 return this.articleList;
             }
-        },
-
-        async handlePageChange(pageNumber: number, pageSize: number) {
-            this.setSearchParams({
-                pageNumber,
-                pageSize
-            });
-            await this.getArticleList(true);
         },
 
         async getArticleById(articleId: number, forceRefresh = false) {

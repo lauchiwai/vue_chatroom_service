@@ -48,8 +48,8 @@ export const wordService = {
         return response.data
     },
 
-    async getNextReviewWord(): Promise<ApiResponse<WordType>> {
-        const response = await api.get<ApiResponse<WordType>>(`/Word/GetNextReviewWord/`)
+    async getNextReviewWord(wordId: number): Promise<ApiResponse<WordType>> {
+        const response = await api.get<ApiResponse<WordType>>(`/Word/GetNextReviewWord/${wordId}`)
         return response.data
     },
 

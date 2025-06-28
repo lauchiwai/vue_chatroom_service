@@ -38,7 +38,7 @@ export const useWordStore = defineStore('word', {
             }
         },
 
-        reset() {
+        resetData() {
             this.wordList = [];
             this.pagination = {
                 totalCount: 0,
@@ -46,14 +46,21 @@ export const useWordStore = defineStore('word', {
                 pageSize: 10,
                 totalPages: 1
             };
+
         },
-
-        async getWordList(forceRefresh = false) {
+        resetSearchParams() {
+            this.searchParams = {
+                pageNumber: 1,
+                pageSize: 10,
+                keyword: undefined,
+                sortBy: undefined,
+                sortDirection: 'asc',
+                startDate: undefined,
+                endDate: undefined
+            } as SearchParams
+        },
+        async getWordList() {
             try {
-                if (forceRefresh) {
-                    this.reset()
-                }
-
                 const response: ApiResponse<PagedViewModel<WordType[]>> =
                     await wordService.getWordList(this.searchParams);
 
@@ -75,14 +82,6 @@ export const useWordStore = defineStore('word', {
                 console.error('getWordList error:', error);
                 return this.wordList;
             }
-        },
-
-        async handlePageChange(pageNumber: number, pageSize: number) {
-            this.setSearchParams({
-                pageNumber,
-                pageSize
-            });
-            await this.getWordList(true);
         },
 
         async getWordById(wordId: number, forceRefresh = false) {
@@ -114,7 +113,8 @@ export const useWordStore = defineStore('word', {
                 const response = await wordService.addWord(wordParams);
                 if (response.isSuccess) {
                     message.success('單字添加成功！');
-                    await this.getWordList(true);
+                    this.resetSearchParams();
+                    await this.getWordList();
                     return response.data;
                 } else {
                     message.error('添加單字失敗: ' + (response.message || "未知錯誤"));
@@ -171,7 +171,9 @@ export const useWordStore = defineStore('word', {
                 const response = await wordService.removeWordByText(word);
                 if (response.isSuccess) {
                     message.success('單字刪除成功！');
-                    await this.getWordList(true);
+                    this.resetData();
+                    this.resetSearchParams();
+                    await this.getWordList();
                     return true;
                 } else {
                     message.error('刪除單字失敗: ' + (response.message || "未知錯誤"));
@@ -213,13 +215,14 @@ export const useWordStore = defineStore('word', {
         },
 
         async refreshWordList() {
-            this.wordList = [];
-            await this.getWordList(true);
+            this.resetData();
+            this.resetSearchParams();
+            await this.getWordList();
         },
 
-        async fetchNextReviewWord() {
+        async fetchNextReviewWord(wordId: number) {
             try {
-                const response = await wordService.getNextReviewWord();
+                const response = await wordService.getNextReviewWord(wordId);
                 if (!response.isSuccess) {
                     message.error("獲取下一個複習單字錯誤: " + (response.message || "未知錯誤"));
                     return null;
@@ -249,7 +252,9 @@ export const useWordStore = defineStore('word', {
 
         async performSearch(keyword: string) {
             this.setSearchParams({ keyword });
-            await this.getWordList(true);
+            this.resetData();
+            this.resetSearchParams();
+            await this.getWordList();
         },
 
         clearCache() {
