@@ -1,17 +1,25 @@
 <template>
-    <div class="word-search-page">
-        <header class="header" :class="{ 'header-hidden': !isHeaderVisible }">
-            <SearchBar 
-                v-model="searchQuery"
+    <SearchContainer 
+        :initial-query="searchQuery"
+        @scroll-bottom="handleScrollBottom"
+        ref="searchContainerRef"
+        :freeze-header="loadingMore || isScrolling"
+    >
+        <template #search-bar>
+            <div class="header">
+                <SearchBar 
+                  v-model="searchQuery"
                 @search="performSearch"
-                @clear="clearSearch"
                 ref="searchBarRef"
-            />
-        </header>
-        <main class="content" ref="contentElement">
+                />
+            </div>
+        </template>
+        
+        <template #default>
             <div v-if="loading" class="loading-state">
                 <a-spin size="large" />
             </div>
+            
             <div v-else-if="wordList.length" class="word-grid">
                 <WordCard  
                     @click-event="handelViewEvent"
@@ -21,6 +29,7 @@
                     class="word-item"
                 />
             </div>
+            
             <div v-else class="empty-state">
                 <Empty>
                     <template #description>
@@ -38,19 +47,20 @@
             <div v-if="noMoreData" class="no-more-data">
                 <span>沒有更多單字了</span>
             </div>
-        </main>
-    </div>
+        </template>
+    </SearchContainer>
 </template>
 
 <script setup lang="ts">
 import type { WordType } from '@/types/word/word';
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { ref, onMounted, computed, nextTick, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useWordStore } from '@/stores/wordStore';
 import { ROUTE_NAMES } from '@/router';
 
-import SearchBar from '@/components/article/searchBar/searchBar.vue';
+import SearchContainer from '@/components/common/searchBar/searchComponent.vue';
+import SearchBar from '@/components/common/searchBar/searchBar.vue';
 import WordCard from '@/components/word/wordCard/wordCard.vue';
 import Empty from '@/components/common/empty.vue';
 
@@ -60,12 +70,12 @@ const { pagination, wordList } = storeToRefs(wordStore);
 
 const searchQuery = ref('');
 const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null);
+const searchContainerRef = ref<InstanceType<typeof SearchContainer> | null>(null);
 
-const isHeaderVisible = ref(true);
-const lastScrollPosition = ref(0);
-const contentElement = ref<HTMLElement | null>(null);
 const loading = ref(false);
 const loadingMore = ref(false);
+const isScrolling = ref(false);
+const scrollBottomDebounce = ref(0);
 
 const noMoreData = computed(() => 
     pagination.value.pageNumber >= pagination.value.totalPages && 
@@ -76,7 +86,12 @@ onMounted(async () => {
     wordStore.resetData();
     wordStore.resetSearchParams();
     await getWords();
-    setupEventListeners();
+    
+    window.addEventListener('keydown', handleKeyPress);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', handleKeyPress);
 });
 
 const getWords = async () => {
@@ -88,21 +103,35 @@ const getWords = async () => {
     }
 };
 
+const handleScrollBottom = () => {
+    if (scrollBottomDebounce.value) {
+        clearTimeout(scrollBottomDebounce.value);
+    }
+    
+    scrollBottomDebounce.value = setTimeout(() => {
+        if (!loadingMore.value && !noMoreData.value) {
+            loadNextPage();
+        }
+    }, 300);
+};
+
 const loadNextPage = async () => {
     if (loadingMore.value || noMoreData.value) return;
     
     loadingMore.value = true;
+    isScrolling.value = true;
+    
     try {
         const nextPage = pagination.value.pageNumber + 1;
-        wordStore.setSearchParams({
-            pageNumber: nextPage
-        });
-        
+        wordStore.setSearchParams({ pageNumber: nextPage });
         await wordStore.getWordList();
-    } catch (error) {
-        console.error('載入下一頁失敗:', error);
+        
+        await nextTick();
     } finally {
-        loadingMore.value = false;
+        setTimeout(() => {
+            loadingMore.value = false;
+            isScrolling.value = false;
+        }, 500);
     }
 };
 
@@ -117,49 +146,11 @@ const performSearch = async (query: string) => {
     await getWords();
 };
 
-const clearSearch = async () => {
-    searchQuery.value = '';
-    wordStore.setSearchParams({
-        keyword: '',
-        pageNumber: 1
-    });
-    await getWords();
-};
-
 const handelViewEvent = (word: WordType) => {
     router.push({ 
         name: ROUTE_NAMES.WORD_VIEW, 
         params: { id: word.wordId } 
     });
-};
-
-const handleScroll = () => {
-    if (!contentElement.value) return;
-    
-    const currentScrollPosition = contentElement.value.scrollTop;
-    
-    if (currentScrollPosition <= 10) {
-        isHeaderVisible.value = true;
-        lastScrollPosition.value = currentScrollPosition;
-        return;
-    }
-    
-    const scrollingDown = currentScrollPosition > lastScrollPosition.value;
-    
-    if (scrollingDown && currentScrollPosition > 100) {
-        isHeaderVisible.value = false;
-    } else if (!scrollingDown) {
-        isHeaderVisible.value = true;
-    }
-    
-    lastScrollPosition.value = currentScrollPosition;
-    
-    const { scrollTop, scrollHeight, clientHeight } = contentElement.value;
-    const distanceToBottom = scrollHeight - (scrollTop + clientHeight);
-    
-    if (distanceToBottom < 300 && !loadingMore.value && !noMoreData.value) {
-        loadNextPage();
-    }
 };
 
 const handleKeyPress = (e: KeyboardEvent) => {
@@ -168,65 +159,22 @@ const handleKeyPress = (e: KeyboardEvent) => {
         searchBarRef.value?.focus();
     }
 };
-
-const setupEventListeners = () => {
-    if (contentElement.value) {
-        contentElement.value.addEventListener('scroll', handleScroll);
-    }
-    window.addEventListener('keydown', handleKeyPress);
-};
-
-onBeforeUnmount(() => {
-    if (contentElement.value) {
-        contentElement.value.removeEventListener('scroll', handleScroll);
-    }
-    window.removeEventListener('keydown', handleKeyPress);
-});
 </script>
 
 <style scoped lang="scss">
-.word-search-page {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
-    overflow: hidden;
-    color: #333;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
 .header {
     position: sticky;
     top: 0;
     z-index: 100;
     padding: 16px 24px;
-    transform: translateY(0);
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    opacity: 1;
     display: flex;
     justify-content: center;
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.86);
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-
-    &.header-hidden {
-        transform: translateY(-100%);
-        opacity: 0;
-        pointer-events: none;
-    }
-}
-
-.content {
-    flex: 1;
-    overflow-y: auto;
-    box-sizing: border-box;
-    transition: padding-top 0.3s ease;
-    padding-bottom: 60px;
-
-    @media (min-width: 768px) {
-        padding: 32px;
-    }
+    transition: none !important;
 }
 
 .word-grid {
@@ -259,8 +207,12 @@ onBeforeUnmount(() => {
     border: 1px solid #E0E0E0;
     border-radius: 12px;
     overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    
     &:hover {
-        transform: translateY(-8px);
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     }
 }
 

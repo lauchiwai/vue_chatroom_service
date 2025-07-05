@@ -1,14 +1,21 @@
 <template>
-    <div class="book-search-page">
-        <header class="header" :class="{ 'header-hidden': !isHeaderVisible }">
-            <SearchBar 
-                v-model="searchQuery"
-                @search="performSearch"
-                ref="searchBarRef"
-            />
-        </header>
-
-        <main class="content" ref="contentElement">
+    <SearchContainer 
+        :initial-query="searchQuery"
+        @scroll-bottom="handleScrollBottom"
+        ref="searchContainerRef"
+        :freeze-header="loadingMore || isScrolling"
+    >
+        <template #search-bar>
+            <div class="header">
+                <SearchBar 
+                    v-model="searchQuery"
+                    @search="performSearch"
+                    ref="searchBarRef"
+                />
+            </div>
+        </template>
+        
+        <template #default>
             <div v-if="articleList.length" class="book-grid">
                 <AddTrigger class="stats-item" />
                 <BookCard  
@@ -37,19 +44,20 @@
             <div v-if="noMoreData" class="no-more-data">
                 <span>沒有更多文章了</span>
             </div>
-        </main>
-    </div>
+        </template>
+    </SearchContainer>
 </template>
 
 <script setup lang="ts">
 import type { ArticleList } from '@/types/article/article';
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { ref, onMounted, computed, nextTick, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useArticleStore } from '@/stores/articleStore';
 import { ROUTE_NAMES } from '@/router';
 
-import SearchBar from '@/components/article/searchBar/searchBar.vue';
+import SearchContainer from '@/components/common/searchBar/searchComponent.vue';
+import SearchBar from '@/components/common/searchBar/searchBar.vue';
 import BookCard from '@/components/article/book/bookCard.vue';
 import Empty from '@/components/common/empty.vue';
 import AddTrigger from '@/components/article/buttons/addTrigger.vue';
@@ -61,12 +69,12 @@ const { pagination, articleList } = storeToRefs(articleStore);
 
 const searchQuery = ref('');
 const searchBarRef = ref<InstanceType<typeof SearchBar> | null>(null);
+const searchContainerRef = ref<InstanceType<typeof SearchContainer> | null>(null);
 
-const isHeaderVisible = ref(true);
-const lastScrollPosition = ref(0);
-const contentElement = ref<HTMLElement | null>(null);
 const loading = ref(false);
 const loadingMore = ref(false);
+const isScrolling = ref(false);
+const scrollBottomDebounce = ref(0);
 
 const noMoreData = computed(() => 
     pagination.value.pageNumber >= pagination.value.totalPages && 
@@ -77,7 +85,10 @@ onMounted(async () => {
     articleStore.resetData();
     articleStore.resetSearchParams();
     await getArticle();
-    setupEventListeners();
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', handleKeyPress);
 });
 
 const getArticle = async () => {
@@ -91,20 +102,37 @@ const getArticle = async () => {
     }
 };
 
+const handleScrollBottom = () => {
+    if (scrollBottomDebounce.value) {
+        cancelAnimationFrame(scrollBottomDebounce.value);
+    }
+    
+    scrollBottomDebounce.value = requestAnimationFrame(() => {
+        if (!loadingMore.value && !noMoreData.value) {
+            loadNextPage();
+        }
+    });
+};
+
 const loadNextPage = async () => {
     if (loadingMore.value || noMoreData.value) return;
     
     loadingMore.value = true;
+    isScrolling.value = true;
+    
     try {
         const nextPage = pagination.value.pageNumber + 1;
-        articleStore.setSearchParams({
-            pageNumber: nextPage
-        });
+        articleStore.setSearchParams({ pageNumber: nextPage });
         await articleStore.getArticleList();
+        
+        await nextTick();
     } catch (error) {
         console.error('載入下一頁失敗:', error);
     } finally {
-        loadingMore.value = false;
+        setTimeout(() => {
+            loadingMore.value = false;
+            isScrolling.value = false;
+        }, 500);
     }
 };
 
@@ -117,9 +145,7 @@ const handleRefresh = () => {
 const performSearch = () => {
     articleStore.resetSearchParams();
     articleStore.resetData();
-    articleStore.setSearchParams({
-        keyword: searchQuery.value
-    });
+    articleStore.setSearchParams({ keyword: searchQuery.value });
     getArticle();
 };
 
@@ -130,35 +156,6 @@ const handelViewEvent = (article: ArticleList) => {
     });
 };
 
-const handleScroll = () => {
-    if (!contentElement.value) return;
-    
-    const currentScrollPosition = contentElement.value.scrollTop;
-    
-    if (currentScrollPosition <= 10) {
-        isHeaderVisible.value = true;
-        lastScrollPosition.value = currentScrollPosition;
-        return;
-    }
-    
-    const scrollingDown = currentScrollPosition > lastScrollPosition.value;
-    
-    if (scrollingDown && currentScrollPosition > 100) {
-        isHeaderVisible.value = false;
-    } else if (!scrollingDown) {
-        isHeaderVisible.value = true;
-    }
-    
-    lastScrollPosition.value = currentScrollPosition;
-    
-    const { scrollTop, clientHeight, scrollHeight } = contentElement.value;
-    const distanceToBottom = scrollHeight - (scrollTop + clientHeight);
-    
-    if (distanceToBottom < 300 && !loadingMore.value && !noMoreData.value) {
-        loadNextPage();
-    }
-};
-
 const handleKeyPress = (e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === '/') {
         e.preventDefault();
@@ -166,64 +163,23 @@ const handleKeyPress = (e: KeyboardEvent) => {
     }
 };
 
-const setupEventListeners = () => {
-    if (contentElement.value) {
-        contentElement.value.addEventListener('scroll', handleScroll);
-    }
-    window.addEventListener('keydown', handleKeyPress);
-};
-
-onBeforeUnmount(() => {
-    if (contentElement.value) {
-        contentElement.value.removeEventListener('scroll', handleScroll);
-    }
-    window.removeEventListener('keydown', handleKeyPress);
-});
+window.addEventListener('keydown', handleKeyPress);
 </script>
 
 <style scoped lang="scss">
-.book-search-page {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
-    overflow: hidden;
-    color: #333;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
 .header {
     position: sticky;
     top: 0;
     z-index: 100;
     padding: 16px 24px;
-    transform: translateY(0);
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    opacity: 1;
     display: flex;
     justify-content: center;
+    align-items: center;
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.86);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-
-    &.header-hidden {
-        transform: translateY(-100%);
-        opacity: 0;
-        pointer-events: none;
-    }
-}
-
-.content {
-    flex: 1;
-    overflow-y: auto;
-    box-sizing: border-box;
-    transition: padding-top 0.3s ease;
-    padding-bottom: 60px;
-
-    @media (min-width: 768px) {
-        padding: 32px;
-    }
+    transition: none !important;
 }
 
 .book-grid {
@@ -256,6 +212,7 @@ onBeforeUnmount(() => {
     border: 1px solid #E0E0E0;
     border-radius: 12px;
     overflow: hidden;
+    
     &:hover {
         transform: translateY(-8px);
     }
