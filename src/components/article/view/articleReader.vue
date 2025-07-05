@@ -172,7 +172,7 @@ const saveReadingProgress = async () => {
             progress: progressPercentage.value
         });
     } catch (error) {
-        console.error('保存阅读进度失败:', error);
+        console.error('save reading progress error:', error);
     }
 };
 

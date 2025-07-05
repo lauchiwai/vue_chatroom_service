@@ -172,7 +172,7 @@ const handleDeleteClick = () => {
     deleteModalOpen.value = true
 }
 
-const goBOOKSHELF  = () => {
+const goBookShelf  = () => {
     router.push({ name: ROUTE_NAMES.BOOKSHELF })
 }
 
@@ -184,7 +184,7 @@ const deleteArticle = async () => {
 
     try {
         const success = await articleStore.deleteArticle(articleId.value);
-        goBOOKSHELF();
+        goBookShelf();
         return success;
     } catch (error) {
         message.error('刪除文章時發生錯誤');

@@ -127,7 +127,7 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: true,
             showHeader: false,
             showMobileNav: true,
-            showBreadcrumb: true,
+            showBreadcrumb: false,
             showMobileHeader: false,
             showSideBar: true
         }
