@@ -1,6 +1,6 @@
 <template>
     <div v-if="props.message.role != 'system'"
-         :class="['message-item', { 'user-message': props.message.role == 'user' }]" 
+        :class="['message-item', { 'user-message': props.message.role == 'user' }]" 
     >
         <div class="message-content">
             <div class="message-text">

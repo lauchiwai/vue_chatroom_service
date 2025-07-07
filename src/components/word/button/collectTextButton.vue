@@ -34,6 +34,7 @@ const props = defineProps({
     }
 });
 
+const emit = defineEmits(["text-collected"]);
 const wordStore = useWordStore();
 const isCollected = ref(false);
 const loading = ref(false);
@@ -97,6 +98,7 @@ const handleCollectClick = async () => {
                 isCollected.value = true;
             }
         }
+        emit("text-collected");
     } catch (error) {
         console.error('收藏操作失败:', error);
     } finally {

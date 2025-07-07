@@ -47,6 +47,7 @@
 
             <CollectTextButton 
                 :text="selectedText"
+                @text-collected="handleTextCollected"
             >
                 <template #title="{ isCollected }" >
                     {{ isCollected ? '取消收藏' : '收藏文字' }}
@@ -119,20 +120,34 @@ const textLinguisticAssistantModalOpen = ref(false)
 const englishWordTipsModalOpen = ref(false)
 const englishTTSModalOpen = ref(false)
 
+const resetEvent = () => {
+    show.value = false;
+    const selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+}
+
 const handleEnglishWordTipsEvent = () =>{
+    resetEvent()
     englishWordTipsModalOpen.value = !englishWordTipsModalOpen.value
 }
 
 const handleEnglishWordAssistantEvent = () =>{
+    resetEvent()
     englishWordAssistantModalOpen.value = !englishWordAssistantModalOpen.value
 }
 
 const handleTextLinguisticAssistantEvent = () =>{
+    resetEvent()
     textLinguisticAssistantModalOpen.value = !textLinguisticAssistantModalOpen.value
 }
 
 const handleTTSEvent = () =>{
+    resetEvent()
     englishTTSModalOpen.value = !englishTTSModalOpen.value
+}
+
+const handleTextCollected = () =>{
+    resetEvent()
 }
 </script>
 

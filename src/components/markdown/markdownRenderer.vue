@@ -21,7 +21,6 @@ import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import DOMPurify from 'dompurify'
 import 'highlight.js/styles/github-dark.css'
-import { message } from 'ant-design-vue'
 
 const props = defineProps({
     content: {
@@ -168,7 +167,19 @@ const processSelection = () => {
 }
 
 const handleTextSelection = (e: MouseEvent) => {
+    if (isMenuEvent(e)) {
+        return 
+    }
+
     processSelection()
+}
+
+const isMenuEvent = (e: MouseEvent) =>{
+    const target = e.target as HTMLElement
+
+    const isSystemMenu = target.closest('div[role="menu"]')
+    const isBubbleMenu = target.closest('.bubble-menu') 
+    return isSystemMenu || isBubbleMenu
 }
 
 const handleSelectionChange = () => {
@@ -189,19 +200,13 @@ const handleSelectionChange = () => {
 
 const handleClickOutside = (e: MouseEvent) => {
     const target = e.target as HTMLElement
-    
-    const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA'
-    const isContentEditable = target.isContentEditable
-    
-    if (isInputElement || isContentEditable) {
-        return
+
+    const isSelectionProcess = window.getSelection()?.toString().trim() !== ''
+    if (isMenuEvent(e) || isSelectionProcess) {
+        return 
     }
     
     const isCurrentMarkdown = target.closest(`[data-markdown-instance="${instanceId}"]`)
-    const isSystemMenu = target.closest('div[role="menu"]')
-
-    if (isSystemMenu) return
-
     if (!isCurrentMarkdown) {
         showBubbleMenu.value = false
         selectedText.value = ''
@@ -236,14 +241,14 @@ const renderMarkdown = async () => {
 }
 
 onMounted(() => {
-    document.addEventListener('click', handleClickOutside)
+    document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('selectionchange', handleSelectionChange)
     setupSystemMenuObserver()
     renderMarkdown()
 })
 
 onBeforeUnmount(() => {
-    document.removeEventListener('click', handleClickOutside)
+    document.removeEventListener('mousedown', handleClickOutside)
     document.removeEventListener('selectionchange', handleSelectionChange)
     if (systemMenuObserver.value) {
         systemMenuObserver.value.disconnect()
