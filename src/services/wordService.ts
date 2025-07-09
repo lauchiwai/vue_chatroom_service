@@ -34,7 +34,7 @@ export const wordService = {
     },
 
     async removeWordByText(word: string): Promise<ApiResponse<void>> {
-        const response = await api.delete<ApiResponse<void>>(`/Word/RemoveWordByText/${word}`)
+        const response = await api.delete<ApiResponse<void>>(`/Word/RemoveWordByText?word=${word}`)
         return response.data
     },
 
@@ -44,7 +44,7 @@ export const wordService = {
     },
 
     async checkUserWordExistsByText(word: string): Promise<ApiResponse<boolean>> {
-        const response = await api.get<ApiResponse<boolean>>(`/Word/CheckUserWordExistsByText/${word}`)
+        const response = await api.get<ApiResponse<boolean>>(`/Word/CheckUserWordExistsByText?word=${word}`)
         return response.data
     },
 
