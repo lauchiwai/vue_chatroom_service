@@ -22,7 +22,7 @@
             >
                 <div class="stats-item">
                     <StatsCard 
-                        :number="articleCount" 
+                        :number="pagination.totalCount" 
                         title="Article" 
                         color="#2894FF" 
                     />
@@ -78,8 +78,7 @@ const leftControlsAble = ref(false)
 const rightControlsAble = ref(false)
 const loading = ref(false)
 const layoutMode = ref<'flex-start' | 'space-between'>('flex-start')
-const articleCount = ref(0);
-const { articleList } = storeToRefs(articleStore);
+const { articleList, pagination } = storeToRefs(articleStore);
 
 const handelViewEvent = (article: ArticleList) => {
     router.push({ 
@@ -163,8 +162,7 @@ watch(() => articleList.value.length, () => {
 
 const initArticleList = async() =>{
     loading.value = true;
-    await articleStore.getArticleList(true)
-    articleCount.value = articleList.value.length
+    await articleStore.getArticleList()
     loading.value = false;
 }
 

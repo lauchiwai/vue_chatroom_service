@@ -153,7 +153,7 @@ watch(() => wordList.value.length, () => {
 
 const initArticleList = async() =>{
     loading.value = true;
-    await wordStore.getWordList(true)
+    await wordStore.getWordList()
     loading.value = false;
 }
 
