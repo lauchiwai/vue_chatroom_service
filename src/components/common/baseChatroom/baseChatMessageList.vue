@@ -5,16 +5,12 @@
     >
         <template v-if="loading">
             <div class="spin-loading-wrapper">
-                <a-spin />
+                <MessageLoading />
             </div>
         </template>
       
         <template v-else>
-            <slot name="empty" v-if="messages.length == 0 && !isChatAsyncing">
-                <EmptyMessage />
-            </slot>
-
-            <slot name="messages" :messages="messages">
+            <slot name="messages" :messages="messages"v-if="messages.length != 0">
                 <MessageItem 
                     v-for="(msg, index) in messages"
                     :key="index"
@@ -22,11 +18,11 @@
                 />
             </slot>
 
-            <slot name="loading" v-if="isChatAsyncing && !streamChatMsg.content">
-                <MessageLoading />
+            <slot name="empty" v-if="messages.length == 0 && streamChatMsg.content.length == 0">
+                <EmptyMessage />
             </slot>
 
-            <slot name="streaming" v-else-if="streamChatMsg.content">
+            <slot name="streaming" v-else-if="streamChatMsg.content.length != 0">
                 <MessageItem :message="streamChatMsg" />
             </slot>
         </template>

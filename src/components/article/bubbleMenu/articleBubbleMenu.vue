@@ -8,7 +8,7 @@
         >
             <a-tooltip placement="top">
                 <template #title>翻譯</template>
-                <button @click="handleEnglishWordAssistantEvent()">
+                <button @click="handleEnglishWordAssistantEvent">
                     <span class="icon-text">
                         <TranslationOutlined />
                     </span>
@@ -17,7 +17,7 @@
 
             <a-tooltip placement="top">
                 <template #title>估下</template>
-                <button @click="handleEnglishWordTipsEvent()">
+                <button @click="handleEnglishWordTipsEvent">
                     <span class="icon-text">
                         <QuestionCircleOutlined />
                     </span>
@@ -26,7 +26,7 @@
 
             <a-tooltip placement="top">
                 <template #title>文法分析</template>
-                <button @click="handleTextLinguisticAssistantEvent()">
+                <button @click="handleTextLinguisticAssistantEvent">
                     <span class="icon-text">
                         <BulbOutlined />
                     </span>
@@ -36,7 +36,7 @@
             <a-tooltip placement="top">
                 <template #title>發音</template>
                 <button 
-                    @click="handleTTSEvent()"
+                    @click="handleTTSEvent"
                     :class="{ active: isSpeaking }"
                 >
                     <span class="icon-text">
@@ -49,52 +49,24 @@
                 :text="selectedText"
                 @text-collected="handleTextCollected"
             >
-                <template #title="{ isCollected }" >
+                <template #title="{ isCollected }">
                     {{ isCollected ? '取消收藏' : '收藏文字' }}
                 </template>
             </CollectTextButton>
         </div>
     </teleport>
-
-    <EnglishWordTipsModal 
-        v-if="englishWordTipsModalOpen"
-        v-model:open="englishWordTipsModalOpen"
-        :selected-text="selectedText"
-    />
-
-    <EnglishWordAssistantModal 
-        v-if="englishWordAssistantModalOpen"
-        v-model:open="englishWordAssistantModalOpen"
-        :selected-text="selectedText"
-    />
-
-    <TextLinguisticAssistantModal 
-        v-if="textLinguisticAssistantModalOpen"
-        v-model:open="textLinguisticAssistantModalOpen"
-        :selected-text="selectedText"
-    />
-
-    <EnglishTTSModal 
-        v-if="englishTTSModalOpen"
-        v-model:open="englishTTSModalOpen"
-        :selected-text="selectedText"
-    />
 </template>
 
 <script setup lang="ts">
-import {
-    TranslationOutlined,
-    BulbOutlined,
-    QuestionCircleOutlined,
-    CustomerServiceOutlined
-} from '@ant-design/icons-vue';
 import { ref } from 'vue';
-
-import EnglishWordTipsModal from '@/components/englishAssistant/modals/englishWordTipsModal.vue'
-import EnglishWordAssistantModal from '@/components/englishAssistant/modals/englishWordAssistantModal.vue'
-import TextLinguisticAssistantModal from '@/components/englishAssistant/modals/textLinguisticAssistantModal.vue'
-import EnglishTTSModal from '@/components/englishAssistant/modals/englishTTSModal.vue'
-import CollectTextButton from '@/components/word/button/collectTextButton.vue'
+import { 
+    TranslationOutlined, 
+    BulbOutlined, 
+    QuestionCircleOutlined, 
+    CustomerServiceOutlined 
+} from '@ant-design/icons-vue';
+import CollectTextButton from '@/components/word/button/collectTextButton.vue';
+import { useEnglishAssistantStore } from '@/stores/englishAssistantStore';
 
 const props = defineProps({
     selectedText: {
@@ -112,43 +84,49 @@ const props = defineProps({
     }
 });
 
-const show = defineModel('show', { type: Boolean, required: true })
-
+const show = defineModel('show', { type: Boolean, required: true });
+const assistantStore = useEnglishAssistantStore();
 const isSpeaking = ref(false);
-const englishWordAssistantModalOpen = ref(false)
-const textLinguisticAssistantModalOpen = ref(false)
-const englishWordTipsModalOpen = ref(false)
-const englishTTSModalOpen = ref(false)
+let resetting = false;
 
-const resetEvent = () => {
+const resetEvent = (event?: Event) => {
+    if (resetting) return;
+    resetting = true;
+    
     show.value = false;
     const selection = window.getSelection();
     if (selection) selection.removeAllRanges();
-}
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    resetting = false;
+};
 
-const handleEnglishWordTipsEvent = () =>{
-    resetEvent()
-    englishWordTipsModalOpen.value = !englishWordTipsModalOpen.value
-}
+const handleEnglishWordTipsEvent = (event: Event) => {
+    resetEvent(event);
+    assistantStore.toggleWordTipsModal(props.selectedText);
+};
 
-const handleEnglishWordAssistantEvent = () =>{
-    resetEvent()
-    englishWordAssistantModalOpen.value = !englishWordAssistantModalOpen.value
-}
+const handleEnglishWordAssistantEvent = (event: Event) => {
+    resetEvent(event);
+    assistantStore.toggleWordAssistantModal(props.selectedText);
+};
 
-const handleTextLinguisticAssistantEvent = () =>{
-    resetEvent()
-    textLinguisticAssistantModalOpen.value = !textLinguisticAssistantModalOpen.value
-}
+const handleTextLinguisticAssistantEvent = (event: Event) => {
+    resetEvent(event);
+    assistantStore.toggleLinguisticModal(props.selectedText);
+};
 
-const handleTTSEvent = () =>{
-    resetEvent()
-    englishTTSModalOpen.value = !englishTTSModalOpen.value
-}
+const handleTTSEvent = (event: Event) => {
+    resetEvent(event);
+    assistantStore.toggleTTSModal(props.selectedText);
+};
 
-const handleTextCollected = () =>{
-    resetEvent()
-}
+const handleTextCollected = (event: Event) => {
+    resetEvent(event);
+};
 </script>
 
 <style scoped>
@@ -195,38 +173,21 @@ const handleTextCollected = () =>{
 
 .swaying-animation {
     animation: swaying 1.2s ease-in-out infinite;
+    will-change: transform;
 }
 
 @keyframes swaying {
-    0%, 100% {
-        transform: translateX(0) rotate(0deg);
-    }
-    15% {
-        transform: translateX(-1px) rotate(-5deg);
-    }
-    30% {
-        transform: translateX(1px) rotate(3deg);
-    }
-    45% {
-        transform: translateX(-1px) rotate(-3deg);
-    }
-    60% {
-        transform: translateX(1px) rotate(2deg);
-    }
-    75% {
-        transform: translateX(-1px) rotate(-1deg);
-    }
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    15% { transform: translateX(-1px) rotate(-5deg); }
+    30% { transform: translateX(1px) rotate(3deg); }
+    45% { transform: translateX(-1px) rotate(-3deg); }
+    60% { transform: translateX(1px) rotate(2deg); }
+    75% { transform: translateX(-1px) rotate(-1deg); }
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, 8px);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
+    from { opacity: 0; transform: translate(-50%, 8px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 @media (max-width: 640px) {
@@ -234,7 +195,6 @@ const handleTextCollected = () =>{
         gap: 2px;
         padding: 4px;
     }
-
     .bubble-menu button {
         padding: 4px 8px;
     }

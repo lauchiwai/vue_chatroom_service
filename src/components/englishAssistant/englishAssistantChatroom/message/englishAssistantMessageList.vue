@@ -4,7 +4,7 @@
         :messages="messages"
         :is-chat-asyncing="isChatAsyncing"
         :stream-chat-msg="streamChatMsg"
-        :loading="loading"
+        :loading="messages.length == 0 && tempAssistantMessage.length == 0"
     >
         <template #empty>
             <EmptyMessage />
@@ -42,12 +42,11 @@ import MessageLoading from '@/components/common/baseChatroom/messageLoading.vue'
 
 const messageListRef = ref<InstanceType<typeof BaseChatMessageList> | null>(null)
 const englishAssistantStore = useEnglishAssistantStore()
-const loading = ref(false)
 
 const { 
     messages, 
     tempAssistantMessage, 
-    isChatAsyncing
+    isChatAsyncing,
 } = storeToRefs(englishAssistantStore)
 
 const streamChatMsg = computed<ChatMessage>(() => ({

@@ -5,7 +5,7 @@
         :css-style="{top:'15vh'}"
         :enable-resize="true"
         :enable-draggable="true"
-        :contentPadding="'10px'"
+        :content-padding="'10px'"
     >
         <template #contents>
             <EnglishAssistantLayout :is-mobile="isMobile">
@@ -23,8 +23,7 @@
                     <WordAssistantInput 
                         v-model:show-input="showChatInput"
                         v-show="showChatInput"
-                        v-if="text.trim().length > 0"
-                        :selected-text="text"
+                        :selected-text="englishAssistantStore.selectedText"
                     />
                 </template>
             </EnglishAssistantLayout>
@@ -34,8 +33,9 @@
 
 <script setup lang="ts">
 import { useScreenStore } from '@/stores/screenStore';
-import { computed, watchEffect, onBeforeMount, ref } from 'vue';
+import { computed, watch, onMounted, ref } from 'vue';
 import { useEnglishAssistantStore } from '@/stores/englishAssistantStore';
+import type { EnglishWordAssistantRequest } from '@/types/englishAssistant/englishAssistant';
 
 import EnglishAssistantMessageList from '@/components/englishAssistant/englishAssistantChatroom/message/englishAssistantMessageList.vue';
 import WordAssistantInput from '@/components/englishAssistant/englishAssistantChatroom/input/wordAssistantInput.vue';
@@ -44,32 +44,34 @@ import EnglishAssistantLayout from '@/components/englishAssistant/layout/english
 import ChatInputTool from '@/components/englishAssistant/englishAssistantTools/chatInputTool.vue';
 
 const englishAssistantStore = useEnglishAssistantStore();
-
-const props = defineProps({
-    selectedText: {
-        type: String,
-        required: true
-    },
-});
-
 const open = defineModel('open', { type: Boolean, required: true });
 const store = useScreenStore();
 const isMobile = computed(() => store.isMobile);
 const showChatInput = ref(false);
-const text = ref('')
+
+watch(open, (newVal) => {
+    if (newVal) {
+        triggerTranslation();
+    }
+});
+
+const triggerTranslation = () => {
+    const selectedText = englishAssistantStore.selectedText;
+    if (!selectedText || selectedText.trim().length === 0) return;
+    
+    const request: EnglishWordAssistantRequest = {
+        word: selectedText,
+        message: `translate ${selectedText}`
+    };
+    
+    englishAssistantStore.streamEnglishWordAssistant(request);
+};
 
 const handelShowInputEvent = () => {
     showChatInput.value = !showChatInput.value;
 };
 
-watchEffect(() => {
-    const trimmedText = props.selectedText.trim();
-    if (trimmedText.length > 0) {
-        text.value = props.selectedText;
-    }
-});
-
-onBeforeMount(() => {
+onMounted(() => {
     englishAssistantStore.resetEnglishAssistantStore();
 });
 </script>

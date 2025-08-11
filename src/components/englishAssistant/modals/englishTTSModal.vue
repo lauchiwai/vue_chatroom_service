@@ -5,7 +5,7 @@
         :css-style="{top:'15vh'}"
         :enable-resize="true"
         :enable-draggable="true"
-        :contentPadding="'10px'"
+        :content-padding="'10px'"
     >
         <template #contents>
             <div class="pronunciation-modal">
@@ -33,17 +33,13 @@
 import { ref, watch, onBeforeUnmount, watchEffect, nextTick } from 'vue';
 import { CustomerServiceOutlined } from '@ant-design/icons-vue';
 import { tts } from '@/utils/common/ttsUtil';
+import { useEnglishAssistantStore } from '@/stores/englishAssistantStore';
 
 import DraggableResizableModal from '@/components/common/modal/draggableResizableModal.vue';
 
 type TTSStatus = 'idle' | 'speaking' | 'paused' | 'error';
-const props = defineProps({
-    selectedText: {
-        type: String,
-        required: true
-    },
-});
 
+const assistantStore = useEnglishAssistantStore();
 const open = defineModel('open', { type: Boolean, required: true });
 
 const isSpeaking = ref(false);
@@ -87,9 +83,8 @@ const stopTTS = () => {
 };
 
 watchEffect(async () => {
-    const trimmedText = props.selectedText.trim();
-    if (trimmedText.length > 0) {
-        text.value = props.selectedText;
+    if (assistantStore.selectedText) {
+        text.value = assistantStore.selectedText;
         await nextTick();
         handleTogglePlayback();
     }

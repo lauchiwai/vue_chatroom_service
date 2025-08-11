@@ -20,6 +20,8 @@
             </a-layout-content>
         </a-layout>
     </a-layout>
+
+    <GlobalModalManager />
 </template>
 
 <script setup lang="ts">
@@ -31,6 +33,7 @@ import SiderBar from '@/components/layouts/siderBar.vue'
 import MobileNav from '@/components/layouts/mobileNav.vue'
 import Breadcrumb from '@/components/layouts/breadcrumb.vue'
 import MobileHead from '@/components/layouts/mobileHead.vue'
+import GlobalModalManager from '@/components/common/globalModalManager.vue';
 
 const store = useScreenStore()
 const isPc = computed(() => store.isPc)

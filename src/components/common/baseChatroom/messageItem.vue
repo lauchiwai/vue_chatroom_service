@@ -7,6 +7,7 @@
                 <MarkdownRenderer 
                     v-model:show-bubble-menu="showBubbleMenu"
                     :content="props.message.content"
+                    :disable-modals="true"
                 >
                     <template #bubbleMenu="{ selectedText, position, instanceId }">
                         <ArticleBubbleMenu
@@ -24,19 +25,20 @@
 </template>
 
 <script setup lang="ts">
-import type { ChatMessage } from '@/types/chatHistory/chatHistory'
-import { ref } from 'vue'
+import type { ChatMessage } from '@/types/chatHistory/chatHistory';
+import { ref } from 'vue';
 
-import MarkdownRenderer from '@/components/markdown/markdownRenderer.vue'
-import ArticleBubbleMenu from '@/components/article/bubbleMenu/articleBubbleMenu.vue'
+import MarkdownRenderer from '@/components/markdown/markdownRenderer.vue';
+import ArticleBubbleMenu from '@/components/article/bubbleMenu/articleBubbleMenu.vue';
+
 const props = defineProps({
     message: {
         type: Object as () => ChatMessage,
         required: true
     },
-})
+});
 
-const showBubbleMenu = ref(false)
+const showBubbleMenu = ref(false);
 </script>
 
 <style lang="scss" scoped>
@@ -47,7 +49,6 @@ const showBubbleMenu = ref(false)
 
     &.user-message {
         flex-direction: row-reverse;
-
         .message-content {
             background: #f0f8ff;
             border-radius: 12px 0 12px 12px;
@@ -61,7 +62,7 @@ const showBubbleMenu = ref(false)
         background: white;
         border-radius: 0 12px 12px 12px;
         border: 2px solid #E0E0E0;
-    
+
         .message-text {
             font-size: 16px;
             line-height: 1.6;
@@ -78,10 +79,8 @@ const showBubbleMenu = ref(false)
 }
 
 @media (max-width: 768px) {
-    .message-item {
-        .message-content {
-            max-width: 100%;
-        }
+    .message-item .message-content {
+        max-width: 100%;
     }
 }
 </style>

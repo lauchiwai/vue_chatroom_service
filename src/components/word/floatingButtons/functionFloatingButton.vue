@@ -22,10 +22,10 @@
             <template #title>發音</template>
             <button 
                 @click="handleTTSEvent"
-                :class="{ active: isSpeaking }"
+                :class="{ active: assistantStore.isSpeaking }"
             >
                 <span class="icon-text">
-                    <CustomerServiceOutlined :class="{ 'swaying-animation': isSpeaking }" />
+                    <CustomerServiceOutlined :class="{ 'swaying-animation': assistantStore.isSpeaking }" />
                 </span>
             </button>
         </a-tooltip>
@@ -39,24 +39,6 @@
             </button>
         </a-tooltip>
     </div>
-
-    <EnglishWordTipsModal 
-        v-if="englishWordTipsModalOpen"
-        v-model:open="englishWordTipsModalOpen"
-        :selected-text="selectedText"
-    />
-
-    <EnglishWordAssistantModal 
-        v-if="englishWordAssistantModalOpen"
-        v-model:open="englishWordAssistantModalOpen"
-        :selected-text="selectedText"
-    />
-
-    <EnglishTTSModal 
-        v-if="englishTTSModalOpen"
-        v-model:open="englishTTSModalOpen"
-        :selected-text="selectedText"
-    />
 
     <DeleteModal
         v-model:open="deleteModalOpen"
@@ -75,13 +57,11 @@ import {
 } from '@ant-design/icons-vue';
 import { ref } from 'vue';
 import { useWordStore } from '@/stores/wordStore';
+import { useEnglishAssistantStore } from '@/stores/englishAssistantStore';
 import { message } from 'ant-design-vue';
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/router';
 
-import EnglishWordTipsModal from '@/components/englishAssistant/modals/englishWordTipsModal.vue'
-import EnglishWordAssistantModal from '@/components/englishAssistant/modals/englishWordAssistantModal.vue'
-import EnglishTTSModal from '@/components/englishAssistant/modals/englishTTSModal.vue'
 import DeleteModal from '@/components/common/modal/deleteModal.vue'
 
 const props = defineProps({
@@ -92,25 +72,29 @@ const props = defineProps({
 });
 
 const router = useRouter()
-const isSpeaking = ref(false);
-const englishWordAssistantModalOpen = ref(false)
-const englishWordTipsModalOpen = ref(false)
-const englishTTSModalOpen = ref(false)
 const deleteModalOpen = ref(false)
-
 const wordStore = useWordStore();
+const assistantStore = useEnglishAssistantStore();
+
+const clearSelection = () => {
+    const selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+};
 
 const handleEnglishWordTipsEvent = () => {
-    englishWordTipsModalOpen.value = !englishWordTipsModalOpen.value
-}
+    clearSelection(); 
+    assistantStore.toggleWordTipsModal(props.selectedText);
+};
 
 const handleEnglishWordAssistantEvent = () => {
-    englishWordAssistantModalOpen.value = !englishWordAssistantModalOpen.value
-}
+    clearSelection(); 
+    assistantStore.toggleWordAssistantModal(props.selectedText);
+};
 
 const handleTTSEvent = () => {
-    englishTTSModalOpen.value = !englishTTSModalOpen.value
-}
+    clearSelection(); 
+    assistantStore.toggleTTSModal(props.selectedText);
+};
 
 const handleDeleteEvent = () => {
     deleteModalOpen.value = true;
@@ -118,7 +102,7 @@ const handleDeleteEvent = () => {
 
 const goWordHome = () => {
     router.push({ name: ROUTE_NAMES.WORD })
-}
+};
 
 const deleteWord = async () => {
     try {
@@ -134,6 +118,7 @@ const deleteWord = async () => {
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .floating-assistant {
     position: fixed;
     bottom: 60px;

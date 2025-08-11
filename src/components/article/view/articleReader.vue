@@ -37,10 +37,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { useArticleStore } from '@/stores/articleStore';
+
 import ArticleReaderLayout from '@/components/article/layout/articleReaderLayout.vue';
 import MarkdownRenderer from '@/components/markdown/markdownRenderer.vue';
 import BubbleMenu from '@/components/article/bubbleMenu/articleBubbleMenu.vue';
-import { useArticleStore } from '@/stores/articleStore';
 
 const FONT_CONFIG = {
     min: 12,
