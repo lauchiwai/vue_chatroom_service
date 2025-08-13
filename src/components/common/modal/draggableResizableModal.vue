@@ -338,9 +338,12 @@ defineExpose({ resetModal })
         display: flex;
         flex-direction: column;
         height: 100%;
+        overflow: hidden; 
 
         .ant-modal-body {
             flex: 1;
+            min-height: 0; 
+            overflow: auto; 
         }
 
         .resizer {
