@@ -38,6 +38,10 @@ const generateNewSceneChatRequest = (): SceneChatRequest => {
 };
 
 const handleSteamSend = async () => {
+    if (sceneCurrentSession.value[0] == undefined) {
+        console.error("articleId is empty")
+        return;
+    }
     try {
         loading.value = true;
 

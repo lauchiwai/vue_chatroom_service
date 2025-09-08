@@ -70,10 +70,11 @@ const handleSummary = async () => {
 };
 
 const handleSteamSend = async (chatStat: ChatStat) => {
-    if (! articleId.value) {
-            message.error("articleId is empty")
-            return;
+    if (articleId.value == undefined) {
+        console.error("articleId is empty")
+        return;
     }
+
     try {
         loading.value = true;
 

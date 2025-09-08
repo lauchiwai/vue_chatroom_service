@@ -61,16 +61,18 @@ const streamChatMsg = computed<ChatMessage>(() => ({
 
 
 watch(() => ragCurrentSession.value, async (newVal) => {
-    if (newVal[0] !== undefined) {
-        loading.value = true
-        await ragStore.fetchChatHistory(newVal[0])
-        loading.value = false
-        await chatStore.refreshChatSessionTime(newVal[0])
-        
-        nextTick(() => {
-            messageListRef.value?.scrollToBottom('auto')
-        })
+    if (newVal[0] == undefined) {
+        console.error("articleId is empty")
+        return;
     }
+    loading.value = true
+    await ragStore.fetchChatHistory(newVal[0])
+    loading.value = false
+    await chatStore.refreshChatSessionTime(newVal[0])
+    
+    nextTick(() => {
+        messageListRef.value?.scrollToBottom('auto')
+    })
 }, { deep: true })
 
 onMounted(() => {
