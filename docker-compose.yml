@@ -11,6 +11,7 @@ services:
       - chat_service_network
     environment:
       - NODE_ENV=production
+    restart: always
 
 networks:
   chat_service_network:
