@@ -62,9 +62,11 @@
 
 <script lang="ts" setup>
 import type { CSSProperties, VNode, VNodeNormalizedChildren } from 'vue'
-import { ref, computed, watch, watchEffect, defineExpose, h, cloneVNode, isVNode, normalizeClass, onUnmounted, onMounted } from 'vue'
+import { useCssModule, ref, computed, watch, watchEffect, defineExpose, h, cloneVNode, isVNode, normalizeClass, onUnmounted, onMounted } from 'vue'
 import { HolderOutlined, CloseOutlined } from '@ant-design/icons-vue'
 import { useDraggable } from '@vueuse/core'
+
+const styles = useCssModule('styles')
 
 const props = defineProps({
     maskClosable: { type: Boolean, default: true },
@@ -199,7 +201,11 @@ const remakeVNode = (vnode: VNode): VNode => {
         
         const sideResizers = props.sideResizer.map((side) =>
             h("div", {
-                class: `resizer ${side} side`,
+                class: [
+                    styles.resizer,
+                    styles[side],
+                    styles.side
+                ],
                 onMousedown: (event: MouseEvent) => {
                     onResizeStart(event, side);
                 },
@@ -208,7 +214,11 @@ const remakeVNode = (vnode: VNode): VNode => {
 
         const connersResizers = props.connersResizer.map((conner) =>
             h("div", {
-                class: `resizer ${conner} side`,
+                class: [
+                    styles.resizer,
+                    styles[conner],
+                    styles.side
+                ],
                 onMousedown: (event: MouseEvent) => {
                     onResizeStart(event, conner);
                 },
@@ -326,7 +336,7 @@ const onResizeStart  = (e: MouseEvent, className: string) =>{
 defineExpose({ resetModal })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .draggable-resizeable-modal-container {
     .modal-title-container{
         display: flex;
@@ -334,86 +344,6 @@ defineExpose({ resetModal })
         justify-content: space-between;
     }
 
-    .ant-modal-content {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden; 
-
-        .ant-modal-body {
-            flex: 1;
-            min-height: 0; 
-            overflow: auto; 
-        }
-
-        .resizer {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            z-index: 1;
-
-            &.top-left {
-                top: -5px;
-                left: -5px;
-                cursor: nw-resize;
-            }
-
-            &.top-right {
-                top: -5px;
-                right: -5px;
-                cursor: ne-resize;
-            }
-
-            &.bottom-left {
-                bottom: -5px;
-                left: -5px;
-                cursor: sw-resize;
-            }
-
-            &.bottom-right {
-                bottom: -5px;
-                right: -5px;
-                cursor: se-resize;
-            }
-
-            &.top {
-                top: -5px;
-                left: 50%;
-                transform: translateX(-50%);
-                cursor: n-resize;
-                width: 100%;
-                height: 10px;
-            }
-
-            &.bottom {
-                bottom: -5px;
-                left: 50%;
-                transform: translateX(-50%);
-                cursor: s-resize;
-                width: 100%;
-                height: 10px;
-            }
-
-            &.left {
-                left: -5px;
-                top: 50%;
-                transform: translateY(-50%);
-                cursor: w-resize;
-                width: 10px;
-                height: 100%;
-            }
-
-            &.right {
-                right: -5px;
-                top: 50%;
-                transform: translateY(-50%);
-                cursor: e-resize;
-                width: 10px;
-                height: 100%;
-            }
-        }
-    }
-    
     .rotated {
         transform: rotate(90deg);
         transform-origin: center;
@@ -421,6 +351,89 @@ defineExpose({ resetModal })
 
     .cursor-move {
         cursor: move;
+    }
+}
+
+:deep(.ant-modal-content) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden; 
+}
+
+:deep(.ant-modal-body) {
+    flex: 1;
+    min-height: 0; 
+    overflow: auto; 
+}
+</style>
+
+
+<style module="styles" lang="scss">
+.resizer {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    z-index: 1;
+
+    &.top-left {
+        top: -5px;
+        left: -5px;
+        cursor: nw-resize;
+    }
+
+    &.top-right {
+        top: -5px;
+        right: -5px;
+        cursor: ne-resize;
+    }
+
+    &.bottom-left {
+        bottom: -5px;
+        left: -5px;
+        cursor: sw-resize;
+    }
+
+    &.bottom-right {
+        bottom: -5px;
+        right: -5px;
+        cursor: se-resize;
+    }
+
+    &.top {
+        top: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        cursor: n-resize;
+        width: 100%;
+        height: 10px;
+    }
+
+    &.bottom {
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        cursor: s-resize;
+        width: 100%;
+        height: 10px;
+    }
+
+    &.left {
+        left: -5px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: w-resize;
+        width: 10px;
+        height: 100%;
+    }
+
+    &.right {
+        right: -5px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: e-resize;
+        width: 10px;
+        height: 100%;
     }
 }
 </style>
