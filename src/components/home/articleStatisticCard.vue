@@ -162,6 +162,7 @@ watch(() => articleList.value.length, () => {
 
 const initArticleList = async() =>{
     loading.value = true;
+    articleStore.resetData()
     await articleStore.getArticleList()
     loading.value = false;
 }
