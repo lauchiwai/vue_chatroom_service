@@ -52,6 +52,9 @@ const showChatInput = ref(false);
 watch(open, (newVal) => {
     if (newVal) {
         triggerLinguisticAnalysis();
+    } else {
+        englishAssistantStore.abortStreaming();
+        englishAssistantStore.resetEnglishAssistantStore();
     }
 });
 
@@ -70,8 +73,4 @@ const triggerLinguisticAnalysis = () => {
 const handelShowInputEvent = () => {
     showChatInput.value = !showChatInput.value;
 };
-
-onMounted(() => {
-    englishAssistantStore.resetEnglishAssistantStore();
-});
 </script>

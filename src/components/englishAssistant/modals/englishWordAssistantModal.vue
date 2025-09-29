@@ -52,6 +52,9 @@ const showChatInput = ref(false);
 watch(open, (newVal) => {
     if (newVal) {
         triggerTranslation();
+    } else {
+        englishAssistantStore.abortStreaming();
+        englishAssistantStore.resetEnglishAssistantStore();
     }
 });
 
@@ -70,8 +73,4 @@ const triggerTranslation = () => {
 const handelShowInputEvent = () => {
     showChatInput.value = !showChatInput.value;
 };
-
-onMounted(() => {
-    englishAssistantStore.resetEnglishAssistantStore();
-});
 </script>

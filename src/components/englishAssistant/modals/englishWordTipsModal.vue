@@ -49,6 +49,9 @@ const showChatInput = ref(false);
 watch(open, (newVal) => {
     if (newVal) {
         triggerWordTips();
+    } else {
+        englishAssistantStore.abortStreaming();
+        englishAssistantStore.resetEnglishAssistantStore();
     }
 });
 
@@ -67,8 +70,4 @@ const triggerWordTips = () => {
 const handelShowInputEvent = () => {
     showChatInput.value = !showChatInput.value;
 };
-
-onMounted(() => {
-    englishAssistantStore.resetEnglishAssistantStore();
-});
 </script>
