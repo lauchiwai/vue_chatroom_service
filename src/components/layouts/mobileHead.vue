@@ -96,26 +96,17 @@ const toggleMenu = () => {
 }
 
 .menu-button {
-    background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
-    border: 1px solid #ccc;
+    background-color: #D0D0D0;
+    border: none;
     cursor: pointer;
     padding: 4px 12px;
     border-radius: 4px;
-    box-shadow: 
-        inset 0 1px 2px rgba(255,255,255,0.8),
-        0 1px 2px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
 
     &:hover {
-        background: linear-gradient(to bottom, #f5f5f5, #e5e5e5);
-        box-shadow: 
-            inset 0 1px 2px rgba(255,255,255,0.9),
-            0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    &:active {
-        transform: translateY(1px);
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        background: #8E8E8E;
+        color: #D0D0D0;
+        border: none;
     }
 
     .menu-text {
