@@ -46,7 +46,7 @@ import BubbleMenu from '@/components/article/bubbleMenu/articleBubbleMenu.vue';
 const FONT_CONFIG = {
     min: 12,
     max: 36,
-    default: 20
+    default: 18
 };
 
 const PROGRESS_SAVE_DELAY = 2000;
@@ -228,6 +228,7 @@ const adjustFontSize = (delta: number) => {
         FONT_CONFIG.min, 
         Math.min(FONT_CONFIG.max, fontSize.value + delta)
     );
+    localStorage.setItem('readerFontSize', fontSize.value.toString());
     recalculatePagination();
 };
 
@@ -290,8 +291,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    localStorage.setItem('readerFontSize', fontSize.value.toString());
-    
     if (!isRestoringProgress.value) {
         saveReadingProgress();
     }
