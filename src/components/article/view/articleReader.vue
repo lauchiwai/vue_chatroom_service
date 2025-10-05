@@ -81,78 +81,108 @@ let saveProgressTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const pagedContents = computed(() => {
     if (!props.content.trim()) return [''];
-    
+
     const maxPageSize = props.pageCharCount + 100;
-    const minPageSize = props.pageCharCount - 100;
+    const minPageSize = Math.max(500, props.pageCharCount - 500); 
+    
     const result: string[] = [];
-    
-    const blocks: string[] = [];
     const lines = props.content.split('\n');
-    let currentBlock: string[] = [];
-    
-    for (const line of lines) {
-        if (line.trim() === '') {
-            if (currentBlock.length > 0) {
-                blocks.push(currentBlock.join('\n'));
-                currentBlock = [];
-            }
-            continue;
-        }
-        
-        if (line.startsWith('#') || line.startsWith('```')) {
-            if (currentBlock.length > 0) {
-                blocks.push(currentBlock.join('\n'));
-                currentBlock = [];
-            }
-            blocks.push(line);
-            continue;
-        }
-        
-        currentBlock.push(line);
-    }
-    
-    if (currentBlock.length > 0) {
-        blocks.push(currentBlock.join('\n'));
-    }
     
     let currentPageContent = '';
-    for (const block of blocks) {
-        const blockLength = block.length + 2;
+    let inCodeBlock = false;
+    let currentCodeBlock = '';
+    let codeBlockStartIndex = -1;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmedLine = line.trim();
+
+        if (trimmedLine.startsWith('```') && !inCodeBlock) {
+            inCodeBlock = true;
+            codeBlockStartIndex = i;
+            currentCodeBlock = line + '\n';
+            continue;
+        }
+
+        if (trimmedLine.startsWith('```') && inCodeBlock) {
+            inCodeBlock = false;
+            currentCodeBlock += line;
+            
+            if (currentCodeBlock.length > maxPageSize) {
+                if (currentPageContent) {
+                    result.push(currentPageContent.trim());
+                    currentPageContent = '';
+                }
+                result.push(currentCodeBlock);
+                currentCodeBlock = '';
+                continue;
+            }
+            
+            if (currentPageContent.length + currentCodeBlock.length > maxPageSize) {
+                if (currentPageContent) {
+                    result.push(currentPageContent.trim());
+                    currentPageContent = '';
+                }
+                currentPageContent = currentCodeBlock;
+            } else {
+                currentPageContent += (currentPageContent ? '\n\n' : '') + currentCodeBlock;
+            }
+            currentCodeBlock = '';
+            continue;
+        }
+
+        if (inCodeBlock) {
+            currentCodeBlock += line + '\n';
+            continue;
+        }
+        const lineLength = line.length + 2;
         
-        if (currentPageContent.length + blockLength <= maxPageSize) {
-            currentPageContent += currentPageContent ? '\n\n' + block : block;
-        } 
-        else {
+        const isMajorBreak = trimmedLine.startsWith('#') || trimmedLine === '***' || trimmedLine === '---';
+        
+        if (currentPageContent.length + lineLength > maxPageSize) {
             if (currentPageContent) {
-                result.push(currentPageContent);
+                result.push(currentPageContent.trim());
                 currentPageContent = '';
             }
             
-            if (block.length > maxPageSize) {
+            if (lineLength > maxPageSize) {
                 let start = 0;
-                while (start < block.length) {
-                    let end = Math.min(start + minPageSize, block.length);
+                while (start < line.length) {
+                    let end = Math.min(start + minPageSize, line.length);
                     
-                    const lastPeriod = block.lastIndexOf('.', end);
-                    const lastNewline = block.lastIndexOf('\n', end);
+                    const lastSpace = line.lastIndexOf(' ', end);
+                    const lastPeriod = line.lastIndexOf('.', end);
+                    const breakPoint = lastPeriod > lastSpace ? lastPeriod + 1 : 
+                                     lastSpace > start ? lastSpace : end;
                     
-                    if (lastNewline > start) end = lastNewline;
-                    else if (lastPeriod > start) end = lastPeriod + 1;
-                    
-                    result.push(block.substring(start, end).trim());
-                    start = end;
+                    result.push(line.substring(start, breakPoint).trim());
+                    start = breakPoint;
                 }
-            } 
-            else {
-                currentPageContent = block;
+                continue;
             }
         }
+
+        if (isMajorBreak && currentPageContent.length > minPageSize) {
+            result.push(currentPageContent.trim());
+            currentPageContent = line;
+        } else {
+            currentPageContent += (currentPageContent ? '\n' : '') + line;
+        }
     }
-    
-    if (currentPageContent) {
-        result.push(currentPageContent);
+
+    if (inCodeBlock && currentCodeBlock) {
+        if (currentPageContent && currentPageContent.length + currentCodeBlock.length > maxPageSize) {
+            result.push(currentPageContent.trim());
+            currentPageContent = currentCodeBlock;
+        } else {
+            currentPageContent += (currentPageContent ? '\n\n' : '') + currentCodeBlock;
+        }
     }
-    
+
+    if (currentPageContent.trim()) {
+        result.push(currentPageContent.trim());
+    }
+
     return result.length ? result : [''];
 });
 
