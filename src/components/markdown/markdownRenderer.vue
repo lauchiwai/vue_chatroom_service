@@ -42,7 +42,7 @@ const isSystemMenuActive = ref(false)
 const systemMenuObserver = ref<MutationObserver | null>(null)
 
 const md: any = new MarkdownIt({
-    html: false,
+    html: true,
     linkify: true,
     typographer: true,
     breaks: true,
@@ -226,7 +226,7 @@ const renderMarkdown = async () => {
         ALLOWED_TAGS: [
             'p', 'br', 'strong', 'em', 'code', 'pre',
             'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4',
-            'blockquote', 'a', 'span', 'div'
+            'blockquote', 'a', 'span', 'div', 'hr' 
         ],
         ALLOWED_ATTR: ['href', 'class', 'target', 'rel'],
         FORBID_ATTR: ['style', 'onclick']
