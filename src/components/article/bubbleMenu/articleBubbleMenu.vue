@@ -16,15 +16,6 @@
             </a-tooltip>
 
             <a-tooltip placement="top">
-                <template #title>估下</template>
-                <button @click="handleEnglishWordTipsEvent">
-                    <span class="icon-text">
-                        <QuestionCircleOutlined />
-                    </span>
-                </button>
-            </a-tooltip>
-
-            <a-tooltip placement="top">
                 <template #title>文法分析</template>
                 <button @click="handleTextLinguisticAssistantEvent">
                     <span class="icon-text">
@@ -62,7 +53,6 @@ import { ref } from 'vue';
 import { 
     TranslationOutlined, 
     BulbOutlined, 
-    QuestionCircleOutlined, 
     CustomerServiceOutlined 
 } from '@ant-design/icons-vue';
 import CollectTextButton from '@/components/word/button/collectTextButton.vue';
@@ -102,11 +92,6 @@ const resetEvent = (event?: Event) => {
     }
     
     resetting = false;
-};
-
-const handleEnglishWordTipsEvent = (event: Event) => {
-    resetEvent(event);
-    assistantStore.toggleWordTipsModal(props.selectedText);
 };
 
 const handleEnglishWordAssistantEvent = (event: Event) => {

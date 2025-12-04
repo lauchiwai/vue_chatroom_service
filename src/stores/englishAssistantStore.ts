@@ -18,7 +18,6 @@ export const useEnglishAssistantStore = defineStore('englishAssistant', {
         tempAssistantMessage: '' as string,
         isChatAsyncing: false as boolean,
         isInit: true as boolean,
-        englishWordTipsModalOpen: false as boolean,
         englishWordAssistantModalOpen: false as boolean,
         textLinguisticAssistantModalOpen: false as boolean,
         englishTTSModalOpen: false as boolean,
@@ -56,20 +55,15 @@ export const useEnglishAssistantStore = defineStore('englishAssistant', {
             this.messages = [];
 
             this.selectedText = text;
-            this.englishWordTipsModalOpen = false;
             this.englishWordAssistantModalOpen = false;
             this.textLinguisticAssistantModalOpen = false;
             this.englishTTSModalOpen = false;
 
             await nextTick();
 
-            if (modalType === 'wordTips') this.englishWordTipsModalOpen = true;
-            else if (modalType === 'wordAssistant') this.englishWordAssistantModalOpen = true;
+            if (modalType === 'wordAssistant') this.englishWordAssistantModalOpen = true;
             else if (modalType === 'linguistic') this.textLinguisticAssistantModalOpen = true;
             else if (modalType === 'tts') this.englishTTSModalOpen = true;
-        },
-        toggleWordTipsModal(text: string) {
-            this.openModal('wordTips', text);
         },
         toggleWordAssistantModal(text: string) {
             this.openModal('wordAssistant', text);
@@ -87,31 +81,6 @@ export const useEnglishAssistantStore = defineStore('englishAssistant', {
                 this.tempAssistantMessage = '';
                 this.streamingController = new AbortController();
                 await EnglishAssistantService.streamEnglishWordAssistantService(
-                    request,
-                    (chunk) => {
-                        if (chunk.error) message.error(chunk.error.message);
-                        else this.tempAssistantMessage += chunk.content;
-                    },
-                    this.streamingController.signal
-                );
-            } catch (error) {
-                message.error('Chat request error');
-            } finally {
-                this.isInit = false;
-                this.isChatAsyncing = false;
-                this.pushAssistantAnswer(this.tempAssistantMessage);
-                this.inputText = '';
-                this.streamingController = null;
-                this.tempAssistantMessage = '';
-            }
-        },
-        async streamWordTipsService(request: EnglishWordAssistantRequest) {
-            try {
-                this.isChatAsyncing = true;
-                this.pushUserQuestion(request.message);
-                this.tempAssistantMessage = '';
-                this.streamingController = new AbortController();
-                await EnglishAssistantService.streamWordTipsService(
                     request,
                     (chunk) => {
                         if (chunk.error) message.error(chunk.error.message);

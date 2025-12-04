@@ -10,15 +10,6 @@
         </a-tooltip>
 
         <a-tooltip placement="left">
-            <template #title>估下</template>
-            <button @click="handleEnglishWordTipsEvent">
-                <span class="icon-text">
-                    <QuestionCircleOutlined />
-                </span>
-            </button>
-        </a-tooltip>
-
-        <a-tooltip placement="left">
             <template #title>發音</template>
             <button 
                 @click="handleTTSEvent"
@@ -79,11 +70,6 @@ const assistantStore = useEnglishAssistantStore();
 const clearSelection = () => {
     const selection = window.getSelection();
     if (selection) selection.removeAllRanges();
-};
-
-const handleEnglishWordTipsEvent = () => {
-    clearSelection(); 
-    assistantStore.toggleWordTipsModal(props.selectedText);
 };
 
 const handleEnglishWordAssistantEvent = () => {
