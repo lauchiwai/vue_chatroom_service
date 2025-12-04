@@ -147,20 +147,6 @@ const routes: RouteRecordRaw[] = [
         }
     },
     {
-        path: ROUTE_PATHS.CHATROOM,
-        name: ROUTE_NAMES.CHATROOM,
-        component: () => import('@/views/sceneChat/index.vue'),
-        meta: {
-            layout: 'main',
-            requiresAuth: true,
-            showHeader: false,
-            showMobileNav: false,
-            showBreadcrumb: true,
-            showMobileHeader: true,
-            showSideBar: true
-        }
-    },
-    {
         path: ROUTE_PATHS.NOT_FOUND,
         name: ROUTE_NAMES.NOT_FOUND,
         component: () => import('@/views/notFound/index.vue'),

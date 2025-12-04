@@ -47,13 +47,6 @@ export const useSiderStore = defineStore('sider', () => {
             path: ROUTE_PATHS.BOOKSHELF
         },
         {
-            key: ROUTE_NAMES.CHATROOM,
-            icon: () => h(CommentOutlined),
-            label: 'Ai Talk',
-            title: 'Ai Talk',
-            path: ROUTE_PATHS.CHATROOM
-        },
-        {
             key: 'Setting',
             icon: () => h(SettingOutlined),
             label: 'Setting',
