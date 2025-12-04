@@ -86,7 +86,7 @@ const modalOpen = ref(false);
 
 const resetAllState = () => {
     stepStore.reset();
-    articleStore.reset();
+    articleStore.resetData();
     generating.value = false;
     modalOpen.value = false;
 };
