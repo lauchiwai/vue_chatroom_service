@@ -21,6 +21,7 @@ class EnhancedTTSService {
             rate: 1,
             pitch: 1,
             volume: 1,
+            voiceName: 'Microsoft David Desktop',
             ...config
         };
     }
